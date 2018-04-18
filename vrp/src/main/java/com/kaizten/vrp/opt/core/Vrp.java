@@ -53,7 +53,7 @@ public class Vrp extends OptimizationProblem{
 	
 	
 	public static void main( String[] args){
-		Vrp problem = new Vrp(100, 100, 5, 5, 5);
+		Vrp problem = new Vrp(100, 100, 12, 5, 5);
 		
 		for(int i = 0; i < problem.getCustomers().size(); i++){
 			for(int j = 0;  j < problem.getCustomers().size(); j++){
