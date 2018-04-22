@@ -4,14 +4,16 @@ public class Node {
 
 	private int x; 
 	private int y; 
-	private String id; 
+	private String id;
+	private int index;
 	private boolean satisfied;
 	/*private static int demand;*/
 	
-	public Node(int x, int y, String id){
+	public Node(int x, int y, String id, int index){
 		this.x = x;
 		this.y = y;
 		this.id = id;
+		this.index = index;
 		this.satisfied = false;
 	}
 	
@@ -28,11 +30,14 @@ public class Node {
 	} 
 	
 	public boolean getSatisfied(){
-		return satisfied;
+		return this.satisfied;
 	}
 	
 	public void setSatisfied(boolean value){
 		this.satisfied = value;
+	}
+	public int getIndex(){
+		return this.index;
 	}
 	
 }

@@ -9,6 +9,15 @@ public class Vehicle {
 	public Vehicle(int nMaxCustomers){
 		this.nMaxCustomers = nMaxCustomers;
 	}
+	
+	public void addCustomerToRoute(Node customer){
+		this.route.add(customer);
+	}
+	
+	public Node getLastCustomerSatisfied(){
+		return this.route.get(route.size() - 1);
+	}
+	
 	public ArrayList<Node> getRoute(){
 		return this.route;
 	}
@@ -20,4 +29,5 @@ public class Vehicle {
 	public int getMaxCustomers(){
 		return this.nMaxCustomers;
 	}
+	
 }

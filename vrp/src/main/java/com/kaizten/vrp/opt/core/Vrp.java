@@ -20,7 +20,8 @@ public class Vrp extends OptimizationProblem{
 		this.vehicles = new ArrayList<Vehicle>();
 		
 		/* Create depot node */ 
-		Node depot = new Node((width / 2), (height / 2), "DP");
+		Node depot = new Node((width / 2), (height / 2), "DP", 0);
+		depot.setSatisfied(true); /* Because the depot is a main node and always is satisfied. */ 
 		this.customers.add(depot);
 		
 		/* Create nCustomer with random location */
@@ -28,8 +29,9 @@ public class Vrp extends OptimizationProblem{
 		for(int i = 0; i < nCustomers; i++){
 			int x = randomGenerator.nextInt(width + 1);
 			int y = randomGenerator.nextInt(height + 1);
-			String id = "CU" + (i + 1);
-			Node customer = new Node(x, y, id);
+			int index =  i + 1;
+			String id = "CU" + index;
+			Node customer = new Node(x, y, id, index);
 			this.customers.add(customer);
 		}
 		
@@ -51,6 +53,16 @@ public class Vrp extends OptimizationProblem{
 		}
 	}
 	
+	/* Check if all customers has been satisfied */ 
+	public boolean AllCustomersSatisfied(){
+		int nSatisfied = 0;
+		for(int i = 0;  i < this.customers.size(); i++){
+			if(this.customers.get(i).getSatisfied()){
+				nSatisfied++;
+			}
+		}
+		return (nSatisfied == this.customers.size());
+	}
 	
 	public static void main( String[] args){
 		Vrp problem = new Vrp(100, 100, 12, 5, 5);
