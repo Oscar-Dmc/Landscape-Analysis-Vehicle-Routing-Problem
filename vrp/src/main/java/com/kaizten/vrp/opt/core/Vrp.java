@@ -48,7 +48,7 @@ public class Vrp extends OptimizationProblem{
 		
 		/* Create vehicles */ 
 		for(int i = 0; i < nVehicles;  i++){
-			Vehicle vehicle = new Vehicle(nMaxCustomers);
+			Vehicle vehicle = new Vehicle(nMaxCustomers, depot);
 			this.vehicles.add(vehicle);
 		}
 	}
