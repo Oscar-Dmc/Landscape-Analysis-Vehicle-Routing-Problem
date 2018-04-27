@@ -16,14 +16,14 @@ public class Grasp {
 		this.solution = new ArrayList<Vehicle>();
 		this.initialVrp = vrp;
 		for(int i = 1; i < vrp.getCustomers().size(); i++){
-			cl.add(vrp.getCustomers().get(i));
+			this.cl.add(vrp.getCustomers().get(i));
 		}
 	}
 	
 	private void MakeRCL(int idVehicle){
 		/* La solucion esta vacia, por lo tanto aceptamos a los clientes con menor distancia desde el deposito sin ser visitados aun */
 		if(this.solution.isEmpty()){
-			while(this.rcl.size() != this.sizeRcl){
+			while(this.rcl.size() != this.sizeRcl && !this.cl.isEmpty()){
 				double minDistance = 99999.99;
 				int indCustomer = 0;
 				for (int i = 0; i < this.cl.size(); i++){
@@ -37,7 +37,7 @@ public class Grasp {
 			}
 		}
 		else{ /* Ya tenemos a minimo un vehiculo satisfaciendo clientes */
-			while(this.rcl.size() != this.sizeRcl){
+			while(this.rcl.size() != this.sizeRcl && !this.cl.isEmpty()){
 				double minDistance = 99999.99;
 				int idCustomer = 0;
 				for (int i = 0;  i < this.cl.size(); i++){
@@ -54,9 +54,15 @@ public class Grasp {
 	}
 	
 	private Node SelectElementAtRandom(){
-		int randomIndex =  (int)(Math.random() * this.sizeRcl);
-		Node randomCustomer = this.rcl.get(randomIndex);
-		this.rcl.remove(randomIndex);
+		Node randomCustomer;
+		if (this.rcl.size() == 1){
+			randomCustomer = this.rcl.get(0);
+			this.rcl.remove(0);
+		} else { 
+			int randomIndex =  (int)(Math.random() * this.rcl.size());
+			randomCustomer = this.rcl.get(randomIndex);
+			this.rcl.remove(randomIndex);
+		}
 		return randomCustomer;
 	}
 	
@@ -68,21 +74,15 @@ public class Grasp {
 		while (!this.initialVrp.AllCustomersSatisfied()){
 			MakeRCL(indVehicle);
 			Node customer = SelectElementAtRandom();
-			if(solution.isEmpty()){
-				currentVehicle.addCustomerToRoute(customer);
-				this.initialVrp.getCustomers().get(customer.getIndex()).setSatisfied(true);
-			}
-			else {
-				if(currentVehicle.getMaxCustomers() == currentVehicle.getRoute().size()){
-					solution.add(currentVehicle);
-					indVehicle++; /* ¿Falta contemplar que no se puedan satisfacer todos con esas condiciones? */ 
-					currentVehicle =  this.initialVrp.getVehicles().get(indVehicle);
-					
-				}
-				currentVehicle.addCustomerToRoute(customer);
-				this.initialVrp.getCustomers().get(customer.getIndex()).setSatisfied(true);
+			
+			if(currentVehicle.getMaxCustomers() ==  currentVehicle.getRoute().size()){
+				solution.add(currentVehicle);
+				indVehicle++;
+				currentVehicle =  this.initialVrp.getVehicles().get(indVehicle);
 			}
 			
+			currentVehicle.addCustomerToRoute(customer);
+			this.initialVrp.getCustomers().get(customer.getIndex()).setSatisfied(true);
 		}
 		
 		solution.add(currentVehicle);
@@ -99,17 +99,6 @@ public class Grasp {
 		}
 	}
 	
-	public void ProcedureGrasp(int nMaxIter){
-		ArrayList<Vehicle> bestSolution =  new ArrayList<Vehicle>();
-		double BestTct = 99999999.99;
-		for (int i = 0;  i < nMaxIter;  i++){
-			ArrayList<Vehicle> currentSolution = ConstructGreedyRandomizedSolution();
-			double currentTct = getTCT(currentSolution);
-			
-		}
-		
-	}
-	
 	private double getTCT(ArrayList<Vehicle> solution){
 		double tct = 0;
 		for(int i = 0;  i < solution.size(); i++){
@@ -117,6 +106,36 @@ public class Grasp {
 		}
 		return tct;
 	}
+	
+	public void ProcedureGrasp(int nMaxIter){
+		ArrayList<Vehicle> bestSolution =  new ArrayList<Vehicle>();
+		double bestTct = 99999999.99;
+		for (int i = 0;  i < nMaxIter;  i++){
+			ArrayList<Vehicle> currentSolution = ConstructGreedyRandomizedSolution();
+			double currentTct = getTCT(currentSolution);
+			if (bestTct > currentTct){
+				bestTct = currentTct;
+				bestSolution =  currentSolution;
+			}
+			ClearList();
+			this.solution = bestSolution;
+		}
+		
+	}
+	
+	public void PrintSolutionConsole(){
+		System.out.println("\nLa mejor solución encontrada en esta ejecució es: " + getTCT(this.solution));
+		System.out.println("Las rutas de los vehículos son: ");
+		for(int i = 0; i < this.solution.size(); i++) {
+			System.out.println("\nEl vehículo " + (i+1) + " :");
+			System.out.print("\t" + this.initialVrp.getCustomers().get(0).getId() + " -> ");
+			for(int j = 0; j < this.solution.get(i).getRoute().size(); j++){
+				System.out.print(this.solution.get(i).getRoute().get(j).getId() + " -> ");
+			}
+			System.out.print(this.initialVrp.getCustomers().get(0).getId());
+		}
+	}
+	
 	
 	public ArrayList<Vehicle> getSolution(){
 		return solution;
