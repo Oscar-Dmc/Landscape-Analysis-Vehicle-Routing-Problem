@@ -40,6 +40,9 @@ public class Vehicle {
 		return tct;
 	}
 	
+	public void resetRoute(){
+		this.route.clear();
+	}
 	public Node getLastCustomerSatisfied(){
 		return this.route.get(route.size() - 1);
 	}

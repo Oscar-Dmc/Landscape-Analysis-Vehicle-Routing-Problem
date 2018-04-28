@@ -77,7 +77,7 @@ public class Vrp extends OptimizationProblem{
 		}
 		
 		methodGrasp.ProcedureGrasp(100);
-		methodGrasp.PrintSolutionConsole();
+		//methodGrasp.PrintSolutionConsole();
 		
 	}
 	

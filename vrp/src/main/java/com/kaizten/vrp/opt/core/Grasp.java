@@ -15,6 +15,7 @@ public class Grasp {
 		this.rcl = new ArrayList<Node>();
 		this.solution = new ArrayList<Vehicle>();
 		this.initialVrp = vrp;
+		this.tct = Double.MAX_VALUE;
 		for(int i = 1; i < vrp.getCustomers().size(); i++){
 			this.cl.add(vrp.getCustomers().get(i));
 		}
@@ -24,7 +25,7 @@ public class Grasp {
 		/* La solucion esta vacia, por lo tanto aceptamos a los clientes con menor distancia desde el deposito sin ser visitados aun */
 		if(this.solution.isEmpty()){
 			while(this.rcl.size() != this.sizeRcl && !this.cl.isEmpty()){
-				double minDistance = 99999.99;
+				double minDistance = Double.MAX_VALUE;
 				int indCustomer = 0;
 				for (int i = 0; i < this.cl.size(); i++){
 					if(this.initialVrp.getDistanceMatrix()[0][this.cl.get(i).getIndex()] > minDistance){
@@ -38,7 +39,7 @@ public class Grasp {
 		}
 		else{ /* Ya tenemos a minimo un vehiculo satisfaciendo clientes */
 			while(this.rcl.size() != this.sizeRcl && !this.cl.isEmpty()){
-				double minDistance = 99999.99;
+				double minDistance = Double.MAX_VALUE;
 				int idCustomer = 0;
 				for (int i = 0;  i < this.cl.size(); i++){
 					int lastCustomer = this.solution.get(idVehicle).getLastCustomerSatisfied().getIndex();
@@ -92,11 +93,15 @@ public class Grasp {
 	private void ClearList(){
 		this.rcl.clear();
 		this.cl.clear();
-		this.tct = 0.0;
+		this.tct = Double.MAX_VALUE;
 		for(int i = 1; i < this.initialVrp.getCustomers().size(); i++){
 			this.initialVrp.getCustomers().get(i).setSatisfied(false);
-			cl.add(this.initialVrp.getCustomers().get(i));
+			this.cl.add(this.initialVrp.getCustomers().get(i));
 		}
+		/*for(int i = 0; i < this.initialVrp.getVehicles().size(); i++){
+			this.initialVrp.getVehicles().get(i).resetRoute();
+		}*/
+		this.solution.clear();
 	}
 	
 	private double getTCT(ArrayList<Vehicle> solution){
@@ -108,18 +113,28 @@ public class Grasp {
 	}
 	
 	public void ProcedureGrasp(int nMaxIter){
-		ArrayList<Vehicle> bestSolution =  new ArrayList<Vehicle>();
-		double bestTct = 99999999.99;
+		ArrayList<Vehicle> bestSolution = new ArrayList<Vehicle> ();
+		ArrayList<Vehicle> currentSolution = new ArrayList<Vehicle>();
+		double bestTct = Double.MAX_VALUE;
 		for (int i = 0;  i < nMaxIter;  i++){
-			ArrayList<Vehicle> currentSolution = ConstructGreedyRandomizedSolution();
+			currentSolution = ConstructGreedyRandomizedSolution();
 			double currentTct = getTCT(currentSolution);
+			System.out.println(currentTct);
 			if (bestTct > currentTct){
 				bestTct = currentTct;
-				bestSolution =  currentSolution;
+				bestSolution = currentSolution;
 			}
+			//System.out.println("The best solution is: " + getTCT(bestSolution));
+			//System.out.println("Coje el valor de current solution" + getTCT(currentSolution));
 			ClearList();
-			this.solution = bestSolution;
+			//System.out.println("The best solution is: " + getTCT(bestSolution));
+			System.out.println("Coje el valor de current solution" + getTCT(currentSolution));
+
 		}
+		this.solution = bestSolution;
+		System.out.println("The best of best " + bestTct);
+		//System.out.println("The best solution is: " + getTCT(bestSolution));
+		//System.out.println(bestSolution.get(0).getRoute().size());
 		
 	}
 	
