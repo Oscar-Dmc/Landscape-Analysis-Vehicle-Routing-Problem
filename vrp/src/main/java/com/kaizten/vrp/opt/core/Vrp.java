@@ -65,7 +65,9 @@ public class Vrp extends OptimizationProblem{
 	}
 	
 	public static void main( String[] args){
-		Vrp problem = new Vrp(100, 100, 12, 5, 5);
+		Vrp problem = new Vrp(100, 100, 12, 4, 3);
+		Grasp methodGrasp =  new Grasp(3, problem);
+		
 		
 		for(int i = 0; i < problem.getCustomers().size(); i++){
 			for(int j = 0;  j < problem.getCustomers().size(); j++){
@@ -73,6 +75,10 @@ public class Vrp extends OptimizationProblem{
 			}
 			System.out.println();
 		}
+		
+		methodGrasp.ProcedureGrasp(100);
+		methodGrasp.PrintSolutionConsole();
+		
 	}
 	
 	/* Get's & Set's */
