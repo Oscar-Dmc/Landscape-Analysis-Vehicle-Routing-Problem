@@ -14,6 +14,12 @@ public class Vehicle {
 		this.depot = depot;
 	}
 	
+	public Vehicle(Vehicle other) {
+		this.depot =  other.depot;
+		this.nMaxCustomers =  other.nMaxCustomers;
+		this.route = new ArrayList<Node>(other.route);
+	}
+	
 	public void addCustomerToRoute(Node customer){
 		this.route.add(customer);
 	}
@@ -43,6 +49,7 @@ public class Vehicle {
 	public void resetRoute(){
 		this.route.clear();
 	}
+	
 	public Node getLastCustomerSatisfied(){
 		return this.route.get(route.size() - 1);
 	}

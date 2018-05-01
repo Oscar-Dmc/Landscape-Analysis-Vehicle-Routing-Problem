@@ -70,8 +70,7 @@ public class Grasp {
 	private ArrayList<Vehicle> ConstructGreedyRandomizedSolution(){
 		ArrayList<Vehicle> solution = new ArrayList<Vehicle>();
 		int indVehicle = 0;
-		Vehicle currentVehicle = this.initialVrp.getVehicles().get(indVehicle);
-		
+		Vehicle currentVehicle =  new Vehicle(this.initialVrp.getVehicles().get(indVehicle));
 		while (!this.initialVrp.AllCustomersSatisfied()){
 			MakeRCL(indVehicle);
 			Node customer = SelectElementAtRandom();
@@ -79,7 +78,7 @@ public class Grasp {
 			if(currentVehicle.getMaxCustomers() ==  currentVehicle.getRoute().size()){
 				solution.add(currentVehicle);
 				indVehicle++;
-				currentVehicle =  this.initialVrp.getVehicles().get(indVehicle);
+				currentVehicle = new Vehicle(this.initialVrp.getVehicles().get(indVehicle));
 			}
 			
 			currentVehicle.addCustomerToRoute(customer);
@@ -98,9 +97,6 @@ public class Grasp {
 			this.initialVrp.getCustomers().get(i).setSatisfied(false);
 			this.cl.add(this.initialVrp.getCustomers().get(i));
 		}
-		/*for(int i = 0; i < this.initialVrp.getVehicles().size(); i++){
-			this.initialVrp.getVehicles().get(i).resetRoute();
-		}*/
 		this.solution.clear();
 	}
 	
@@ -117,25 +113,16 @@ public class Grasp {
 		ArrayList<Vehicle> currentSolution = new ArrayList<Vehicle>();
 		double bestTct = Double.MAX_VALUE;
 		for (int i = 0;  i < nMaxIter;  i++){
-			currentSolution = ConstructGreedyRandomizedSolution();
+			currentSolution = new ArrayList<Vehicle>(ConstructGreedyRandomizedSolution());
 			double currentTct = getTCT(currentSolution);
-			System.out.println(currentTct);
 			if (bestTct > currentTct){
 				bestTct = currentTct;
-				bestSolution = currentSolution;
+				bestSolution = new ArrayList<Vehicle>(currentSolution);
 			}
-			//System.out.println("The best solution is: " + getTCT(bestSolution));
-			//System.out.println("Coje el valor de current solution" + getTCT(currentSolution));
 			ClearList();
-			//System.out.println("The best solution is: " + getTCT(bestSolution));
-			System.out.println("Coje el valor de current solution" + getTCT(currentSolution));
-
 		}
 		this.solution = bestSolution;
-		System.out.println("The best of best " + bestTct);
-		//System.out.println("The best solution is: " + getTCT(bestSolution));
-		//System.out.println(bestSolution.get(0).getRoute().size());
-		
+		this.tct =  getTCT(this.solution);
 	}
 	
 	public void PrintSolutionConsole(){
