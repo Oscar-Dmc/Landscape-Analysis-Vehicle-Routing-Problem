@@ -68,7 +68,6 @@ public class Vrp extends OptimizationProblem{
 		Vrp problem = new Vrp(100, 100, 12, 4, 3);
 		Grasp methodGrasp =  new Grasp(3, problem);
 		
-		
 		for(int i = 0; i < problem.getCustomers().size(); i++){
 			for(int j = 0;  j < problem.getCustomers().size(); j++){
 				System.out.print("\t" + problem.getDistanceMatrix()[i][j]);
@@ -78,6 +77,9 @@ public class Vrp extends OptimizationProblem{
 		
 		methodGrasp.ProcedureGrasp(100);
 		methodGrasp.PrintSolutionConsole();
+		
+		Gvsn methodGvsn = new Gvsn(methodGrasp.getSolution());
+		methodGvsn.Pruebas();
 		
 	}
 	

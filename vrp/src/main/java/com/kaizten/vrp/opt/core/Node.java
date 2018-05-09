@@ -17,6 +17,14 @@ public class Node {
 		this.satisfied = false;
 	}
 	
+	public Node(Node value) {
+		this.x =  value.getX();
+		this.y =  value.getY();
+		this.id = value.getId();
+		this.index = value.getIndex();
+		this.satisfied = value.getSatisfied();
+	}
+	
 	public int getX(){
 		return this.x;
 	}
