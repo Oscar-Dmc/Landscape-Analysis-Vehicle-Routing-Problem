@@ -66,7 +66,7 @@ public class Grasp {
 		}
 		return randomCustomer;
 	}
-	
+	/*
 	private ArrayList<Vehicle> ConstructGreedyRandomizedSolution(){
 		ArrayList<Vehicle> solution = new ArrayList<Vehicle>();
 		int indVehicle = 0;
@@ -136,7 +136,7 @@ public class Grasp {
 			}
 			System.out.print(this.initialVrp.getCustomers().get(0).getId());
 		}
-	}
+	}*/
 	
 	
 	public ArrayList<Vehicle> getSolution(){

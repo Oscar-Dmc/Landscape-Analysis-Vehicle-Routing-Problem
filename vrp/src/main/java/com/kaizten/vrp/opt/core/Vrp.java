@@ -5,11 +5,15 @@ import com.kaizten.utils.algorithm.GraphUtils;
 import java.util.ArrayList;
 import java.util.Random;
 
+
 public class Vrp extends OptimizationProblem{
 
 	private double [][] distanceMatrix;
 	private ArrayList<Node> customers;
-	private ArrayList<Vehicle> vehicles;
+	private Node depot; 
+	//private ArrayList<Vehicle> vehicles; Check if it will be necessary
+	private int nVehicles;
+	private int nCustomers; 
 	
 	
 	public Vrp(int width, int height, int nCustomers, int nVehicles, int nMaxCustomers) {
@@ -17,19 +21,18 @@ public class Vrp extends OptimizationProblem{
 		//this.setDescription(description);
 		/* Init ArrayList */
 		this.customers = new ArrayList<Node>();
-		this.vehicles = new ArrayList<Vehicle>();
+		//this.vehicles = new ArrayList<Vehicle>();
 		
 		/* Create depot node */ 
-		Node depot = new Node((width / 2), (height / 2), "DP", 0);
+		this.depot = new Node((width / 2), (height / 2), "DP", -1);
 		depot.setSatisfied(true); /* Because the depot is a main node and always is satisfied. */ 
-		this.customers.add(depot);
 		
 		/* Create nCustomer with random location */
 		Random randomGenerator = new Random();
 		for(int i = 0; i < nCustomers; i++){
 			int x = randomGenerator.nextInt(width + 1);
 			int y = randomGenerator.nextInt(height + 1);
-			int index =  i + 1;
+			int index =  i;
 			String id = "CU" + index;
 			Node customer = new Node(x, y, id, index);
 			this.customers.add(customer);
@@ -46,11 +49,11 @@ public class Vrp extends OptimizationProblem{
  			}
 		}
 		
-		/* Create vehicles */ 
+		/* Create vehicles  
 		for(int i = 0; i < nVehicles;  i++){
 			Vehicle vehicle = new Vehicle(nMaxCustomers, depot);
 			this.vehicles.add(vehicle);
-		}
+		} */
 	}
 	
 	/* Check if all customers has been satisfied */ 
@@ -66,7 +69,7 @@ public class Vrp extends OptimizationProblem{
 	
 	public static void main( String[] args){
 		Vrp problem = new Vrp(100, 100, 12, 4, 3);
-		Grasp methodGrasp =  new Grasp(3, problem);
+		//Grasp methodGrasp =  new Grasp(3, problem);
 		
 		for(int i = 0; i < problem.getCustomers().size(); i++){
 			for(int j = 0;  j < problem.getCustomers().size(); j++){
@@ -75,11 +78,11 @@ public class Vrp extends OptimizationProblem{
 			System.out.println();
 		}
 		
-		methodGrasp.ProcedureGrasp(100);
-		methodGrasp.PrintSolutionConsole();
+		//methodGrasp.ProcedureGrasp(100);
+		//methodGrasp.PrintSolutionConsole();
 		
-		Gvsn methodGvsn = new Gvsn(methodGrasp.getSolution());
-		methodGvsn.Pruebas();
+		//Gvsn methodGvsn = new Gvsn(methodGrasp.getSolution());
+		//methodGvsn.Pruebas();
 		
 	}
 	
@@ -88,11 +91,19 @@ public class Vrp extends OptimizationProblem{
 		return customers;
 	}
 	
-	public ArrayList<Vehicle> getVehicles() {
+	/*public ArrayList<Vehicle> getVehicles() {
 		return vehicles;
-	}
+	}*/
 	
 	public double[][] getDistanceMatrix() {
 		return distanceMatrix;
+	}
+	
+	public int getNCustomers() {
+		return this.nCustomers; 
+	}
+	
+	public int getNVehicles() {
+		return this.nVehicles;
 	}
 }
