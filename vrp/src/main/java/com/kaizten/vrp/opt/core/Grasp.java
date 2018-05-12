@@ -28,7 +28,7 @@ public class Grasp {
 				double minDistance = Double.MAX_VALUE;
 				int indCustomer = 0;
 				for (int i = 0; i < this.cl.size(); i++){
-					if(this.initialVrp.getDistanceMatrix()[0][this.cl.get(i).getIndex()] > minDistance){
+					if(this.initialVrp.getDistanceMatrix()[0][this.cl.get(i).getIndex()] < minDistance){
 						indCustomer = i;
 						minDistance = this.initialVrp.getDistanceMatrix()[0][this.cl.get(i).getIndex()];
 					}

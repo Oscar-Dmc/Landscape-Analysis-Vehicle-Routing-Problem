@@ -2,8 +2,10 @@ package com.kaizten.vrp.opt.core;
 
 import com.kaizten.opt.problem.OptimizationProblem;
 import com.kaizten.utils.algorithm.GraphUtils;
+import com.kaizten.vrp.opt.evaluators.LatencySolution;
 import java.util.ArrayList;
 import java.util.Random;
+
 
 
 public class Vrp extends OptimizationProblem{
@@ -14,13 +16,17 @@ public class Vrp extends OptimizationProblem{
 	//private ArrayList<Vehicle> vehicles; Check if it will be necessary
 	private int nVehicles;
 	private int nCustomers; 
-	
+	private int nMaxCustomers;
 	
 	public Vrp(int width, int height, int nCustomers, int nVehicles, int nMaxCustomers) {
 		this.setName("VPR");
 		//this.setDescription(description);
 		/* Init ArrayList */
+		this.nCustomers =  nCustomers;
+		this.nVehicles =  nVehicles;
+		this.nMaxCustomers =  nMaxCustomers; 
 		this.customers = new ArrayList<Node>();
+		
 		//this.vehicles = new ArrayList<Vehicle>();
 		
 		/* Create depot node */ 
@@ -68,7 +74,9 @@ public class Vrp extends OptimizationProblem{
 	}
 	
 	public static void main( String[] args){
-		Vrp problem = new Vrp(100, 100, 12, 4, 3);
+		Vrp problem = new Vrp(100, 100, 12, 3, 4);
+		LatencySolution solution = new LatencySolution(problem, 3);
+		solution.getSolution().toString();
 		//Grasp methodGrasp =  new Grasp(3, problem);
 		
 		for(int i = 0; i < problem.getCustomers().size(); i++){
@@ -105,5 +113,9 @@ public class Vrp extends OptimizationProblem{
 	
 	public int getNVehicles() {
 		return this.nVehicles;
+	}
+	
+	public int getNMaxCustomers() {
+		return this.nMaxCustomers;
 	}
 }
