@@ -39,7 +39,7 @@ public class LatencySolution {
 				this.solutionVrp.addAfterDepot(indexCustomer, currentRoute);
 			}
 			else {
-				this.solutionVrp.addAfter(currentRoute, this.solutionVrp.getLastInRoute(currentRoute));
+				this.solutionVrp.addAfter(indexCustomer, this.solutionVrp.getLastInRoute(currentRoute));
 			}
 		}
 	}
@@ -50,7 +50,7 @@ public class LatencySolution {
 				double minDistance =  Double.MAX_VALUE;
 				int indCustomer = -1;
 				for(int i = 0; i < this.cl.length; i++) {
-					if(this.problem.getDistanceMatrix()[0][i + 1] < minDistance) { /* In the distance matrix 0 is for the depot */ 
+					if(this.problem.getDistanceMatrix()[0][i + 1] < minDistance && cl[i]) { /* In the distance matrix 0 is for the depot */ 
 						indCustomer = i;
 						minDistance = this.problem.getDistanceMatrix()[0][i + 1];
 					}
@@ -65,7 +65,7 @@ public class LatencySolution {
 				int indCustomer = -1;
 				for (int i = 0;  i < this.cl.length; i++) {
 					int lastCustomer = solutionVrp.getLastInRoute(route);
-					if(this.problem.getDistanceMatrix()[lastCustomer + 1][i + 1] < minDistance) {
+					if(this.problem.getDistanceMatrix()[lastCustomer + 1][i + 1] < minDistance && cl[i]) {
 						indCustomer = i;
 						minDistance = this.problem.getDistanceMatrix()[lastCustomer + 1][ i + 1];
 					}

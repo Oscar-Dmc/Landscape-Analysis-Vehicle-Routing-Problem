@@ -1,5 +1,6 @@
 package com.kaizten.vrp.opt.core;
 
+import com.kaizten.opt.evaluator.Evaluator;
 import com.kaizten.opt.problem.OptimizationProblem;
 import com.kaizten.utils.algorithm.GraphUtils;
 import com.kaizten.vrp.opt.evaluators.LatencySolution;
@@ -18,8 +19,12 @@ public class Vrp extends OptimizationProblem{
 	private int nCustomers; 
 	private int nMaxCustomers;
 	
+	@SuppressWarnings({ "unchecked", "unused" })
 	public Vrp(int width, int height, int nCustomers, int nVehicles, int nMaxCustomers) {
+		@SuppressWarnings("rawtypes")
+		Evaluator evaluator =  new Evaluator(1);
 		this.setName("VPR");
+		this.setEvaluator(evaluator);
 		//this.setDescription(description);
 		/* Init ArrayList */
 		this.nCustomers =  nCustomers;
@@ -76,15 +81,15 @@ public class Vrp extends OptimizationProblem{
 	public static void main( String[] args){
 		Vrp problem = new Vrp(100, 100, 12, 3, 4);
 		LatencySolution solution = new LatencySolution(problem, 3);
-		solution.getSolution().toString();
+		System.out.print(solution.getSolution().toString());
 		//Grasp methodGrasp =  new Grasp(3, problem);
 		
-		for(int i = 0; i < problem.getCustomers().size(); i++){
+		/*for(int i = 0; i < problem.getCustomers().size(); i++){
 			for(int j = 0;  j < problem.getCustomers().size(); j++){
 				System.out.print("\t" + problem.getDistanceMatrix()[i][j]);
 			}
 			System.out.println();
-		}
+		}*/
 		
 		//methodGrasp.ProcedureGrasp(100);
 		//methodGrasp.PrintSolutionConsole();
