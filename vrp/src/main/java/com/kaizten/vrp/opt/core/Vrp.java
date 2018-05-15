@@ -15,7 +15,6 @@ public class Vrp extends OptimizationProblem{
 	private double [][] distanceMatrix;
 	private ArrayList<Node> customers;
 	private Node depot; 
-	//private ArrayList<Vehicle> vehicles; Check if it will be necessary
 	private int nVehicles;
 	private int nCustomers; 
 	private int nMaxCustomers;
@@ -78,7 +77,6 @@ public class Vrp extends OptimizationProblem{
 		LatencySolution solution = new LatencySolution(problem, 3);
 		solution.getSolution().evaluate();
 		System.out.print(solution.getSolution().toString());
-		//Grasp methodGrasp =  new Grasp(3, problem);
 		
 		/*for(int i = 0; i < problem.getCustomers().size(); i++){
 			for(int j = 0;  j < problem.getCustomers().size(); j++){
@@ -87,22 +85,12 @@ public class Vrp extends OptimizationProblem{
 			System.out.println();
 		}*/
 		
-		//methodGrasp.ProcedureGrasp(100);
-		//methodGrasp.PrintSolutionConsole();
-		
-		//Gvsn methodGvsn = new Gvsn(methodGrasp.getSolution());
-		//methodGvsn.Pruebas();
-		
 	}
 	
 	/* Get's & Set's */
 	public ArrayList<Node> getCustomers() {
 		return customers;
 	}
-	
-	/*public ArrayList<Vehicle> getVehicles() {
-		return vehicles;
-	}*/
 	
 	public double[][] getDistanceMatrix() {
 		return distanceMatrix;
