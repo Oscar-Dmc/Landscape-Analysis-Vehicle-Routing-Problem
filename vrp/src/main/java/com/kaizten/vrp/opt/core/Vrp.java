@@ -3,6 +3,7 @@ package com.kaizten.vrp.opt.core;
 import com.kaizten.opt.evaluator.Evaluator;
 import com.kaizten.opt.problem.OptimizationProblem;
 import com.kaizten.utils.algorithm.GraphUtils;
+import com.kaizten.vrp.opt.evaluators.EvaluatorObjectiveFunctionDistances;
 import com.kaizten.vrp.opt.evaluators.LatencySolution;
 import java.util.ArrayList;
 import java.util.Random;
@@ -19,20 +20,19 @@ public class Vrp extends OptimizationProblem{
 	private int nCustomers; 
 	private int nMaxCustomers;
 	
-	@SuppressWarnings({ "unchecked", "unused" })
+	@SuppressWarnings({ "unchecked" })
 	public Vrp(int width, int height, int nCustomers, int nVehicles, int nMaxCustomers) {
 		@SuppressWarnings("rawtypes")
 		Evaluator evaluator =  new Evaluator(1);
+		evaluator.addEvaluatorObjectiveFunction(new EvaluatorObjectiveFunctionDistances());
 		this.setName("VPR");
 		this.setEvaluator(evaluator);
-		//this.setDescription(description);
 		/* Init ArrayList */
 		this.nCustomers =  nCustomers;
 		this.nVehicles =  nVehicles;
 		this.nMaxCustomers =  nMaxCustomers; 
 		this.customers = new ArrayList<Node>();
 		
-		//this.vehicles = new ArrayList<Vehicle>();
 		
 		/* Create depot node */ 
 		this.depot = new Node((width / 2), (height / 2), "DP", -1);
@@ -60,11 +60,6 @@ public class Vrp extends OptimizationProblem{
  			}
 		}
 		
-		/* Create vehicles  
-		for(int i = 0; i < nVehicles;  i++){
-			Vehicle vehicle = new Vehicle(nMaxCustomers, depot);
-			this.vehicles.add(vehicle);
-		} */
 	}
 	
 	/* Check if all customers has been satisfied */ 
@@ -79,8 +74,9 @@ public class Vrp extends OptimizationProblem{
 	}
 	
 	public static void main( String[] args){
-		Vrp problem = new Vrp(100, 100, 12, 3, 4);
+		Vrp problem = new Vrp(100, 100, 20, 4, 6);
 		LatencySolution solution = new LatencySolution(problem, 3);
+		solution.getSolution().evaluate();
 		System.out.print(solution.getSolution().toString());
 		//Grasp methodGrasp =  new Grasp(3, problem);
 		

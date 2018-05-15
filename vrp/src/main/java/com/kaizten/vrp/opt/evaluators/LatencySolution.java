@@ -103,4 +103,5 @@ public class LatencySolution {
 	public RoutesSolution<Vrp> getSolution(){
 		return this.solutionVrp;
 	}
+	
 }
