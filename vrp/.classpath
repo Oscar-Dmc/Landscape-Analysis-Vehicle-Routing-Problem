@@ -18,9 +18,9 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/Oscar/Dropbox/Universidad/Cuarto/TFG/Librerias/kaizten-cdi/target/kaizten-cdi-1.0-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Oscar/Dropbox/Universidad/Cuarto/TFG/Librerias/kaizten-graph/target/kaizten-graph-1.0-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Oscar/Dropbox/Universidad/Cuarto/TFG/Librerias/kaizten-optimization/target/kaizten-optimization-1.0-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Oscar/Dropbox/Universidad/Cuarto/TFG/Librerias/kaizten-utils/target/kaizten-utils-1.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="/home/oscardmc/Documentos/GitHubRepositorios/TFG/vrp/librerias/kaizten-utils-1.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="/home/oscardmc/Documentos/GitHubRepositorios/TFG/vrp/librerias/kaizten-optimization-1.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="/home/oscardmc/Documentos/GitHubRepositorios/TFG/vrp/librerias/kaizten-graph-1.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="/home/oscardmc/Documentos/GitHubRepositorios/TFG/vrp/librerias/kaizten-cdi-1.0-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
