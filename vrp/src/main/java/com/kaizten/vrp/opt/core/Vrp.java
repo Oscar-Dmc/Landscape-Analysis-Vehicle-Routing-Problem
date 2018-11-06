@@ -1,7 +1,11 @@
 package com.kaizten.vrp.opt.core;
 
 import com.kaizten.opt.evaluator.Evaluator;
+import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionInsertionAfter;
+import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionRemove;
+import com.kaizten.opt.move.manager.MoveManagerSequential;
 import com.kaizten.opt.problem.OptimizationProblem;
+import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.utils.algorithm.GraphUtils;
 import com.kaizten.vrp.opt.evaluators.EvaluatorObjectiveFunctionDistances;
 import com.kaizten.vrp.opt.evaluators.LatencySolution;
@@ -84,9 +88,24 @@ public class Vrp extends OptimizationProblem {
 		}
 		LatencySolution solution = new LatencySolution(problem, 3);
 		solution.getSolution().evaluate();
+		//System.out.println(solution.getSolution().getOptimizationProblem().getEvaluator());
 		System.out.print(solution.getSolution().toString());
-
-
+		
+		/* Move manager sequential test */
+		MoveManagerSequential<RoutesSolution<Vrp>, ?> MMSequential =  new MoveManagerSequential();
+		MMSequential.setSolution(solution.getSolution());
+		/* Add some move generators */
+		MoveGeneratorRoutesSolutionInsertionAfter<RoutesSolution<Vrp>, ?> MGIna = new MoveGeneratorRoutesSolutionInsertionAfter();
+		MoveGeneratorRoutesSolutionRemove<RoutesSolution<Vrp>, ?> MGRem =  new MoveGeneratorRoutesSolutionRemove();
+		MMSequential.addMoveGenerator(MGIna);
+		MMSequential.addMoveGenerator(MGRem);
+		/* Initialization of Move Manager */
+		MMSequential.init();
+		
+		System.out.println("\n-----------------------------------------------------------");
+		System.out.println(MMSequential.getNumberOfMoveGenerators() + " has next? " + MMSequential.hasNext());
+		System.out.println("Movimiento= " + MMSequential.next());
+		System.out.print("\nTodo correcto hasta aquí");
 	}
 
 	/* Get's & Set's */
