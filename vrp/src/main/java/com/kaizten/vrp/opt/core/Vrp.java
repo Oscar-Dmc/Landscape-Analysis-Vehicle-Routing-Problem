@@ -1,14 +1,17 @@
 package com.kaizten.vrp.opt.core;
 
 import com.kaizten.opt.evaluator.Evaluator;
+import com.kaizten.opt.move.MoveRemove;
+import com.kaizten.opt.move.MoveRoutesSolutionInsertionAfter;
 import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionInsertionAfter;
 import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionRemove;
 import com.kaizten.opt.move.manager.MoveManagerSequential;
 import com.kaizten.opt.problem.OptimizationProblem;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.utils.algorithm.GraphUtils;
+import com.kaizten.vrp.opt.evaluators.EvaluatorMoveRemove;
 import com.kaizten.vrp.opt.evaluators.EvaluatorObjectiveFunctionDistances;
-import com.kaizten.vrp.opt.evaluators.LatencySolution;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -23,11 +26,15 @@ public class Vrp extends OptimizationProblem {
 
 	@SuppressWarnings({ "unchecked" })
 	public Vrp(int width, int height, int nCustomers, int nVehicles, int nMaxCustomers) {
+		this.setName("VPR");
+		
+		/* Evaluators */ 
 		@SuppressWarnings("rawtypes")
 		Evaluator evaluator = new Evaluator(1);
 		evaluator.addEvaluatorObjectiveFunction(new EvaluatorObjectiveFunctionDistances());
-		this.setName("VPR");
+		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveRemove(1), 0);
 		this.setEvaluator(evaluator);
+		
 		/* Init ArrayList */
 		this.nCustomers = nCustomers;
 		this.nVehicles = nVehicles;
@@ -69,7 +76,7 @@ public class Vrp extends OptimizationProblem {
 		int nSatisfied = 0;
 		for (int i = 0; i < this.customers.size(); i++) {
 			if (this.customers.get(i).getSatisfied()) {
-				nSatisfied++;
+				nSatisfied++; 
 			}
 		}
 		return (nSatisfied == this.customers.size());
@@ -77,35 +84,43 @@ public class Vrp extends OptimizationProblem {
 
 	public static void main(String[] args) {
 		Vrp problem = new Vrp(100, 100, 15, 5, 3);
+		//Vrp problem = new Vrp(5000, 5000, 500, 100, 5);
 		System.out.print("\n\n\tDistance Matrix\n");
-		for (int i = 0; i < problem.getCustomers().size(); i++) {
+		for (int i = 0; i < problem.getCustomers().size(); i++) { 
 			System.out.print(i + "\t| ");
 			for (int j = 0; j < problem.getCustomers().size(); j++) {
 				
 				System.out.print("\t" + problem.getDistanceMatrix()[i][j]);
 			}
 			System.out.println();
-		}
+		}		
+		
 		LatencySolution solution = new LatencySolution(problem, 3);
 		solution.getSolution().evaluate();
-		//System.out.println(solution.getSolution().getOptimizationProblem().getEvaluator());
 		System.out.print(solution.getSolution().toString());
 		
 		/* Move manager sequential test */
+		@SuppressWarnings({ "rawtypes", "unchecked" })
 		MoveManagerSequential<RoutesSolution<Vrp>, ?> MMSequential =  new MoveManagerSequential();
 		MMSequential.setSolution(solution.getSolution());
+		
 		/* Add some move generators */
-		MoveGeneratorRoutesSolutionInsertionAfter<RoutesSolution<Vrp>, ?> MGIna = new MoveGeneratorRoutesSolutionInsertionAfter();
-		MoveGeneratorRoutesSolutionRemove<RoutesSolution<Vrp>, ?> MGRem =  new MoveGeneratorRoutesSolutionRemove();
+		MoveGeneratorRoutesSolutionInsertionAfter<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionAfter> MGIna = new MoveGeneratorRoutesSolutionInsertionAfter<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionAfter>();
+		MoveGeneratorRoutesSolutionRemove<RoutesSolution<Vrp>, MoveRemove> MGRem =  new MoveGeneratorRoutesSolutionRemove<RoutesSolution<Vrp>, MoveRemove>();
 		MMSequential.addMoveGenerator(MGIna);
 		MMSequential.addMoveGenerator(MGRem);
+		
 		/* Initialization of Move Manager */
 		MMSequential.init();
 		
-		System.out.println("\n-----------------------------------------------------------");
-		System.out.println(MMSequential.getNumberOfMoveGenerators() + " has next? " + MMSequential.hasNext());
-		System.out.println("Movimiento= " + MMSequential.next());
-		System.out.print("\nTodo correcto hasta aquí");
+		while(MMSequential.hasNext()) {
+			System.out.println("\n-----------------------------------------------------------");
+			//System.out.println(MMSequential.getNumberOfMoveGenerators() + " has next? " + MMSequential.hasNext());
+			System.out.println("Movimiento= " + MMSequential.next());
+			//System.out.println(solution.getSolution().toString());
+			//System.out.print("\nTodo correcto hasta aquí");
+		}
+		
 	}
 
 	/* Get's & Set's */
