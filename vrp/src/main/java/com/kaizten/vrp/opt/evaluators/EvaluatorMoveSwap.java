@@ -14,6 +14,23 @@ public class EvaluatorMoveSwap extends EvaluatorObjectiveFunctionMovement<Routes
 	public EvaluatorMoveSwap(int objectives) {
 		super(objectives);
 	}
+	
+	public void SolutionSwap (RoutesSolution<Vrp> solution, MoveRoutesSolutionSwap move) {		
+		if(solution.getPredecessor(move.getElement0()) != -1) {
+			int pred0 =  solution.getPredecessor(move.getElement0());
+			solution.remove(move.getElement0());
+			solution.addAfter(move.getElement0(), move.getElement1());
+			solution.remove(move.getElement1());
+			solution.addAfter(move.getElement1(), pred0);
+		}
+		else {
+			int succ0 =  solution.getSuccessor(move.getElement0());
+			solution.remove(move.getElement0());
+			solution.addAfter(move.getElement0(), move.getElement1());
+			solution.remove(move.getElement1());
+			solution.addBefore(move.getElement1(), succ0);
+		}
+	}
 
 	@Override
 	public double[] evaluate(RoutesSolution<Vrp> solution, MoveRoutesSolutionSwap move) {
@@ -36,13 +53,14 @@ public class EvaluatorMoveSwap extends EvaluatorObjectiveFunctionMovement<Routes
 		
 		@SuppressWarnings("unchecked")
 		RoutesSolution<Vrp> solutionSwap =  solution.clone();
-		solutionSwap.swap(move.getElement0(), move.getElement1());
+		this.SolutionSwap(solutionSwap, move);
 		
+		System.out.println(solutionSwap);
 		for (int i = 0; i < indexRoutes.length;  i++) {
 			int indexCustomer =  solutionSwap.getFirstInRoute(indexRoutes[i]);
-			tctRouteOriginal  += solutionSwap.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1]; 
+			tctRouteMod  += solutionSwap.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1]; 
 			while (solutionSwap.getSuccessor(indexCustomer) != -1) {
-				tctRouteOriginal +=  solutionSwap.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solutionSwap.getSuccessor(indexCustomer) + 1];
+				tctRouteMod +=  solutionSwap.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solutionSwap.getSuccessor(indexCustomer) + 1];
 				indexCustomer = solutionSwap.getSuccessor(indexCustomer);
 			}
 			tctRouteMod += solutionSwap.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1];
