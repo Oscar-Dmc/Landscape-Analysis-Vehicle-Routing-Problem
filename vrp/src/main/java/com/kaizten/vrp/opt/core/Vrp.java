@@ -1,16 +1,16 @@
 package com.kaizten.vrp.opt.core;
 
 import com.kaizten.opt.evaluator.Evaluator;
-import com.kaizten.opt.move.MoveRemove;
-import com.kaizten.opt.move.MoveRoutesSolutionInsertionAfter;
-import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionInsertionAfter;
-import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionRemove;
+import com.kaizten.opt.move.MoveRoutesSolutionSwap;
 import com.kaizten.opt.move.manager.MoveManagerSequential;
 import com.kaizten.opt.problem.OptimizationProblem;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.utils.algorithm.GraphUtils;
+import com.kaizten.vrp.opt.db.DBControl;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveRemove;
+import com.kaizten.vrp.opt.evaluators.EvaluatorMoveSwap;
 import com.kaizten.vrp.opt.evaluators.EvaluatorObjectiveFunctionDistances;
+import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionSwap;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -33,6 +33,7 @@ public class Vrp extends OptimizationProblem {
 		Evaluator evaluator = new Evaluator(1);
 		evaluator.addEvaluatorObjectiveFunction(new EvaluatorObjectiveFunctionDistances());
 		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveRemove(1), 0);
+		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveSwap(1), 0);
 		this.setEvaluator(evaluator);
 		
 		/* Init ArrayList */
@@ -97,7 +98,7 @@ public class Vrp extends OptimizationProblem {
 		
 		LatencySolution solution = new LatencySolution(problem, 3);
 		solution.getSolution().evaluate();
-		System.out.print(solution.getSolution().toString());
+		System.out.println(solution.getSolution().toString());
 		
 		/* Move manager sequential test */
 		@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -105,20 +106,36 @@ public class Vrp extends OptimizationProblem {
 		MMSequential.setSolution(solution.getSolution());
 		
 		/* Add some move generators */
-		MoveGeneratorRoutesSolutionInsertionAfter<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionAfter> MGIna = new MoveGeneratorRoutesSolutionInsertionAfter<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionAfter>();
-		MoveGeneratorRoutesSolutionRemove<RoutesSolution<Vrp>, MoveRemove> MGRem =  new MoveGeneratorRoutesSolutionRemove<RoutesSolution<Vrp>, MoveRemove>();
-		MMSequential.addMoveGenerator(MGIna);
-		MMSequential.addMoveGenerator(MGRem);
+		//MoveGeneratorRoutesSolutionInsertionAfter<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionAfter> MGIna = new MoveGeneratorRoutesSolutionInsertionAfter<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionAfter>();
+		//MoveGeneratorRoutesSolutionRemove<RoutesSolution<Vrp>, MoveRemove> MGRem =  new MoveGeneratorRoutesSolutionRemove<RoutesSolution<Vrp>, MoveRemove>();
+		MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap> MGSwap =  new MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap>();
+		//MMSequential.addMoveGenerator(MGIna);
+		//MMSequential.addMoveGenerator(MGRem);
+		MMSequential.addMoveGenerator(MGSwap);
+		
+		//@SuppressWarnings("rawtypes")
+		//Applier<RoutesSolution> MApplier =  new Applier<RoutesSolution>();
+		//MoveApplierRoutesSolutionRemove applierRemove =  new MoveApplierRoutesSolutionRemove();
+		//applierRemove.setApplier(MApplier);
+		//MApplier.addMoveApplier(applierRemove);
 		
 		/* Initialization of Move Manager */
 		MMSequential.init();
+		/* Connection to DB */
+		DBControl db =  new DBControl(); 
+		db.init();
+		//db.addSolutionMoveRemove(solution.getSolution());
 		
 		while(MMSequential.hasNext()) {
 			System.out.println("\n-----------------------------------------------------------");
 			//System.out.println(MMSequential.getNumberOfMoveGenerators() + " has next? " + MMSequential.hasNext());
 			System.out.println("Movimiento= " + MMSequential.next());
-			//System.out.println(solution.getSolution().toString());
-			//System.out.print("\nTodo correcto hasta aquí");
+			//@SuppressWarnings("unchecked")
+			//RoutesSolution<Vrp> auxSolution =  solution.getSolution().clone();
+			/*MApplier.setSolution(solutionRemove);
+			MApplier.setMove(MMSequential.next());*/
+			//applierRemove.accept(solutionRemove, (MoveRoutesSolutionRemove) MMSequential.next());
+			//db.addSolutionMoveRemove(auxSolution);
 		}
 		
 	}

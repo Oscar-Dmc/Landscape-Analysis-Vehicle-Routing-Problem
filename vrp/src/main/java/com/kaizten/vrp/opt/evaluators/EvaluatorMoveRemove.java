@@ -18,7 +18,6 @@ public class EvaluatorMoveRemove extends EvaluatorObjectiveFunctionMovement<Rout
 	@Override
 	public double[] evaluate(RoutesSolution<Vrp> solution, MoveRemove move) {
 		int indexRoute =  solution.getRouteIndex(move.getElement());
-		System.out.println("Numero de objetivos " + solution.getNumberOfObjectives());
 		double[] desviation =  new double [solution.getNumberOfObjectives()]; 
 		double tctRouteOriginal = 0.0;
 		double tctRouteMod = 0.0; 

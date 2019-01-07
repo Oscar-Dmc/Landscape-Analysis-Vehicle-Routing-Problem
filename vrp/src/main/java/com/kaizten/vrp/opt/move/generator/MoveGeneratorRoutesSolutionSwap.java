@@ -1,4 +1,4 @@
-package com.kaizten.vrp.opt.generator;
+package com.kaizten.vrp.opt.move.generator;
 
 import com.kaizten.opt.move.MoveRoutesSolutionSwap;
 import com.kaizten.opt.move.generator.AbstractMoveGenerator;
