@@ -2,6 +2,7 @@ package com.kaizten.vrp.opt.core;
 
 import com.kaizten.opt.evaluator.Evaluator;
 import com.kaizten.opt.move.MoveRoutesSolutionSwap;
+import com.kaizten.opt.move.applier.Applier;
 import com.kaizten.opt.move.manager.MoveManagerSequential;
 import com.kaizten.opt.problem.OptimizationProblem;
 import com.kaizten.opt.solution.RoutesSolution;
@@ -10,6 +11,7 @@ import com.kaizten.vrp.opt.db.DBControl;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveRemove;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveSwap;
 import com.kaizten.vrp.opt.evaluators.EvaluatorObjectiveFunctionDistances;
+import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionSwap;
 import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionSwap;
 
 import java.util.ArrayList;
@@ -114,10 +116,14 @@ public class Vrp extends OptimizationProblem {
 		MMSequential.addMoveGenerator(MGSwap);
 		
 		//@SuppressWarnings("rawtypes")
-		//Applier<RoutesSolution> MApplier =  new Applier<RoutesSolution>();
+		//Applier<RoutesSolution<?>> MApplier =  new Applier<RoutesSolution<?>>();
 		//MoveApplierRoutesSolutionRemove applierRemove =  new MoveApplierRoutesSolutionRemove();
+		MoveApplierRoutesSolutionSwap applierSwap =  new MoveApplierRoutesSolutionSwap();
+		
 		//applierRemove.setApplier(MApplier);
 		//MApplier.addMoveApplier(applierRemove);
+		//applierSwap.setApplier(MApplier);
+		//MApplier.addMoveApplier(applierSwap);
 		
 		/* Initialization of Move Manager */
 		MMSequential.init();
@@ -129,13 +135,17 @@ public class Vrp extends OptimizationProblem {
 		while(MMSequential.hasNext()) {
 			System.out.println("\n-----------------------------------------------------------");
 			//System.out.println(MMSequential.getNumberOfMoveGenerators() + " has next? " + MMSequential.hasNext());
-			System.out.println("Movimiento= " + MMSequential.next());
-			//@SuppressWarnings("unchecked")
-			//RoutesSolution<Vrp> auxSolution =  solution.getSolution().clone();
+			//System.out.println(MMSequential.next());
+			@SuppressWarnings("unchecked")
+			RoutesSolution<Vrp> auxSolution =  solution.getSolution().clone();
+			MoveRoutesSolutionSwap testMove = (MoveRoutesSolutionSwap) MMSequential.next();
+			applierSwap.accept(auxSolution, testMove);
+			System.out.println(auxSolution);
 			/*MApplier.setSolution(solutionRemove);
 			MApplier.setMove(MMSequential.next());*/
 			//applierRemove.accept(solutionRemove, (MoveRoutesSolutionRemove) MMSequential.next());
 			//db.addSolutionMoveRemove(auxSolution);
+			db.addSolutionMoveSwap(auxSolution);
 		}
 		
 	}

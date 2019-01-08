@@ -20,11 +20,8 @@ public class DBControl {
 	private MongoCredential credential;
 	private MongoCollection<Document> collection; 
 	
-	private int idSolution; 
-
-	
 	public DBControl() {
-		this.idSolution = 0; /* improve only for test */ 
+		//this.idSolution = 0; /* improve only for test */ 
 	}
 	
 	public void init() {
@@ -42,9 +39,7 @@ public class DBControl {
 		
 	}
 	
-	public void addSolution(RoutesSolution<Vrp> solution) {
-		this.collection =  database.getCollection("solutionsTest");
-		
+	public void addSolution(RoutesSolution<Vrp> solution,  long id) {		
 		int nCustomers = solution.getOptimizationProblem().getNCustomers();
 		int nRoutes =  solution.getNumberOfRoutes();
 		Integer[] predecessors = new Integer [nCustomers];
@@ -74,7 +69,7 @@ public class DBControl {
 			objFunction[i] =  solution.getObjectiveFunctionValue(i);
 		}
 		
-		Document solutionDb =  new Document("_id",  idSolution)
+		Document solutionDb =  new Document("_id",  id)
 										.append("Predecessor", Arrays.asList(predecessors))
 										.append("Successor", Arrays.asList(successors))
 										.append("Route", Arrays.asList(inRoute))
@@ -89,18 +84,26 @@ public class DBControl {
 	}
 	
 	public void addSolutionMoveRemove(RoutesSolution<Vrp> solution/*, MoveRoutesSolutionRemove move*/) {
+		this.collection =  database.getCollection("solutionsTest");
 		/* improve  
 		if(this.idSolution == 0) {
 			addSolution(solution);
 		} */
-		
-		this.idSolution += 1; 
+		long id =  this.collection.countDocuments() + 1;
 		/*@SuppressWarnings("unchecked")
 		RoutesSolution<Vrp> solutionRemove =  solution.clone();
 		MoveApplierRoutesSolutionRemove applierRemove =  new MoveApplierRoutesSolutionRemove();
 		applierRemove.accept(solutionRemove, move);*/
 		
-		addSolution(solution);
+		addSolution(solution, id);
+	}
+	
+	public void addSolutionMoveSwap(RoutesSolution<Vrp> solution) {
+		this.collection =  database.getCollection("solutionsTest");
+		long id =  this.collection.countDocuments() + 1;
+		addSolution(solution, id);
+		
+		
 	}
 	
 	
