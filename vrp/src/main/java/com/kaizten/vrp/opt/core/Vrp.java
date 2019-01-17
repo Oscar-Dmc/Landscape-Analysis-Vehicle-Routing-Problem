@@ -1,19 +1,11 @@
 package com.kaizten.vrp.opt.core;
 
 import com.kaizten.opt.evaluator.Evaluator;
-import com.kaizten.opt.move.MoveRoutesSolutionSwap;
-import com.kaizten.opt.move.applier.Applier;
-import com.kaizten.opt.move.manager.MoveManagerSequential;
 import com.kaizten.opt.problem.OptimizationProblem;
-import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.utils.algorithm.GraphUtils;
-import com.kaizten.vrp.opt.db.DBControl;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveRemove;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveSwap;
 import com.kaizten.vrp.opt.evaluators.EvaluatorObjectiveFunctionDistances;
-import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionSwap;
-import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionSwap;
-
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -46,32 +38,61 @@ public class Vrp extends OptimizationProblem {
 
 		/* Create depot node */
 		this.depot = new Node((width / 2), (height / 2), "DP", -1);
-		depot.setSatisfied(true); /* Because the depot is a main node and always is satisfied. */
-		this.customers.add(depot);
+		this.depot.setSatisfied(true); /* Because the depot is a main node and always is satisfied. */
+		this.customers.add(this.depot);
 		
 		/* Create nCustomer with random location */
 		Random randomGenerator = new Random();
 		for (int i = 0; i < nCustomers; i++) {
 			int x = randomGenerator.nextInt(width + 1);
 			int y = randomGenerator.nextInt(height + 1);
-			int index = i;
-			String id = "CU" + index;
-			Node customer = new Node(x, y, id, index);
+			String id = "CU" + i;
+			Node customer = new Node(x, y, id, i);
 			this.customers.add(customer);
 		}
 
-		/* Fill distance matrix */
-		this.distanceMatrix = new double[nCustomers + 1][nCustomers + 1]; /* Plus 1 for depot */
-		for (int i = 0; i < customers.size(); i++) {
+		this.fillDistanceMatrix();
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public Vrp(ArrayList<ArrayList<Integer>> customers, Integer nCustomers, Integer nVehicles) {
+		this.setName("VRP");
+		
+		Evaluator evaluator = new Evaluator(1);
+		evaluator.addEvaluatorObjectiveFunction(new EvaluatorObjectiveFunctionDistances());
+		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveRemove(1), 0);
+		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveSwap(1), 0);
+		this.setEvaluator(evaluator);
+		this.customers = new ArrayList<Node>();
+		this.nCustomers =  nCustomers;
+		this.nVehicles = nVehicles;
+		this.nMaxCustomers = 3; 
+		
+		this.depot =  new Node(customers.get(0).get(0), customers.get(0).get(1), "DP", -1);
+		this.depot.setSatisfied(true);
+		this.customers.add(this.depot);
+		
+		for(int i = 1; i < customers.size(); i++) {
+			String id = "CU" + i;
+			Node customer =  new Node(customers.get(i).get(0), customers.get(i).get(1), id, i);
+			this.customers.add(customer); 
+		}
+		
+		this.fillDistanceMatrix();
+		
+	}
+	
+	public void fillDistanceMatrix() {
+		this.distanceMatrix = new double[this.nCustomers + 1][this.nCustomers + 1]; /* Plus 1 for depot */
+		for (int i = 0; i < this.customers.size(); i++) {
 			this.distanceMatrix[i][i] = 0;
-			for (int j = i + 1; j < customers.size(); j++) {
+			for (int j = i + 1; j < this.customers.size(); j++) {
 				double distance = GraphUtils.getEuclideanDistance(this.customers.get(i).getX(),
 						this.customers.get(i).getY(), this.customers.get(j).getX(), this.customers.get(i).getY());
 				this.distanceMatrix[i][j] = distance;
 				this.distanceMatrix[j][i] = distance;
 			}
 		}
-
 	}
 
 	/* Check if all customers has been satisfied */
@@ -85,7 +106,7 @@ public class Vrp extends OptimizationProblem {
 		return (nSatisfied == this.customers.size());
 	}
 
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		Vrp problem = new Vrp(100, 100, 15, 5, 3);
 		//Vrp problem = new Vrp(5000, 5000, 500, 100, 5);
 		System.out.print("\n\n\tDistance Matrix\n");
@@ -102,51 +123,10 @@ public class Vrp extends OptimizationProblem {
 		solution.getSolution().evaluate();
 		System.out.println(solution.getSolution().toString());
 		
-		/* Move manager sequential test */
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		MoveManagerSequential<RoutesSolution<Vrp>, ?> MMSequential =  new MoveManagerSequential();
-		MMSequential.setSolution(solution.getSolution());
-		
-		/* Add some move generators */
-		//MoveGeneratorRoutesSolutionInsertionAfter<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionAfter> MGIna = new MoveGeneratorRoutesSolutionInsertionAfter<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionAfter>();
-		//MoveGeneratorRoutesSolutionRemove<RoutesSolution<Vrp>, MoveRemove> MGRem =  new MoveGeneratorRoutesSolutionRemove<RoutesSolution<Vrp>, MoveRemove>();
-		MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap> MGSwap =  new MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap>();
-		//MMSequential.addMoveGenerator(MGIna);
-		//MMSequential.addMoveGenerator(MGRem);
-		MMSequential.addMoveGenerator(MGSwap);
-		
-		//@SuppressWarnings("rawtypes")
-		//Applier<RoutesSolution<?>> MApplier =  new Applier<RoutesSolution<?>>();
-		//MoveApplierRoutesSolutionRemove applierRemove =  new MoveApplierRoutesSolutionRemove();
-		MoveApplierRoutesSolutionSwap applierSwap =  new MoveApplierRoutesSolutionSwap();
-		
-		//applierRemove.setApplier(MApplier);
-		//MApplier.addMoveApplier(applierRemove);
-		//applierSwap.setApplier(MApplier);
-		//MApplier.addMoveApplier(applierSwap);
-		
-		/* Initialization of Move Manager */
-		MMSequential.init();
-		/* Connection to DB */
-		DBControl db =  new DBControl(); 
-		db.init();
-		//db.addSolutionMoveRemove(solution.getSolution());
-		
-		while(MMSequential.hasNext()) {
-			System.out.println("\n-----------------------------------------------------------");
-			//System.out.println(MMSequential.getNumberOfMoveGenerators() + " has next? " + MMSequential.hasNext());
-			//System.out.println(MMSequential.next());
-			@SuppressWarnings("unchecked")
-			RoutesSolution<Vrp> auxSolution =  solution.getSolution().clone();
-			MoveRoutesSolutionSwap testMove = (MoveRoutesSolutionSwap) MMSequential.next();
-			applierSwap.accept(auxSolution, testMove);
-			System.out.println(auxSolution);
-			/*MApplier.setSolution(solutionRemove);
-			MApplier.setMove(MMSequential.next());*/
-			//applierRemove.accept(solutionRemove, (MoveRoutesSolutionRemove) MMSequential.next());
-			//db.addSolutionMoveRemove(auxSolution);
-			db.addSolutionMoveSwap(auxSolution);
-		}
+		ExplorerLandScape  explorador  =  new ExplorerLandScape();
+		explorador.setProblem(problem);
+		explorador.init();
+		//explorador.explorer(solution.getSolution(), 0, 3600);
 		
 	}
 
