@@ -10,7 +10,6 @@ import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.vrp.opt.core.Vrp;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
-//import com.mongodb.MongoCredential;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import static com.mongodb.client.model.Filters.*;
@@ -20,23 +19,16 @@ public class DBControl {
 	
 	private MongoClient mongoClient; 
 	private MongoDatabase database; 
-	//private MongoCredential credential;
 	private MongoCollection<Document> collection; 
 	private long idOriginalSolution; 
 	private Vrp originalProblem; 
-	
-	public DBControl() {
-		//this.idSolution = 0; /* improve only for test */ 
-	}
 	
 	public void init() {
 		try {
 			Logger mongoLogger = Logger.getLogger("org.mongodb.driver");
 			mongoLogger.setLevel(Level.SEVERE);
 			this.mongoClient =  new MongoClient(new MongoClientURI("mongodb://127.0.0.1:27017"));
-			//this.credential = MongoCredential.createCredential("sampleUser", "Vrp", "password".toCharArray());			
 			this.database =  mongoClient.getDatabase("Vrp");
-			//this.originalProblem =  problem; 
 		}
 		catch(Exception e) {
 			System.out.println(e);

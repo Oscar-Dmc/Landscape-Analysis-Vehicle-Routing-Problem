@@ -137,7 +137,7 @@ public class ExplorerLandScape {
 				break;
 		}
 		
-		explorer.explorer(solution, 0, 300);
+		explorer.explorer(solution, 0, (3600 * 3));
 		System.out.println("Fin de ejecución");
 	}
 	
