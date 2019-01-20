@@ -1,13 +1,17 @@
 package com.kaizten.vrp.opt.core;
 
+import com.kaizten.opt.move.MoveRoutesSolutionRemove;
 import com.kaizten.opt.move.MoveRoutesSolutionSwap;
 import com.kaizten.opt.move.applier.Applier;
 import com.kaizten.opt.move.applier.MoveApplier;
+import com.kaizten.opt.move.applier.MoveApplierRoutesSolutionRemove;
 import com.kaizten.opt.move.manager.MoveManagerSequential;
+import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionSwap;
+import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionRemove;
+import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionSwap;
+
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.vrp.opt.db.DBControl;
-import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionSwap;
-import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionSwap;
 
 public class ExplorerLandScape {
 
@@ -16,13 +20,12 @@ public class ExplorerLandScape {
 	private MoveManagerSequential<RoutesSolution<Vrp>, ?> MMSequential;
 	private Applier<RoutesSolution<Vrp>> GApplier; 
 	private MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap> MGSwap;
+	private MoveGeneratorRoutesSolutionRemove<RoutesSolution<Vrp>, MoveRoutesSolutionRemove> MGRemove; 
 	private DBControl db; 
 	private long idCurrentSolution; 
 	
 	/* ToDo 
-	 * 1- Donde almacenamos la solucion inicial
-	 * 2- Si no almacena nada imprimir por pantalla un warning.
-	 * 3- Creamos el main aqui para controlar la ejecución del problema. 
+
 	 * */
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -30,9 +33,12 @@ public class ExplorerLandScape {
 		this.MMSequential = new MoveManagerSequential();
 		this.GApplier =  new Applier<RoutesSolution<Vrp>>();
 		this.MGSwap = new MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap>();
+		this.MGRemove =  new MoveGeneratorRoutesSolutionRemove<RoutesSolution<Vrp>, MoveRoutesSolutionRemove>();
 		/* Appliers */ 
 		MoveApplier applierSwap =  new MoveApplierRoutesSolutionSwap();
+		MoveApplier applierRemove =  new MoveApplierRoutesSolutionRemove();
 		this.GApplier.addMoveApplier(applierSwap);
+		this.GApplier.addMoveApplier(applierRemove);
 		
 		/* Database */ 
 		this.db = new DBControl();
@@ -54,6 +60,12 @@ public class ExplorerLandScape {
 					executionTime -= runSwap(executionTime);
 				}
 				break;
+			case 1:
+				this.MMSequential.addMoveGenerator(this.MGRemove);
+				this.MMSequential.init();
+				while(this.MMSequential.hasNext()) {
+					runRemove(executionTime);
+				}
 		}
 		
 		
@@ -68,14 +80,42 @@ public class ExplorerLandScape {
 		this.GApplier.setSolution(this.auxSolution);
 		this.GApplier.setMove(this.MMSequential.next());
 		
-		this.db.addSolutionMoveSwap(GApplier.apply());
+		this.db.addSolutionMoveSwap(this.GApplier.apply());
 		if(executionTime > 0) {
 			if(!this.MMSequential.hasNext()) {
-				this.setSolution(db.getSolution(idCurrentSolution + 1));
+				this.setSolution(this.db.getSolution(this.idCurrentSolution + 1));
 				this.MMSequential.removeMoveGenerator(this.MGSwap);
 				this.MMSequential.setSolution(this.solution);
 				this.MMSequential.addMoveGenerator(this.MGSwap);
 				this.MGSwap.init();
+			}
+		}
+		
+		time_end = System.currentTimeMillis();
+		return(( time_end - time_start ) * 0.001);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public double runRemove(double executionTime) {
+		long time_start, time_end;
+		time_start = System.currentTimeMillis();
+		
+		//Contenido
+		this.auxSolution =  this.solution.clone();
+		this.GApplier.setSolution(this.auxSolution);
+		this.GApplier.setMove(this.MMSequential.next());
+		
+		System.out.println(this.GApplier.apply());
+		this.db.addSolutionMoveRemove(this.GApplier.apply()); 
+		
+		if(executionTime > 0) {
+			if(!this.MMSequential.hasNext()) {
+				System.out.println("ID Actual " + this.idCurrentSolution);
+				this.setSolution(this.db.getSolution(this.idCurrentSolution + 1));
+				this.MMSequential.removeMoveGenerator(this.MGRemove);
+				this.MMSequential.setSolution(this.solution);
+				this.MMSequential.addMoveGenerator(this.MGRemove);
+				this.MGRemove.init();
 			}
 		}
 		
@@ -106,7 +146,7 @@ public class ExplorerLandScape {
 		RoutesSolution<Vrp> solution = null; 
 		Vrp problemVrp = null;
 		explorer.init();
-		int option = 2;
+		int option = 1;
 		/* Mejorar la entrada del problema, esto es para pruebas */ 
 		switch(option) {
 			case 0:
@@ -137,7 +177,7 @@ public class ExplorerLandScape {
 				break;
 		}
 		
-		explorer.explorer(solution, 0, (3600 * 3));
+		explorer.explorer(solution, 1, (3600 * 3));
 		System.out.println("Fin de ejecución");
 	}
 	

@@ -129,19 +129,19 @@ public class DBControl {
 		
 	}
 	
-	public void addSolutionMoveRemove(RoutesSolution<Vrp> solution/*, MoveRoutesSolutionRemove move*/) {
+	public void addSolutionMoveRemove(RoutesSolution<Vrp> solution) {
 		this.collection =  database.getCollection("solutionsTest");
-		/* improve  
-		if(this.idSolution == 0) {
-			addSolution(solution);
-		} */
-		//long id =  this.collection.countDocuments() + 1;
-		/*@SuppressWarnings("unchecked")
-		RoutesSolution<Vrp> solutionRemove =  solution.clone();
-		MoveApplierRoutesSolutionRemove applierRemove =  new MoveApplierRoutesSolutionRemove();
-		applierRemove.accept(solutionRemove, move);*/
+		long id =  addSolution(solution);
 		
-		addSolution(solution);
+		Document pair =   new Document("idNode1", this.idOriginalSolution)
+										.append("idNode2", id);
+		
+		this.collection = database.getCollection("removeGraph");
+		
+		if(this.collection.find(and(eq("idNode1", this.idOriginalSolution), eq("idNode2", id))).first() == null && 
+		   this.collection.find(and(eq("idNode1", id), eq("idNode2", this.idOriginalSolution))).first() == null) {
+						this.collection.insertOne(pair);
+				}
 	}
 	
 	public void addSolutionMoveSwap(RoutesSolution<Vrp> solution) {

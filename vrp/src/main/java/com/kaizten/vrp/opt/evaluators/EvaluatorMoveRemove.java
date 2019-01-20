@@ -1,11 +1,11 @@
 package com.kaizten.vrp.opt.evaluators;
 
 import com.kaizten.opt.evaluator.EvaluatorObjectiveFunctionMovement;
-import com.kaizten.opt.move.MoveRemove;
+import com.kaizten.opt.move.MoveRoutesSolutionRemove;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.vrp.opt.core.Vrp;
 
-public class EvaluatorMoveRemove extends EvaluatorObjectiveFunctionMovement<RoutesSolution<Vrp>, MoveRemove> {
+public class EvaluatorMoveRemove extends EvaluatorObjectiveFunctionMovement<RoutesSolution<Vrp>, MoveRoutesSolutionRemove> {
 	
 	public EvaluatorMoveRemove() {
 		super();
@@ -16,8 +16,8 @@ public class EvaluatorMoveRemove extends EvaluatorObjectiveFunctionMovement<Rout
 	}
 
 	@Override
-	public double[] evaluate(RoutesSolution<Vrp> solution, MoveRemove move) {
-		int indexRoute =  solution.getRouteIndex(move.getElement());
+	public double[] evaluate(RoutesSolution<Vrp> solution, MoveRoutesSolutionRemove move) {
+		int indexRoute =  solution.getRouteIndex(move.getToRemove());
 		double[] desviation =  new double [solution.getNumberOfObjectives()]; 
 		double tctRouteOriginal = 0.0;
 		double tctRouteMod = 0.0; 
@@ -32,7 +32,7 @@ public class EvaluatorMoveRemove extends EvaluatorObjectiveFunctionMovement<Rout
 		
 		@SuppressWarnings("unchecked")
 		RoutesSolution<Vrp> solutionRemove =  solution.clone();
-		solutionRemove.remove(move.getElement());
+		solutionRemove.remove(move.getToRemove());
 		
 		indexCustomer =  solutionRemove.getFirstInRoute(indexRoute);
 		tctRouteMod  += solutionRemove.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1]; 

@@ -54,8 +54,6 @@ public class EvaluatorMoveSwap extends EvaluatorObjectiveFunctionMovement<Routes
 		@SuppressWarnings("unchecked")
 		RoutesSolution<Vrp> solutionSwap =  solution.clone();
 		this.SolutionSwap(solutionSwap, move);
-		
-		//System.out.println(solutionSwap);
 		for (int i = 0; i < indexRoutes.length;  i++) {
 			int indexCustomer =  solutionSwap.getFirstInRoute(indexRoutes[i]);
 			tctRouteMod  += solutionSwap.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1]; 

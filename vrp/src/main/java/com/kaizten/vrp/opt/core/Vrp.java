@@ -106,30 +106,6 @@ public class Vrp extends OptimizationProblem {
 		return (nSatisfied == this.customers.size());
 	}
 
-	/*public static void main(String[] args) {
-		Vrp problem = new Vrp(100, 100, 15, 5, 3);
-		//Vrp problem = new Vrp(5000, 5000, 500, 100, 5);
-		System.out.print("\n\n\tDistance Matrix\n");
-		for (int i = 0; i < problem.getCustomers().size(); i++) { 
-			System.out.print(i + "\t| ");
-			for (int j = 0; j < problem.getCustomers().size(); j++) {
-				
-				System.out.print("\t" + problem.getDistanceMatrix()[i][j]);
-			}
-			System.out.println();
-		}		
-		
-		LatencySolution solution = new LatencySolution(problem, 3);
-		solution.getSolution().evaluate();
-		System.out.println(solution.getSolution().toString());
-		
-		ExplorerLandScape  explorador  =  new ExplorerLandScape();
-		explorador.setProblem(problem);
-		explorador.init();
-		//explorador.explorer(solution.getSolution(), 0, 3600);
-		
-	}
-
 	/* Get's & Set's */
 	public ArrayList<Node> getCustomers() {
 		return customers;
