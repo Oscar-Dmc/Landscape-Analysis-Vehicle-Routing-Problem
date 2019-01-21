@@ -12,6 +12,9 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Sorts;
+
 import static com.mongodb.client.model.Filters.*;
 
 
@@ -20,15 +23,17 @@ public class DBControl {
 	private MongoClient mongoClient; 
 	private MongoDatabase database; 
 	private MongoCollection<Document> collection; 
-	private long idOriginalSolution; 
+	private long idOriginalSolution;
+	private int environment;
 	private Vrp originalProblem; 
+	private final long RANGE_OF_SOLUTIONS = 3000000;
 	
 	public void init() {
 		try {
 			Logger mongoLogger = Logger.getLogger("org.mongodb.driver");
 			mongoLogger.setLevel(Level.SEVERE);
 			this.mongoClient =  new MongoClient(new MongoClientURI("mongodb://127.0.0.1:27017"));
-			this.database =  mongoClient.getDatabase("Vrp");
+			this.database =  this.mongoClient.getDatabase("Vrp");
 		}
 		catch(Exception e) {
 			System.out.println(e);
@@ -63,6 +68,7 @@ public class DBControl {
 				customer.clear();
 				distance.clear();
 			}
+			
 			id =  this.collection.countDocuments() + 1;
 			
 			Document problemDB =  new Document("_id", id)
@@ -110,8 +116,23 @@ public class DBControl {
 			for(int i = 0; i < solution.getNumberOfObjectives();  i++) {
 				objFunction[i] =  solution.getObjectiveFunctionValue(i);
 			}
-
-			id = this.collection.countDocuments() + 1;
+			
+			/* Save the solutions in blocks */ 
+			Document aux = this.collection.find(and(Filters.gte("_id", this.environment * RANGE_OF_SOLUTIONS),
+													Filters.lt("_id", (this.environment + 1) * RANGE_OF_SOLUTIONS)))
+										  .sort(Sorts.descending("_id")).first();
+			
+			if(aux != null) {
+				id = aux.getLong("_id") + 1;
+			}
+			else {
+				id = RANGE_OF_SOLUTIONS * this.environment; 
+			}
+			/*System.out.println(this.collection.find(and(Filters.gte("_id", this.environment * RANGE_OF_SOLUTIONS),
+														Filters.lt("_id", (this.environment + 1) * RANGE_OF_SOLUTIONS)))
+											  .sort(Sorts.descending("_id")).first().getLong("_id"));
+			id = this.collection.find(and(Filters.gte("_id", this.environment * RANGE_OF_SOLUTIONS),Filters.lt("_id", (this.environment + 1) * RANGE_OF_SOLUTIONS)))
+								.sort(Sorts.descending("_id")).first().getLong("_id") + 1;*/
 			Document solutionDb =  new Document("_id",  id)
 					.append("Predecessor", Arrays.asList(predecessors))
 					.append("Successor", Arrays.asList(successors))
@@ -130,56 +151,72 @@ public class DBControl {
 	}
 	
 	public void addSolutionMoveRemove(RoutesSolution<Vrp> solution) {
-		this.collection =  database.getCollection("solutionsTest");
+		this.collection =  this.database.getCollection("solutionsTest");
 		long id =  addSolution(solution);
 		
 		Document pair =   new Document("idNode1", this.idOriginalSolution)
 										.append("idNode2", id);
 		
-		this.collection = database.getCollection("removeGraph");
+		this.collection = this.database.getCollection("removeGraph");
 		
 		if(this.collection.find(and(eq("idNode1", this.idOriginalSolution), eq("idNode2", id))).first() == null && 
 		   this.collection.find(and(eq("idNode1", id), eq("idNode2", this.idOriginalSolution))).first() == null) {
 						this.collection.insertOne(pair);
-				}
+		}
 	}
 	
 	public void addSolutionMoveSwap(RoutesSolution<Vrp> solution) {
-		this.collection =  database.getCollection("solutionsTest");
+		this.collection =  this.database.getCollection("solutionsTest");
 		long id =  addSolution(solution);		
 		
 		Document pair =  new Document("idNode1", this.idOriginalSolution)
 									.append("idNode2", id);
 		
-		this.collection =  database.getCollection("swapGraph");
+		this.collection =  this.database.getCollection("swapGraph");
 		
 		if(this.collection.find(and(eq("idNode1", this.idOriginalSolution), eq("idNode2", id))).first() == null && 
 		   this.collection.find(and(eq("idNode1", id), eq("idNode2", this.idOriginalSolution))).first() == null) {
 				
 			this.collection.insertOne(pair);
-		}
-		
+		}		
 		
 	}
 	
-	public long addInitialSolution(RoutesSolution<Vrp> solution) {
-		this.collection =  database.getCollection("solutionsTest");
+	public void addSolutionMoveInsertionAfter(RoutesSolution<Vrp> solution) {
+		this.collection =  this.database.getCollection("solutionsTest");
+		//System.out.println(solution.toString());
 		long id = addSolution(solution);
-		setIdOriginalSolution(id);
+		
+		Document pair = new Document("idNode1", this.idOriginalSolution)
+						.append("idNode2", id);
+		
+		this.collection =  this.database.getCollection("insertionAfterGraph");
+		if(this.collection.find(and(eq("idNode1", this.idOriginalSolution), eq("idNode2", id))).first() == null && 
+		   this.collection.find(and(eq("idNode1", id), eq("idNode2", this.idOriginalSolution))).first() == null) {
+						
+			this.collection.insertOne(pair);
+		}		
+	}
+	
+	public long addInitialSolution(RoutesSolution<Vrp> solution, int environment) {
+		this.collection =  this.database.getCollection("solutionsTest");
+		this.environment =  environment; 
+		long id = addSolution(solution);
+		this.setIdOriginalSolution(id);
 		return id;
 	}
 	
 	/* Testing method */ 
 	public boolean getPair(long id1, long id2) {
-		this.collection =  database.getCollection("swapGraph");
+		this.collection =  this.database.getCollection("swapGraph");
 		System.out.println(this.collection.find(and(eq("idNode1", id1), eq("idNode2", id2))).first());
 		return (this.collection.find(and(eq("idNode1", id1), eq("idNode2", id2))).first() != null);
 	}
-	
+
 	/* Get a solution in database */ 
 	@SuppressWarnings("unchecked")
 	public RoutesSolution<Vrp> getSolution(long id){
-		this.collection =  database.getCollection("solutionsTest");
+		this.collection =  this.database.getCollection("solutionsTest");
 		if(this.originalProblem == null ) {
 			System.out.println("The problem which belong this solution can't be null.");
 			return null; 
@@ -213,7 +250,7 @@ public class DBControl {
 	
 	@SuppressWarnings("unchecked")
 	public Vrp getProblem(long id) {
-		this.collection =  database.getCollection("Problems");
+		this.collection =  this.database.getCollection("Problems");
 		Document documentWithProblem = this.collection.find(eq("_id",id)).first();
 		ArrayList<ArrayList<Integer>> customers =  (ArrayList<ArrayList<Integer>>) documentWithProblem.get("Customers");
 		Integer nCustomers = documentWithProblem.getInteger("nCustomers");
@@ -221,6 +258,7 @@ public class DBControl {
 		
 		return new Vrp(customers, nCustomers, nVehicles);
 	}
+	
 	public void setIdOriginalSolution(long id) {
 		this.idOriginalSolution =  id; 
 	}
@@ -230,7 +268,7 @@ public class DBControl {
 	}
 	
 	public long exist(RoutesSolution<Vrp> solution) {
-		this.collection = database.getCollection("solutionsTest");
+		this.collection = this.database.getCollection("solutionsTest");
 		int nCustomers = solution.getOptimizationProblem().getNCustomers();
 		Integer[] predecessors = new Integer [nCustomers];
 		for(int i = 0; i < nCustomers; i++) {
@@ -261,4 +299,5 @@ public class DBControl {
 		}
 		return -1;
 	}
+
 }

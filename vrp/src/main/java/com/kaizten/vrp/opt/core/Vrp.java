@@ -3,6 +3,7 @@ package com.kaizten.vrp.opt.core;
 import com.kaizten.opt.evaluator.Evaluator;
 import com.kaizten.opt.problem.OptimizationProblem;
 import com.kaizten.utils.algorithm.GraphUtils;
+import com.kaizten.vrp.opt.evaluators.EvaluatorMoveInsertionAfter;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveRemove;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveSwap;
 import com.kaizten.vrp.opt.evaluators.EvaluatorObjectiveFunctionDistances;
@@ -28,6 +29,7 @@ public class Vrp extends OptimizationProblem {
 		evaluator.addEvaluatorObjectiveFunction(new EvaluatorObjectiveFunctionDistances());
 		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveRemove(1), 0);
 		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveSwap(1), 0);
+		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveInsertionAfter(), 0);
 		this.setEvaluator(evaluator);
 		
 		/* Init ArrayList */
@@ -62,6 +64,7 @@ public class Vrp extends OptimizationProblem {
 		evaluator.addEvaluatorObjectiveFunction(new EvaluatorObjectiveFunctionDistances());
 		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveRemove(1), 0);
 		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveSwap(1), 0);
+		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveInsertionAfter(), 0);
 		this.setEvaluator(evaluator);
 		this.customers = new ArrayList<Node>();
 		this.nCustomers =  nCustomers;

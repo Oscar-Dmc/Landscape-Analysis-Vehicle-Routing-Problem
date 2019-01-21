@@ -1,12 +1,15 @@
 package com.kaizten.vrp.opt.core;
 
+import com.kaizten.opt.move.MoveRoutesSolutionInsertionAfter;
 import com.kaizten.opt.move.MoveRoutesSolutionRemove;
 import com.kaizten.opt.move.MoveRoutesSolutionSwap;
+import com.kaizten.opt.move.manager.MoveManagerSequential;
 import com.kaizten.opt.move.applier.Applier;
 import com.kaizten.opt.move.applier.MoveApplier;
+import com.kaizten.opt.move.applier.MoveApplierRoutesSolutionInsertionAfter;
 import com.kaizten.opt.move.applier.MoveApplierRoutesSolutionRemove;
-import com.kaizten.opt.move.manager.MoveManagerSequential;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionSwap;
+import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionInsertionAfter;
 import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionRemove;
 import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionSwap;
 
@@ -21,6 +24,7 @@ public class ExplorerLandScape {
 	private Applier<RoutesSolution<Vrp>> GApplier; 
 	private MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap> MGSwap;
 	private MoveGeneratorRoutesSolutionRemove<RoutesSolution<Vrp>, MoveRoutesSolutionRemove> MGRemove; 
+	private MoveGeneratorRoutesSolutionInsertionAfter<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionAfter> MGInsertionAfter;
 	private DBControl db; 
 	private long idCurrentSolution; 
 	
@@ -34,23 +38,23 @@ public class ExplorerLandScape {
 		this.GApplier =  new Applier<RoutesSolution<Vrp>>();
 		this.MGSwap = new MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap>();
 		this.MGRemove =  new MoveGeneratorRoutesSolutionRemove<RoutesSolution<Vrp>, MoveRoutesSolutionRemove>();
+		this.MGInsertionAfter =  new MoveGeneratorRoutesSolutionInsertionAfter<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionAfter>();
 		/* Appliers */ 
 		MoveApplier applierSwap =  new MoveApplierRoutesSolutionSwap();
 		MoveApplier applierRemove =  new MoveApplierRoutesSolutionRemove();
+		MoveApplier applierInsertionAfter =  new MoveApplierRoutesSolutionInsertionAfter();
 		this.GApplier.addMoveApplier(applierSwap);
 		this.GApplier.addMoveApplier(applierRemove);
+		this.GApplier.addMoveApplier(applierInsertionAfter);
 		
 		/* Database */ 
 		this.db = new DBControl();
 		this.db.init();
-		//this.db.addProblem(this.problem);
 	}
 	
 	public void explorer (RoutesSolution<Vrp> solution, int environment,  double executionTime) {
 		this.MMSequential.setSolution(solution);
-		this.setInitialSolution(solution);
-		
-		//MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap> MGSwap =  new MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap>();
+		this.setInitialSolution(solution, environment);  
 		
 		switch(environment) {
 			case 0 : 
@@ -63,12 +67,18 @@ public class ExplorerLandScape {
 			case 1:
 				this.MMSequential.addMoveGenerator(this.MGRemove);
 				this.MMSequential.init();
-				while(this.MMSequential.hasNext()) {
-					runRemove(executionTime);
+				while(executionTime > 0) { 
+					executionTime -= runRemove(executionTime);
 				}
-		}
-		
-		
+				break;
+			case 2:
+				this.MMSequential.addMoveGenerator(this.MGInsertionAfter);
+				this.MMSequential.init();
+				while(executionTime > 0) {					
+					executionTime -= runInsertionAfter(executionTime);
+				}
+				break;
+		}	
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -100,17 +110,16 @@ public class ExplorerLandScape {
 		long time_start, time_end;
 		time_start = System.currentTimeMillis();
 		
-		//Contenido
 		this.auxSolution =  this.solution.clone();
 		this.GApplier.setSolution(this.auxSolution);
 		this.GApplier.setMove(this.MMSequential.next());
 		
-		System.out.println(this.GApplier.apply());
+		//System.out.println(this.GApplier.apply());
 		this.db.addSolutionMoveRemove(this.GApplier.apply()); 
 		
 		if(executionTime > 0) {
 			if(!this.MMSequential.hasNext()) {
-				System.out.println("ID Actual " + this.idCurrentSolution);
+				//System.out.println("ID Actual " + this.idCurrentSolution);
 				this.setSolution(this.db.getSolution(this.idCurrentSolution + 1));
 				this.MMSequential.removeMoveGenerator(this.MGRemove);
 				this.MMSequential.setSolution(this.solution);
@@ -123,14 +132,41 @@ public class ExplorerLandScape {
 		return(( time_end - time_start ) * 0.001);
 	}
 	
+	@SuppressWarnings("unchecked")
+	public double runInsertionAfter(double executionTime) {
+		long time_start, time_end;
+		time_start = System.currentTimeMillis();
+		
+		this.auxSolution =  this.solution.clone();
+		this.GApplier.setSolution(this.auxSolution);
+		this.GApplier.setMove(this.MMSequential.next());
+		
+		this.db.addSolutionMoveInsertionAfter(this.GApplier.apply());
+		//System.out.println(this.GApplier.apply());
+		if(executionTime > 0) {
+			if(!this.MMSequential.hasNext()) {
+				//System.out.println("Nueva solución" );
+				this.setSolution(this.db.getSolution(this.idCurrentSolution + 1));
+				//System.out.println(this.solution);
+				this.MMSequential.removeMoveGenerator(MGInsertionAfter);
+				this.MMSequential.setSolution(this.solution);
+				this.MMSequential.addMoveGenerator(MGInsertionAfter);
+				this.MGInsertionAfter.init();
+				}
+		}
+		
+		time_end = System.currentTimeMillis();
+		return(( time_end - time_start ) * 0.001);
+	}
+	
 	/* Set & Get */ 
 	public void setSolution(RoutesSolution<Vrp> solution) {
 		this.idCurrentSolution =  db.addSolution(solution);
 		this.solution =  solution;		
 	}
 	
-	public void setInitialSolution(RoutesSolution<Vrp> solution) {
-		this.idCurrentSolution =  this.db.addInitialSolution(solution);
+	public void setInitialSolution(RoutesSolution<Vrp> solution, int environment) {
+		this.idCurrentSolution =  this.db.addInitialSolution(solution, environment);
 		this.solution =  solution;
 	}
 	
@@ -138,15 +174,13 @@ public class ExplorerLandScape {
 		return this.db;
 		}
 	
-	
-	
 	/* Main */ 
 	public static void main(String[] args) {
 		ExplorerLandScape explorer =  new ExplorerLandScape();
 		RoutesSolution<Vrp> solution = null; 
 		Vrp problemVrp = null;
 		explorer.init();
-		int option = 1;
+		int option = 2;
 		/* Mejorar la entrada del problema, esto es para pruebas */ 
 		switch(option) {
 			case 0:
@@ -165,19 +199,17 @@ public class ExplorerLandScape {
 				solution =  new LatencySolution(problemVrp, 3).getSolution();
 				solution.evaluate();
 				explorer.getDBControl().setOriginalProblem(problemVrp);
-				explorer.setInitialSolution(solution);
 				break; 
 			case 2: 
 				/* Todo obtenido de la base de datos */ 
 				problemVrp = explorer.getDBControl().getProblem(1);
 				explorer.getDBControl().setOriginalProblem(problemVrp);
-				solution = explorer.getDBControl().getSolution(1);
+				solution = explorer.getDBControl().getSolution(3000080);
 				solution.evaluate();
-				explorer.setInitialSolution(solution);
 				break;
 		}
 		
-		explorer.explorer(solution, 1, (3600 * 3));
+		explorer.explorer(solution, 2, (3600 * 3));
 		System.out.println("Fin de ejecución");
 	}
 	
