@@ -16,22 +16,50 @@ public class EvaluatorMoveSwap extends EvaluatorObjectiveFunctionMovement<Routes
 	}
 	
 	public void SolutionSwap (RoutesSolution<Vrp> solution, MoveRoutesSolutionSwap move) {		
-		if(solution.getPredecessor(move.getElement0()) != -1) {
-			int pred0 =  solution.getPredecessor(move.getElement0());
-			solution.remove(move.getElement0());
-			solution.addAfter(move.getElement0(), move.getElement1());
-			solution.remove(move.getElement1());
-			solution.addAfter(move.getElement1(), pred0);
+		if(solution.getRouteIndex(move.getElement0()) == solution.getRouteIndex(move.getElement1())) {
+			this.swapInSameRoute(solution, move);
 		}
 		else {
-			int succ0 =  solution.getSuccessor(move.getElement0());
-			solution.remove(move.getElement0());
-			solution.addAfter(move.getElement0(), move.getElement1());
-			solution.remove(move.getElement1());
-			solution.addBefore(move.getElement1(), succ0);
+			if(solution.getPredecessor(move.getElement0()) != -1) {
+				int pred0 =  solution.getPredecessor(move.getElement0());
+				solution.addAfter(move.getElement0(), move.getElement1());
+				solution.addAfter(move.getElement1(), pred0);
+
+			}
+			else {
+				int succ0 =  solution.getSuccessor(move.getElement0());
+				solution.addAfter(move.getElement0(), move.getElement1());
+				solution.addBefore(move.getElement1(), succ0);
+
+			}
 		}
 	}
 
+	public void swapInSameRoute(RoutesSolution<Vrp> solution, MoveRoutesSolutionSwap move) {
+		if(solution.getPredecessor(move.getElement0()) == move.getElement1()) {
+			solution.addBefore(move.getElement0(), move.getElement1());
+		}
+		else if (solution.getPredecessor(move.getElement1()) == move.getElement0()) {
+			solution.addBefore(move.getElement1(), move.getElement0());
+		}
+		else {
+			int pred0 =  solution.getPredecessor(move.getElement0());
+			int pred1 =  solution.getPredecessor(move.getElement1());
+			if(pred0 == -1) {
+				solution.addBefore(move.getElement1(), move.getElement0());
+				solution.addAfter(move.getElement0(), pred1);
+			}
+			else if(pred1 == -1) {
+				solution.addBefore(move.getElement0(), move.getElement1());
+				solution.addAfter(move.getElement1(), pred0);
+			}
+			else {
+				solution.addAfter(move.getElement1(), pred0);
+				solution.addAfter(move.getElement0(), pred1);
+			}
+		}
+		
+	}
 	@Override
 	public double[] evaluate(RoutesSolution<Vrp> solution, MoveRoutesSolutionSwap move) {
 		int[] indexRoutes =  new int[2]; 

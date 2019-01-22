@@ -129,11 +129,7 @@ public class DBControl {
 			else {
 				id = RANGE_OF_SOLUTIONS * this.environment; 
 			}
-			/*System.out.println(this.collection.find(and(Filters.gte("_id", this.environment * RANGE_OF_SOLUTIONS),
-														Filters.lt("_id", (this.environment + 1) * RANGE_OF_SOLUTIONS)))
-											  .sort(Sorts.descending("_id")).first().getLong("_id"));
-			id = this.collection.find(and(Filters.gte("_id", this.environment * RANGE_OF_SOLUTIONS),Filters.lt("_id", (this.environment + 1) * RANGE_OF_SOLUTIONS)))
-								.sort(Sorts.descending("_id")).first().getLong("_id") + 1;*/
+
 			Document solutionDb =  new Document("_id",  id)
 					.append("Predecessor", Arrays.asList(predecessors))
 					.append("Successor", Arrays.asList(successors))
@@ -150,7 +146,7 @@ public class DBControl {
 		return id; 
 		
 	}
-	
+	/* Unificar todas las funciones de añadir a una sola  */ 
 	public void addSolutionMoveRemove(RoutesSolution<Vrp> solution) {
 		this.collection =  this.database.getCollection("solutionsTest");
 		long id =  addSolution(solution);
@@ -178,7 +174,6 @@ public class DBControl {
 	
 	public void addSolutionMoveInsertionAfter(RoutesSolution<Vrp> solution) {
 		this.collection =  this.database.getCollection("solutionsTest");
-		//System.out.println(solution.toString());
 		long id = addSolution(solution);
 		
 		Document pair = new Document("idNode1", this.idOriginalSolution)
@@ -199,7 +194,18 @@ public class DBControl {
 		if(existPair(this.idOriginalSolution, id, "insertionBeforeGraph")) {
 			this.collection.insertOne(pair);
 		}
+	}
+	
+	public void addSolutionMoveAfter(RoutesSolution<Vrp> solution) {
+		this.collection = this.database.getCollection("solutionsTest");
+		long id = addSolution(solution);
 		
+		Document pair = new Document("idNode1", this.idOriginalSolution)
+				 .append("idNode2", id);
+
+		if(existPair(this.idOriginalSolution, id, "moveAfterGraph")) {
+			this.collection.insertOne(pair);
+		}
 	}
 	
 	public long addInitialSolution(RoutesSolution<Vrp> solution, int environment) {

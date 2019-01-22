@@ -12,10 +12,13 @@ import com.kaizten.opt.move.applier.Applier;
 import com.kaizten.opt.move.applier.MoveApplier;
 import com.kaizten.opt.move.applier.MoveApplierRoutesSolutionInsertionAfter;
 import com.kaizten.opt.move.applier.MoveApplierRoutesSolutionRemove;
+import com.kaizten.vrp.opt.move.MoveRoutesSolutionMoveAfter;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionInsertionBefore;
+import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionMoveAfter;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionSwap;
 import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionInsertionAfter;
 import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionInsertionBefore;
+import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionMoveAfter;
 import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionRemove;
 import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionSwap;
 import com.mongodb.client.FindIterable;
@@ -32,6 +35,7 @@ public class ExplorerLandScape {
 	private MoveGeneratorRoutesSolutionRemove<RoutesSolution<Vrp>, MoveRoutesSolutionRemove> MGRemove; 
 	private MoveGeneratorRoutesSolutionInsertionAfter<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionAfter> MGInsertionAfter;
 	private MoveGeneratorRoutesSolutionInsertionBefore<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionBefore> MGInsertionBefore; 
+	private MoveGeneratorRoutesSolutionMoveAfter<RoutesSolution<Vrp>, MoveRoutesSolutionMoveAfter> MGMoveAfter; 
 	private DBControl db; 
 	private long idCurrentSolution;
 	private int environment; 
@@ -50,16 +54,19 @@ public class ExplorerLandScape {
 		this.MGRemove =  new MoveGeneratorRoutesSolutionRemove<RoutesSolution<Vrp>, MoveRoutesSolutionRemove>();
 		this.MGInsertionAfter =  new MoveGeneratorRoutesSolutionInsertionAfter<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionAfter>();
 		this.MGInsertionBefore =  new MoveGeneratorRoutesSolutionInsertionBefore<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionBefore>();
+		this.MGMoveAfter = new MoveGeneratorRoutesSolutionMoveAfter<RoutesSolution<Vrp>, MoveRoutesSolutionMoveAfter>();
 		
 		/* Appliers */ 
 		MoveApplier applierSwap =  new MoveApplierRoutesSolutionSwap();
 		MoveApplier applierRemove =  new MoveApplierRoutesSolutionRemove();
 		MoveApplier applierInsertionAfter =  new MoveApplierRoutesSolutionInsertionAfter();
 		MoveApplier applierInsertionBefore =  new MoveApplierRoutesSolutionInsertionBefore();
+		MoveApplier applierMoveAfter = new MoveApplierRoutesSolutionMoveAfter();
 		this.GApplier.addMoveApplier(applierSwap);
 		this.GApplier.addMoveApplier(applierRemove);
 		this.GApplier.addMoveApplier(applierInsertionAfter);
 		this.GApplier.addMoveApplier(applierInsertionBefore);
+		this.GApplier.addMoveApplier(applierMoveAfter);
 		
 		/* Database */ 
 		this.db = new DBControl();
@@ -99,7 +106,13 @@ public class ExplorerLandScape {
 				while(executionTime > 0) {
 					executionTime -= runInsertionBefore(executionTime);
 				}
-				
+				break;
+			case 4:
+				this.MMSequential.addMoveGenerator(this.MGMoveAfter);
+				this.MMSequential.init();
+				while(executionTime > 0) {
+					executionTime -= runMoveAfter(executionTime);
+				}
 				break;
 		}	
 	}
@@ -236,6 +249,38 @@ public class ExplorerLandScape {
 		return(( time_end_function - time_start_function ) * 0.001);
 	}
 	
+	public double runMoveAfter(double executionTime) {
+		long time_start_function, time_end_function;
+		time_start_function = System.currentTimeMillis();
+		if(this.MMSequential.hasNext()) {
+			this.reset();
+			this.db.addSolutionMoveAfter(this.GApplier.apply());
+			if(executionTime > 0) {
+				long time_start, time_end;
+				while(!this.MMSequential.hasNext() && executionTime > 0) {
+					long id =  nextSolutionToExplore("moveAfterGraph");
+					
+					time_start = System.currentTimeMillis();
+					if(id != -1) {
+						this.setSolution(this.db.getSolution(id));
+						this.db.setIdOriginalSolution(id);
+						this.MMSequential.removeMoveGenerator(this.MGMoveAfter);
+						this.MMSequential.setSolution(this.solution);
+						this.MMSequential.addMoveGenerator(this.MGMoveAfter);
+						this.MGMoveAfter.init();
+					} else {
+						return executionTime;
+					}
+					time_end = System.currentTimeMillis();
+					executionTime -= (( time_end - time_start ) * 0.001);
+				}
+			}
+		}
+		
+		time_end_function = System.currentTimeMillis();
+		return(( time_end_function - time_start_function ) * 0.001);
+	}
+	
 	@SuppressWarnings("unchecked")
 	public void reset() {
 		this.auxSolution = this.solution.clone();
@@ -320,12 +365,12 @@ public class ExplorerLandScape {
 				/* Todo obtenido de la base de datos */ 
 				problemVrp = explorer.getDBControl().getProblem(1);
 				explorer.getDBControl().setOriginalProblem(problemVrp);
-				solution = explorer.getDBControl().getSolution(3000080);
+				solution = explorer.getDBControl().getSolution(100);
 				solution.evaluate();
 				break;
 		}
 		System.out.println("Solución inicial\n" + solution );
-		explorer.explorer(solution, 3, 120);
+		explorer.explorer(solution, 4, 120);
 		System.out.println("Fin de ejecución");
 	}
 	
