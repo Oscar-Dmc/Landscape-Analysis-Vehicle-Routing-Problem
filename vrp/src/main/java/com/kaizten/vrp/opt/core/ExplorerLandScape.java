@@ -1,6 +1,10 @@
 package com.kaizten.vrp.opt.core;
 
+import java.util.ArrayList;
+
+import org.bson.Document;
 import com.kaizten.opt.move.MoveRoutesSolutionInsertionAfter;
+import com.kaizten.opt.move.MoveRoutesSolutionInsertionBefore;
 import com.kaizten.opt.move.MoveRoutesSolutionRemove;
 import com.kaizten.opt.move.MoveRoutesSolutionSwap;
 import com.kaizten.opt.move.manager.MoveManagerSequential;
@@ -8,11 +12,13 @@ import com.kaizten.opt.move.applier.Applier;
 import com.kaizten.opt.move.applier.MoveApplier;
 import com.kaizten.opt.move.applier.MoveApplierRoutesSolutionInsertionAfter;
 import com.kaizten.opt.move.applier.MoveApplierRoutesSolutionRemove;
+import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionInsertionBefore;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionSwap;
 import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionInsertionAfter;
+import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionInsertionBefore;
 import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionRemove;
 import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionSwap;
-
+import com.mongodb.client.FindIterable;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.vrp.opt.db.DBControl;
 
@@ -25,8 +31,11 @@ public class ExplorerLandScape {
 	private MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap> MGSwap;
 	private MoveGeneratorRoutesSolutionRemove<RoutesSolution<Vrp>, MoveRoutesSolutionRemove> MGRemove; 
 	private MoveGeneratorRoutesSolutionInsertionAfter<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionAfter> MGInsertionAfter;
+	private MoveGeneratorRoutesSolutionInsertionBefore<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionBefore> MGInsertionBefore; 
 	private DBControl db; 
-	private long idCurrentSolution; 
+	private long idCurrentSolution;
+	private int environment; 
+	private ArrayList<Long> nextSolutions; 
 	
 	/* ToDo 
 
@@ -34,18 +43,23 @@ public class ExplorerLandScape {
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void init() {
+		this.nextSolutions = new ArrayList<Long>();
 		this.MMSequential = new MoveManagerSequential();
 		this.GApplier =  new Applier<RoutesSolution<Vrp>>();
 		this.MGSwap = new MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap>();
 		this.MGRemove =  new MoveGeneratorRoutesSolutionRemove<RoutesSolution<Vrp>, MoveRoutesSolutionRemove>();
 		this.MGInsertionAfter =  new MoveGeneratorRoutesSolutionInsertionAfter<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionAfter>();
+		this.MGInsertionBefore =  new MoveGeneratorRoutesSolutionInsertionBefore<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionBefore>();
+		
 		/* Appliers */ 
 		MoveApplier applierSwap =  new MoveApplierRoutesSolutionSwap();
 		MoveApplier applierRemove =  new MoveApplierRoutesSolutionRemove();
 		MoveApplier applierInsertionAfter =  new MoveApplierRoutesSolutionInsertionAfter();
+		MoveApplier applierInsertionBefore =  new MoveApplierRoutesSolutionInsertionBefore();
 		this.GApplier.addMoveApplier(applierSwap);
 		this.GApplier.addMoveApplier(applierRemove);
 		this.GApplier.addMoveApplier(applierInsertionAfter);
+		this.GApplier.addMoveApplier(applierInsertionBefore);
 		
 		/* Database */ 
 		this.db = new DBControl();
@@ -54,7 +68,8 @@ public class ExplorerLandScape {
 	
 	public void explorer (RoutesSolution<Vrp> solution, int environment,  double executionTime) {
 		this.MMSequential.setSolution(solution);
-		this.setInitialSolution(solution, environment);  
+		this.environment = environment; 
+		this.setInitialSolution(solution, this.environment);  
 		
 		switch(environment) {
 			case 0 : 
@@ -78,86 +93,184 @@ public class ExplorerLandScape {
 					executionTime -= runInsertionAfter(executionTime);
 				}
 				break;
+			case 3:
+				this.MMSequential.addMoveGenerator(this.MGInsertionBefore);
+				this.MMSequential.init();
+				while(executionTime > 0) {
+					executionTime -= runInsertionBefore(executionTime);
+				}
+				
+				break;
 		}	
 	}
 	
-	@SuppressWarnings("unchecked")
 	public double runSwap(double executionTime) {
-		long time_start, time_end;
-		time_start = System.currentTimeMillis();
-		
-		this.auxSolution =  this.solution.clone();
-		this.GApplier.setSolution(this.auxSolution);
-		this.GApplier.setMove(this.MMSequential.next());
-		
-		this.db.addSolutionMoveSwap(this.GApplier.apply());
-		if(executionTime > 0) {
-			if(!this.MMSequential.hasNext()) {
-				this.setSolution(this.db.getSolution(this.idCurrentSolution + 1));
-				this.MMSequential.removeMoveGenerator(this.MGSwap);
-				this.MMSequential.setSolution(this.solution);
-				this.MMSequential.addMoveGenerator(this.MGSwap);
-				this.MGSwap.init();
-			}
-		}
-		
-		time_end = System.currentTimeMillis();
-		return(( time_end - time_start ) * 0.001);
-	}
-	
-	@SuppressWarnings("unchecked")
-	public double runRemove(double executionTime) {
-		long time_start, time_end;
-		time_start = System.currentTimeMillis();
-		
-		this.auxSolution =  this.solution.clone();
-		this.GApplier.setSolution(this.auxSolution);
-		this.GApplier.setMove(this.MMSequential.next());
-		
-		//System.out.println(this.GApplier.apply());
-		this.db.addSolutionMoveRemove(this.GApplier.apply()); 
-		
-		if(executionTime > 0) {
-			if(!this.MMSequential.hasNext()) {
-				//System.out.println("ID Actual " + this.idCurrentSolution);
-				this.setSolution(this.db.getSolution(this.idCurrentSolution + 1));
-				this.MMSequential.removeMoveGenerator(this.MGRemove);
-				this.MMSequential.setSolution(this.solution);
-				this.MMSequential.addMoveGenerator(this.MGRemove);
-				this.MGRemove.init();
-			}
-		}
-		
-		time_end = System.currentTimeMillis();
-		return(( time_end - time_start ) * 0.001);
-	}
-	
-	@SuppressWarnings("unchecked")
-	public double runInsertionAfter(double executionTime) {
-		long time_start, time_end;
-		time_start = System.currentTimeMillis();
-		
-		this.auxSolution =  this.solution.clone();
-		this.GApplier.setSolution(this.auxSolution);
-		this.GApplier.setMove(this.MMSequential.next());
-		
-		this.db.addSolutionMoveInsertionAfter(this.GApplier.apply());
-		//System.out.println(this.GApplier.apply());
-		if(executionTime > 0) {
-			if(!this.MMSequential.hasNext()) {
-				//System.out.println("Nueva solución" );
-				this.setSolution(this.db.getSolution(this.idCurrentSolution + 1));
-				//System.out.println(this.solution);
-				this.MMSequential.removeMoveGenerator(MGInsertionAfter);
-				this.MMSequential.setSolution(this.solution);
-				this.MMSequential.addMoveGenerator(MGInsertionAfter);
-				this.MGInsertionAfter.init();
+		long time_start_function, time_end_function;
+		time_start_function = System.currentTimeMillis();
+		if(this.MMSequential.hasNext()) {
+			this.reset();
+			
+			this.db.addSolutionMoveSwap(this.GApplier.apply());
+			if(executionTime > 0) {
+				long time_start, time_end;
+				while(!this.MMSequential.hasNext() && executionTime > 0) {
+					long id =  nextSolutionToExplore("swapGraph");
+					
+					time_start = System.currentTimeMillis();
+					if(id != -1) {
+						this.setSolution(this.db.getSolution(id));
+						this.db.setIdOriginalSolution(id);
+						this.MMSequential.removeMoveGenerator(this.MGSwap);
+						this.MMSequential.setSolution(this.solution);
+						this.MMSequential.addMoveGenerator(this.MGSwap);
+						this.MGSwap.init();
+					} else {
+						return executionTime;
+					}
+					time_end = System.currentTimeMillis();
+					executionTime -= (( time_end - time_start ) * 0.001);
 				}
+			}
 		}
 		
-		time_end = System.currentTimeMillis();
-		return(( time_end - time_start ) * 0.001);
+		time_end_function = System.currentTimeMillis();
+		return(( time_end_function - time_start_function ) * 0.001);
 	}
+	
+	public double runRemove(double executionTime) {
+		long time_start_function, time_end_function;
+		time_start_function = System.currentTimeMillis();
+		if(this.MMSequential.hasNext()) {
+			this.reset();
+			
+			this.db.addSolutionMoveRemove(this.GApplier.apply());
+			if(executionTime > 0) {
+				long time_start, time_end;
+				while(!this.MMSequential.hasNext() && executionTime > 0) {
+					long id =  nextSolutionToExplore("removeGraph");
+					
+					time_start = System.currentTimeMillis();
+					if(id != -1) {
+						this.setSolution(this.db.getSolution(id));
+						this.db.setIdOriginalSolution(id);
+						this.MMSequential.removeMoveGenerator(this.MGRemove);
+						this.MMSequential.setSolution(this.solution);
+						this.MMSequential.addMoveGenerator(this.MGRemove);
+						this.MGRemove.init();
+					} else {
+						return executionTime;
+					}
+					time_end = System.currentTimeMillis();
+					executionTime -= (( time_end - time_start ) * 0.001);
+				}
+			}
+		}
+		
+		time_end_function = System.currentTimeMillis();
+		return(( time_end_function - time_start_function ) * 0.001);
+	}
+	
+	public double runInsertionAfter(double executionTime) {
+		long time_start_function, time_end_function;
+		time_start_function = System.currentTimeMillis();
+		if(this.MMSequential.hasNext()) {
+			this.reset();
+			
+			this.db.addSolutionMoveInsertionAfter(this.GApplier.apply());
+			if(executionTime > 0) {
+				long time_start, time_end;
+				while(!this.MMSequential.hasNext() && executionTime > 0) {
+					long id =  nextSolutionToExplore("insertionAfterGraph");
+					
+					time_start = System.currentTimeMillis();
+					if(id != -1) {
+						this.setSolution(this.db.getSolution(id));
+						this.db.setIdOriginalSolution(id);
+						this.MMSequential.removeMoveGenerator(this.MGInsertionAfter);
+						this.MMSequential.setSolution(this.solution);
+						this.MMSequential.addMoveGenerator(this.MGInsertionAfter);
+						this.MGInsertionAfter.init();
+					} else {
+						return executionTime;
+					}
+					time_end = System.currentTimeMillis();
+					executionTime -= (( time_end - time_start ) * 0.001);
+				}
+			}
+		}
+		
+		time_end_function = System.currentTimeMillis();
+		return(( time_end_function - time_start_function ) * 0.001);
+	}
+	
+	public double runInsertionBefore(double executionTime) {
+		long time_start_function, time_end_function;
+		time_start_function = System.currentTimeMillis();
+		if(this.MMSequential.hasNext()) {
+			this.reset();
+			
+			this.db.addSolutionMoveInsertionBefore(this.GApplier.apply());
+			if(executionTime > 0) {
+				long time_start, time_end;
+				while(!this.MMSequential.hasNext() && executionTime > 0) {
+					long id =  nextSolutionToExplore("insertionBeforeGraph");
+					
+					time_start = System.currentTimeMillis();
+					if(id != -1) {
+						this.setSolution(this.db.getSolution(id));
+						this.db.setIdOriginalSolution(id);
+						this.MMSequential.removeMoveGenerator(this.MGInsertionBefore);
+						this.MMSequential.setSolution(this.solution);
+						this.MMSequential.addMoveGenerator(this.MGInsertionBefore);
+						this.MGInsertionBefore.init();
+					} else {
+						return executionTime;
+					}
+					time_end = System.currentTimeMillis();
+					executionTime -= (( time_end - time_start ) * 0.001);
+				}
+			}
+		}
+		
+		time_end_function = System.currentTimeMillis();
+		return(( time_end_function - time_start_function ) * 0.001);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void reset() {
+		this.auxSolution = this.solution.clone();
+		this.GApplier.setSolution(this.auxSolution);
+		this.GApplier.setMove(this.MMSequential.next());
+	}
+	
+	public long nextSolutionToExplore(String collection) {
+		if(this.nextSolutions.isEmpty()) {
+			FindIterable<Document> pairsDB = this.db.getPairs(this.idCurrentSolution, collection);
+			for(Document doc : pairsDB) {
+				if (this.nextSolutions.indexOf(doc.getLong("idNode2")) == -1) {
+					this.nextSolutions.add(doc.getLong("idNode2"));
+				}
+			}
+			return this.nextSolutions.get(0);
+		} else {
+			for(int i = 0; i < this.nextSolutions.size(); i++) {
+				FindIterable<Document> pairsDB = this.db.getPairs(this.nextSolutions.get(0), collection);
+				for(Document doc : pairsDB) {
+					if (this.nextSolutions.indexOf(doc.getLong("idNode2")) == -1) {
+						this.nextSolutions.add(doc.getLong("idNode2"));
+					}
+				}
+			}
+			this.nextSolutions.remove(0);
+			if(this.nextSolutions.isEmpty()) {
+				return -1;
+			} else {
+				return this.nextSolutions.get(0);
+			}
+		}
+	}
+	
+	
 	
 	/* Set & Get */ 
 	public void setSolution(RoutesSolution<Vrp> solution) {
@@ -169,6 +282,7 @@ public class ExplorerLandScape {
 		this.idCurrentSolution =  this.db.addInitialSolution(solution, environment);
 		this.solution =  solution;
 	}
+	
 	
 	public DBControl getDBControl() {
 		return this.db;
@@ -188,7 +302,6 @@ public class ExplorerLandScape {
 				problemVrp = new Vrp(100, 100, 15, 5, 3);
 				solution =  new LatencySolution(problemVrp, 3).getSolution();
 				solution.evaluate();
-				
 				explorer.getDBControl().addProblem(problemVrp);
 				explorer.getDBControl().setOriginalProblem(problemVrp);
 				break;
@@ -198,6 +311,9 @@ public class ExplorerLandScape {
 				problemVrp =  explorer.getDBControl().getProblem(1); 
 				solution =  new LatencySolution(problemVrp, 3).getSolution();
 				solution.evaluate();
+/*				solution.remove(5);
+				solution.remove(10);
+				solution.remove(1);*/
 				explorer.getDBControl().setOriginalProblem(problemVrp);
 				break; 
 			case 2: 
@@ -208,8 +324,8 @@ public class ExplorerLandScape {
 				solution.evaluate();
 				break;
 		}
-		
-		explorer.explorer(solution, 2, (3600 * 3));
+		System.out.println("Solución inicial\n" + solution );
+		explorer.explorer(solution, 3, 120);
 		System.out.println("Fin de ejecución");
 	}
 	

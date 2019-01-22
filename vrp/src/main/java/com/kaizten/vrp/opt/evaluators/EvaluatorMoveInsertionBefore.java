@@ -1,14 +1,14 @@
 package com.kaizten.vrp.opt.evaluators;
 
 import com.kaizten.opt.evaluator.EvaluatorObjectiveFunctionMovement;
-import com.kaizten.opt.move.MoveRoutesSolutionInsertionAfter;
+import com.kaizten.opt.move.MoveRoutesSolutionInsertionBefore;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.vrp.opt.core.Vrp;
 
-public class EvaluatorMoveInsertionAfter extends EvaluatorObjectiveFunctionMovement<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionAfter> {
+public class EvaluatorMoveInsertionBefore extends EvaluatorObjectiveFunctionMovement<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionBefore>{
 
 	@Override
-	public double[] evaluate(RoutesSolution<Vrp> solution, MoveRoutesSolutionInsertionAfter move) {
+	public double[] evaluate(RoutesSolution<Vrp> solution, MoveRoutesSolutionInsertionBefore move) {
 		double[] desviation =  new double [solution.getNumberOfObjectives()]; 
 		double tctRouteOriginal = 0.0;
 		double tctRouteMod = 0.0; 
@@ -23,12 +23,12 @@ public class EvaluatorMoveInsertionAfter extends EvaluatorObjectiveFunctionMovem
 		
 		@SuppressWarnings("unchecked")
 		RoutesSolution<Vrp> solutionInsertionAfter =  solution.clone();
-		//System.out.println("Desglose de momvimiento insertionAfter -> Ruta: " + move.getRoute() + " Get To insert: " + move.getToInsert() + " After: " + move.getAfter());
-		if(move.getAfter() == -1) {
-			solutionInsertionAfter.addAfterDepot(move.getToInsert(), move.getRoute());
+		//System.out.println("Desglose de momvimiento insertionBefore -> Ruta: " + move.getRoute() + " Get To insert: " + move.getToInsert() + " Before: " + move.getBefore());
+		if(move.getBefore() == -1) {
+			solutionInsertionAfter.addBeforeDepot(move.getToInsert(), move.getRoute());
 		}
 		else {			
-			solutionInsertionAfter.addAfter(move.getToInsert(), move.getAfter());
+			solutionInsertionAfter.addBefore(move.getToInsert(), move.getBefore());
 		}
 		
 		indexCustomer =  solutionInsertionAfter.getFirstInRoute(move.getRoute());

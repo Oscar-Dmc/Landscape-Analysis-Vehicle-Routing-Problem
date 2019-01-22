@@ -10,6 +10,7 @@ import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.vrp.opt.core.Vrp;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
@@ -26,7 +27,7 @@ public class DBControl {
 	private long idOriginalSolution;
 	private int environment;
 	private Vrp originalProblem; 
-	private final long RANGE_OF_SOLUTIONS = 3000000;
+	public final long RANGE_OF_SOLUTIONS = 3000000;
 	
 	public void init() {
 		try {
@@ -157,11 +158,8 @@ public class DBControl {
 		Document pair =   new Document("idNode1", this.idOriginalSolution)
 										.append("idNode2", id);
 		
-		this.collection = this.database.getCollection("removeGraph");
-		
-		if(this.collection.find(and(eq("idNode1", this.idOriginalSolution), eq("idNode2", id))).first() == null && 
-		   this.collection.find(and(eq("idNode1", id), eq("idNode2", this.idOriginalSolution))).first() == null) {
-						this.collection.insertOne(pair);
+		if(existPair(this.idOriginalSolution, id, "removeGraph")) {
+			this.collection.insertOne(pair);
 		}
 	}
 	
@@ -172,13 +170,9 @@ public class DBControl {
 		Document pair =  new Document("idNode1", this.idOriginalSolution)
 									.append("idNode2", id);
 		
-		this.collection =  this.database.getCollection("swapGraph");
-		
-		if(this.collection.find(and(eq("idNode1", this.idOriginalSolution), eq("idNode2", id))).first() == null && 
-		   this.collection.find(and(eq("idNode1", id), eq("idNode2", this.idOriginalSolution))).first() == null) {
-				
+		if(existPair(this.idOriginalSolution, id, "swapGraph")) {
 			this.collection.insertOne(pair);
-		}		
+		}
 		
 	}
 	
@@ -188,14 +182,24 @@ public class DBControl {
 		long id = addSolution(solution);
 		
 		Document pair = new Document("idNode1", this.idOriginalSolution)
-						.append("idNode2", id);
+						     .append("idNode2", id);
 		
-		this.collection =  this.database.getCollection("insertionAfterGraph");
-		if(this.collection.find(and(eq("idNode1", this.idOriginalSolution), eq("idNode2", id))).first() == null && 
-		   this.collection.find(and(eq("idNode1", id), eq("idNode2", this.idOriginalSolution))).first() == null) {
-						
+		if(existPair(this.idOriginalSolution, id, "insertionAfterGraph")) {
 			this.collection.insertOne(pair);
-		}		
+		}
+	}
+	
+	public void addSolutionMoveInsertionBefore(RoutesSolution<Vrp> solution) {
+		this.collection =  this.database.getCollection("solutionsTest");
+		long id =  addSolution(solution);
+		
+		Document pair = new Document("idNode1", this.idOriginalSolution)
+							 .append("idNode2", id);
+		
+		if(existPair(this.idOriginalSolution, id, "insertionBeforeGraph")) {
+			this.collection.insertOne(pair);
+		}
+		
 	}
 	
 	public long addInitialSolution(RoutesSolution<Vrp> solution, int environment) {
@@ -206,11 +210,9 @@ public class DBControl {
 		return id;
 	}
 	
-	/* Testing method */ 
-	public boolean getPair(long id1, long id2) {
-		this.collection =  this.database.getCollection("swapGraph");
-		System.out.println(this.collection.find(and(eq("idNode1", id1), eq("idNode2", id2))).first());
-		return (this.collection.find(and(eq("idNode1", id1), eq("idNode2", id2))).first() != null);
+	public FindIterable<Document> getPairs(long id, String collection) {
+		this.collection =  this.database.getCollection(collection);
+		return this.collection.find(eq("idNode1", id));
 	}
 
 	/* Get a solution in database */ 
@@ -298,6 +300,12 @@ public class DBControl {
 			return this.collection.find(eq("Customers", customers)).first().getLong("_id");
 		}
 		return -1;
+	}
+	
+	public boolean existPair(long id1, long id2, String collection) {
+		this.collection =  this.database.getCollection(collection);
+		return (this.collection.find(and(eq("idNode1", id1), eq("idNode2", id2))).first() == null && 
+				this.collection.find(and(eq("idNode1", id2), eq("idNode2",id1))).first() == null);
 	}
 
 }
