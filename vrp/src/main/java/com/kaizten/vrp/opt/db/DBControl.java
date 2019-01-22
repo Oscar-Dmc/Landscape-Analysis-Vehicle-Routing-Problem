@@ -146,64 +146,15 @@ public class DBControl {
 		return id; 
 		
 	}
-	/* Unificar todas las funciones de añadir a una sola  */ 
-	public void addSolutionMoveRemove(RoutesSolution<Vrp> solution) {
-		this.collection =  this.database.getCollection("solutionsTest");
-		long id =  addSolution(solution);
-		
-		Document pair =   new Document("idNode1", this.idOriginalSolution)
-										.append("idNode2", id);
-		
-		if(existPair(this.idOriginalSolution, id, "removeGraph")) {
-			this.collection.insertOne(pair);
-		}
-	}
 	
-	public void addSolutionMoveSwap(RoutesSolution<Vrp> solution) {
-		this.collection =  this.database.getCollection("solutionsTest");
-		long id =  addSolution(solution);		
-		
-		Document pair =  new Document("idNode1", this.idOriginalSolution)
-									.append("idNode2", id);
-		
-		if(existPair(this.idOriginalSolution, id, "swapGraph")) {
-			this.collection.insertOne(pair);
-		}
-		
-	}
-	
-	public void addSolutionMoveInsertionAfter(RoutesSolution<Vrp> solution) {
-		this.collection =  this.database.getCollection("solutionsTest");
-		long id = addSolution(solution);
-		
-		Document pair = new Document("idNode1", this.idOriginalSolution)
-						     .append("idNode2", id);
-		
-		if(existPair(this.idOriginalSolution, id, "insertionAfterGraph")) {
-			this.collection.insertOne(pair);
-		}
-	}
-	
-	public void addSolutionMoveInsertionBefore(RoutesSolution<Vrp> solution) {
+	public void addSolutionMove(RoutesSolution<Vrp> solution, String graph) {
 		this.collection =  this.database.getCollection("solutionsTest");
 		long id =  addSolution(solution);
 		
 		Document pair = new Document("idNode1", this.idOriginalSolution)
 							 .append("idNode2", id);
 		
-		if(existPair(this.idOriginalSolution, id, "insertionBeforeGraph")) {
-			this.collection.insertOne(pair);
-		}
-	}
-	
-	public void addSolutionMoveAfter(RoutesSolution<Vrp> solution) {
-		this.collection = this.database.getCollection("solutionsTest");
-		long id = addSolution(solution);
-		
-		Document pair = new Document("idNode1", this.idOriginalSolution)
-				 .append("idNode2", id);
-
-		if(existPair(this.idOriginalSolution, id, "moveAfterGraph")) {
+		if(existPair(this.idOriginalSolution, id, graph)) {
 			this.collection.insertOne(pair);
 		}
 	}
