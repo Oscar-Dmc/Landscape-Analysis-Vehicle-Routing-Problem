@@ -139,7 +139,7 @@ public class DBControl {
 							.append("last", Arrays.asList(last))
 							.append("length", Arrays.asList(length)))
 					.append("ObjFunction", Arrays.asList(objFunction));
-			
+			//System.out.println(solutionDb.toString());
 			this.collection.insertOne(solutionDb);
 		}
 		
@@ -192,11 +192,13 @@ public class DBControl {
 
 		int index = 0; 
 		for(int i = 0; i < firstInRoute.size(); i++) {
-			index =  firstInRoute.get(i);
-			solution.addAfterDepot(index, i);
-			while(successor.get(index) != -1) {
-				solution.addAfter(successor.get(index), index);
-				index = successor.get(index); 
+			if(firstInRoute.get(i) != -3) {
+				index =  firstInRoute.get(i);
+				solution.addAfterDepot(index, i);
+				while(successor.get(index) != -1) {
+					solution.addAfter(successor.get(index), index);
+					index = successor.get(index); 
+				}
 			}
 		}
 		
@@ -229,13 +231,17 @@ public class DBControl {
 	public long exist(RoutesSolution<Vrp> solution) {
 		this.collection = this.database.getCollection("solutionsTest");
 		int nCustomers = solution.getOptimizationProblem().getNCustomers();
-		Integer[] predecessors = new Integer [nCustomers];
+		ArrayList<Integer> predecessors = new ArrayList<Integer>();
+		ArrayList<Integer> route = new ArrayList<Integer>();
+		//Integer[] predecessors = new Integer [nCustomers];
 		for(int i = 0; i < nCustomers; i++) {
-			predecessors[i] =  solution.getPredecessor(i);
+			predecessors.add(solution.getPredecessor(i));
+			route.add(solution.getRouteIndex(i));
+			//predecessors[i] =  solution.getPredecessor(i);
 		}
 		
-		if(this.collection.find(eq("Predecessor", Arrays.asList(predecessors))).first() !=  null) {
-			return this.collection.find(eq("Predecessor", Arrays.asList(predecessors))).first().getLong("_id");
+		if(this.collection.find(and(eq("Predecessor", predecessors), eq("Route", route))).first() !=  null) {
+			return this.collection.find(and(eq("Predecessor", predecessors), eq("Route", route))).first().getLong("_id");
 		}
 		
 		return -1;

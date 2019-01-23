@@ -32,16 +32,22 @@ public class EvaluatorMoveRemove extends EvaluatorObjectiveFunctionMovement<Rout
 		
 		@SuppressWarnings("unchecked")
 		RoutesSolution<Vrp> solutionRemove =  solution.clone();
-		solutionRemove.remove(move.getToRemove());
-		
-		indexCustomer =  solutionRemove.getFirstInRoute(indexRoute);
-		tctRouteMod  += solutionRemove.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1]; 
-		while (solutionRemove.getSuccessor(indexCustomer) != -1) {
-			tctRouteMod +=  solutionRemove.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solution.getSuccessor(indexCustomer) + 1];
-			indexCustomer = solutionRemove.getSuccessor(indexCustomer);
+		if (solutionRemove.getLengthRoute(indexRoute) == 1) {
+			indexCustomer =  solutionRemove.getFirstInRoute(indexRoute);
+			tctRouteMod +=  solutionRemove.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1];
+			solutionRemove.remove(move.getToRemove());
+			
+		} else {
+			solutionRemove.remove(move.getToRemove());
+			indexCustomer =  solutionRemove.getFirstInRoute(indexRoute);
+			tctRouteMod  += solutionRemove.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1]; 
+			
+			while (solutionRemove.getSuccessor(indexCustomer) != -1) {
+				tctRouteMod +=  solutionRemove.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solution.getSuccessor(indexCustomer) + 1];
+				indexCustomer = solutionRemove.getSuccessor(indexCustomer);
+			}
+			tctRouteMod += solutionRemove.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1];	
 		}
-		tctRouteMod += solutionRemove.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1];
-		
 		
 		desviation[0] = tctRouteOriginal - tctRouteMod;
 		

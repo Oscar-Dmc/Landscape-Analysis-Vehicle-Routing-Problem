@@ -169,7 +169,6 @@ public class ExplorerLandScape {
 		time_start_function = System.currentTimeMillis();
 		if(this.MMSequential.hasNext()) {
 			this.reset();
-			
 			this.db.addSolutionMove(this.GApplier.apply(), "removeGraph");
 			if(executionTime > 0) {
 				long time_start, time_end;
@@ -386,7 +385,7 @@ public class ExplorerLandScape {
 		RoutesSolution<Vrp> solution = null; 
 		Vrp problemVrp = null;
 		explorer.init();
-		int option = 2;
+		int option = 1;
 		/* Mejorar la entrada del problema, esto es para pruebas */ 
 		switch(option) {
 			case 0:
@@ -403,21 +402,18 @@ public class ExplorerLandScape {
 				problemVrp =  explorer.getDBControl().getProblem(1); 
 				solution =  new LatencySolution(problemVrp, 3).getSolution();
 				solution.evaluate();
-/*				solution.remove(5);
-				solution.remove(10);
-				solution.remove(1);*/
 				explorer.getDBControl().setOriginalProblem(problemVrp);
 				break; 
 			case 2: 
 				/* Todo obtenido de la base de datos */ 
 				problemVrp = explorer.getDBControl().getProblem(1);
 				explorer.getDBControl().setOriginalProblem(problemVrp);
-				solution = explorer.getDBControl().getSolution(100);
+				solution = explorer.getDBControl().getSolution(10);
 				solution.evaluate();
 				break;
 		}
-		System.out.println("Solución inicial\n" + solution );
-		explorer.explorer(solution, 5, 120);
+		
+		explorer.explorer(solution, 1, 600);
 		System.out.println("Fin de ejecución");
 	}
 	
