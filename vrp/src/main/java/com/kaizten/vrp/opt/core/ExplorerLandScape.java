@@ -381,11 +381,20 @@ public class ExplorerLandScape {
 	
 	/* Main */ 
 	public static void main(String[] args) {
+		if(args.length < 3) {
+			System.out.println("This program need 3 arguments");
+			System.out.println("1: Option:\n0 = Random Problem and Solution \n1 = Database Problem, Random Solution\n2 = Problem and Solution in Database");
+			System.out.println("2: Environment\n0 = Swap\n1 = Remove\n2 = Insertion After\n3 = Insertion Before \n4 = Move After\n5 = Move Before");
+			System.out.println("3: Exectution time");
+		}
+		int option = Integer.parseInt(args[0]);
+		int environment = Integer.parseInt(args[1]);
+		double executionTime = Double.parseDouble(args[2]);
 		ExplorerLandScape explorer =  new ExplorerLandScape();
 		RoutesSolution<Vrp> solution = null; 
 		Vrp problemVrp = null;
 		explorer.init();
-		int option = 1;
+		System.out.println(executionTime);
 		/* Mejorar la entrada del problema, esto es para pruebas */ 
 		switch(option) {
 			case 0:
@@ -406,6 +415,7 @@ public class ExplorerLandScape {
 				break; 
 			case 2: 
 				/* Todo obtenido de la base de datos */ 
+				System.out.println("Hola mundo de los argumentos");
 				problemVrp = explorer.getDBControl().getProblem(1);
 				explorer.getDBControl().setOriginalProblem(problemVrp);
 				solution = explorer.getDBControl().getSolution(10);
@@ -413,7 +423,7 @@ public class ExplorerLandScape {
 				break;
 		}
 		
-		explorer.explorer(solution, 1, 600);
+		explorer.explorer(solution, environment, executionTime);
 		System.out.println("Fin de ejecución");
 	}
 	
