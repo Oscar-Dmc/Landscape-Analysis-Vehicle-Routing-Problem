@@ -1,6 +1,7 @@
 package com.kaizten.vrp.opt.core;
 
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import org.bson.Document;
 import com.kaizten.opt.move.MoveRoutesSolutionInsertionAfter;
@@ -380,23 +381,31 @@ public class ExplorerLandScape {
 		}
 	
 	/* Main */ 
+	@SuppressWarnings("resource")
 	public static void main(String[] args) {
-		if(args.length < 3) {
+		if(args.length < 3 || 
+		   Integer.parseInt(args[0]) < 0 || Integer.parseInt(args[0]) > 2 ||
+		   Integer.parseInt(args[1]) < 0 || Integer.parseInt(args[1]) > 5 ||
+		   Integer.parseInt(args[2]) < 0) {
+			
 			System.out.println("This program need 3 arguments");
 			System.out.println("1: Option:\n0 = Random Problem and Solution \n1 = Database Problem, Random Solution\n2 = Problem and Solution in Database");
 			System.out.println("2: Environment\n0 = Swap\n1 = Remove\n2 = Insertion After\n3 = Insertion Before \n4 = Move After\n5 = Move Before");
 			System.out.println("3: Exectution time");
-		}
-		int option = Integer.parseInt(args[0]);
-		int environment = Integer.parseInt(args[1]);
-		double executionTime = Double.parseDouble(args[2]);
-		ExplorerLandScape explorer =  new ExplorerLandScape();
-		RoutesSolution<Vrp> solution = null; 
-		Vrp problemVrp = null;
-		explorer.init();
-		System.out.println(executionTime);
-		/* Mejorar la entrada del problema, esto es para pruebas */ 
-		switch(option) {
+			
+		} else {
+			int option = Integer.parseInt(args[0]);
+			int environment = Integer.parseInt(args[1]);
+			double executionTime = Double.parseDouble(args[2]);
+			long idProblem = 0;
+			ExplorerLandScape explorer =  new ExplorerLandScape();
+			RoutesSolution<Vrp> solution = null; 
+			Scanner scanner = new Scanner(System.in);
+			Vrp problemVrp = null;
+			explorer.init();
+			
+			/* Mejorar la entrada del problema, esto es para pruebas */ 
+			switch(option) {
 			case 0:
 				/* Generamos un problema aleatorio y solucion aleatoria */ 
 				problemVrp = new Vrp(100, 100, 15, 5, 3);
@@ -408,23 +417,30 @@ public class ExplorerLandScape {
 			case 1: 
 				/* Obtenemos problema de la base de datos y generamos solucion aleatiora */ 
 				/* Mejorar la recogida del id del problema */
-				problemVrp =  explorer.getDBControl().getProblem(1); 
+				System.out.println("Insert problem id: ");
+				idProblem =  Long.parseLong(scanner.nextLine());
+				problemVrp =  explorer.getDBControl().getProblem(idProblem); 
 				solution =  new LatencySolution(problemVrp, 3).getSolution();
 				solution.evaluate();
 				explorer.getDBControl().setOriginalProblem(problemVrp);
 				break; 
 			case 2: 
 				/* Todo obtenido de la base de datos */ 
-				System.out.println("Hola mundo de los argumentos");
+				System.out.println("Insert problem id: ");
+				idProblem =  Long.parseLong(scanner.nextLine());
 				problemVrp = explorer.getDBControl().getProblem(1);
 				explorer.getDBControl().setOriginalProblem(problemVrp);
-				solution = explorer.getDBControl().getSolution(10);
+				System.out.println("Insert solution id: ");
+				long idSolution =  Long.parseLong(scanner.nextLine());
+				solution = explorer.getDBControl().getSolution(idSolution);
 				solution.evaluate();
 				break;
+			}
+			System.out.println("Start explore");
+			explorer.explorer(solution, environment, executionTime);
+			System.out.println("Fin de ejecución");
+			
 		}
-		
-		explorer.explorer(solution, environment, executionTime);
-		System.out.println("Fin de ejecución");
 	}
 	
 }
