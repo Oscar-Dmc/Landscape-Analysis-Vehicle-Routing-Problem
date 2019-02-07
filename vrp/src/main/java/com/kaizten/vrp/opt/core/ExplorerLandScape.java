@@ -85,7 +85,7 @@ public class ExplorerLandScape {
 		this.MMSequential.setSolution(solution);
 		this.environment = environment; 
 		this.setInitialSolution(solution, this.environment);  
-		
+		System.out.println(this.db.getSolution(this.db.getNSolutionsEnvironment(0) - 1));
 		switch(environment) {
 			case 0 : 
 				this.MMSequential.addMoveGenerator(this.MGSwap);
@@ -95,38 +95,38 @@ public class ExplorerLandScape {
 				}
 				break;
 			case 1:
-				this.MMSequential.addMoveGenerator(this.MGRemove);
-				this.MMSequential.init();
-				while(executionTime > 0) { 
-					executionTime -= runRemove(executionTime);
-				}
-				break;
-			case 2:
-				this.MMSequential.addMoveGenerator(this.MGInsertionAfter);
-				this.MMSequential.init();
-				while(executionTime > 0) {					
-					executionTime -= runInsertionAfter(executionTime);
-				}
-				break;
-			case 3:
-				this.MMSequential.addMoveGenerator(this.MGInsertionBefore);
-				this.MMSequential.init();
-				while(executionTime > 0) {
-					executionTime -= runInsertionBefore(executionTime);
-				}
-				break;
-			case 4:
 				this.MMSequential.addMoveGenerator(this.MGMoveAfter);
 				this.MMSequential.init();
 				while(executionTime > 0) {
 					executionTime -= runMoveAfter(executionTime);
 				}
 				break;
-			case 5:
+			case 2:
 				this.MMSequential.addMoveGenerator(MGMoveBefore);
 				this.MMSequential.init();
 				while(executionTime > 0) {
 					executionTime -= runMoveBefore(executionTime);
+				}
+				break;
+			case 3:
+				this.MMSequential.addMoveGenerator(this.MGRemove);
+				this.MMSequential.init();
+				while(executionTime > 0) { 
+					executionTime -= runRemove(executionTime);
+				}
+				break;
+			case 4:
+				this.MMSequential.addMoveGenerator(this.MGInsertionAfter);
+				this.MMSequential.init();
+				while(executionTime > 0) {					
+					executionTime -= runInsertionAfter(executionTime);
+				}
+				break;
+			case 5:
+				this.MMSequential.addMoveGenerator(this.MGInsertionBefore);
+				this.MMSequential.init();
+				while(executionTime > 0) {
+					executionTime -= runInsertionBefore(executionTime);
 				}
 				break;
 		}	
@@ -300,9 +300,7 @@ public class ExplorerLandScape {
 		time_start_function = System.currentTimeMillis();
 		if(this.MMSequential.hasNext()) {
 			this.reset();
-			RoutesSolution<Vrp> aux = this.GApplier.apply();
-			System.out.println(aux);
-			this.db.addSolutionMove(aux, "moveBeforeGraph");
+			this.db.addSolutionMove(this.GApplier.apply(), "moveBeforeGraph");
 			if(executionTime > 0) {
 				long time_start, time_end;
 				while(!this.MMSequential.hasNext() && executionTime > 0) {
@@ -437,7 +435,11 @@ public class ExplorerLandScape {
 				break;
 			}
 			System.out.println("Start explore");
-			explorer.explorer(solution, environment, executionTime);
+			System.out.println("Solución inicial: \n" + solution);
+			Vns pruebaVns =  new Vns(solution);
+			System.out.println("Solución final: \n" + pruebaVns.basicVns(2, 60));
+			
+			//explorer.explorer(solution, environment, executionTime);
 			System.out.println("Fin de ejecución");
 			
 		}

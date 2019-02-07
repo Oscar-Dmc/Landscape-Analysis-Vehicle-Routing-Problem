@@ -228,6 +228,19 @@ public class DBControl {
 		this.originalProblem = problem; 
 	}
 	
+	public long getNSolutionsEnvironment(int environment) {
+		this.collection = this.database.getCollection("solutionsTest");
+		
+		return this.collection.countDocuments(and(Filters.gte("_id", environment * RANGE_OF_SOLUTIONS),
+										  Filters.lt("_id", (environment + 1) * RANGE_OF_SOLUTIONS)));
+	}
+	
+	@SuppressWarnings("unchecked")
+	public ArrayList<Double> getObjFunctionValue(long id){
+		this.collection = this.database.getCollection("solutionsTest");
+		return (ArrayList<Double>) this.collection.find(eq("_id", id)).first().get("ObjFunction");
+	}
+	
 	public long exist(RoutesSolution<Vrp> solution) {
 		this.collection = this.database.getCollection("solutionsTest");
 		int nCustomers = solution.getOptimizationProblem().getNCustomers();
