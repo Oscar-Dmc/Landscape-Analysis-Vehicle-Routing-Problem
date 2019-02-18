@@ -1,5 +1,8 @@
 package com.kaizten.vrp.opt.move.generator;
 
+import java.util.ArrayList;
+import java.util.Random;
+
 import com.kaizten.opt.move.generator.AbstractMoveGenerator;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.vrp.opt.move.MoveRoutesSolutionMoveBefore;
@@ -7,23 +10,35 @@ import com.kaizten.vrp.opt.move.MoveRoutesSolutionMoveBefore;
 public class MoveGeneratorRoutesSolutionMoveBefore <S extends RoutesSolution<?>,  M extends MoveRoutesSolutionMoveBefore> extends AbstractMoveGenerator<S, M>{
 
 	private int n;
-	private int element0;
-	private int element1; 
+	private ArrayList<Integer[]> availableMoves; 
 	
 	public MoveGeneratorRoutesSolutionMoveBefore() {
-		this.element0 = 0;
-		this.element1 = 1;
+		this.availableMoves = new ArrayList<Integer[]>();
 	}
 	
 	public void init() {
-		this.element0 = 0;
-		this.element1 = 1;
 		this.n =  super.getManager().getSolution().size();
+		for(int i = 0;  i < this.n; i++) {
+			for(int j = i + 1; j < this.n;  j++) {
+				Integer[] pair = new Integer[2];
+				pair[0] = i;
+				pair[1] = j;
+				this.availableMoves.add(pair);
+			}
+		}
+	}
+	
+	private Integer[] getRandomPair() {
+		Random rand = new Random();
+		int index = rand.nextInt(this.availableMoves.size());
+		Integer[] pair = this.availableMoves.get(index);
+		this.availableMoves.remove(index);
+		return pair; 
 	}
 	
 	@Override
 	public boolean hasNext() {
-		return (this.element0 < this.n) && (this.element1 < this.n);
+		return this.availableMoves.isEmpty();
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -37,13 +52,9 @@ public class MoveGeneratorRoutesSolutionMoveBefore <S extends RoutesSolution<?>,
 				System.exit(0);
 			}
 			move =  new MoveRoutesSolutionMoveBefore(super.getManager().getSolution().getNumberOfObjectives());
-			move.setElement0(element0);
-			move.setElement1(element1);
-			this.element1++;
-			if(this.element1 == this.n) {
-				this.element0++;
-				this.element1 =  this.element0 + 1;
-			}
+			Integer [] pair =  this.getRandomPair(); 
+			move.setElement0(pair[0]);
+			move.setElement1(pair[1]);
 		}
 		return (M) move;
 	}
