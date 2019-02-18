@@ -38,7 +38,7 @@ public class MoveGeneratorRoutesSolutionMoveBefore <S extends RoutesSolution<?>,
 	
 	@Override
 	public boolean hasNext() {
-		return this.availableMoves.isEmpty();
+		return !this.availableMoves.isEmpty();
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
