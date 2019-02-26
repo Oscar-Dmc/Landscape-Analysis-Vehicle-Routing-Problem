@@ -64,17 +64,17 @@ public class ExplorerLandScape {
 		
 		/* Appliers */ 
 		MoveApplier applierSwap =  new MoveApplierRoutesSolutionSwap();
+		MoveApplier applierMoveAfter = new MoveApplierRoutesSolutionMoveAfter();
+		MoveApplier applierMoveBefore = new MoveApplierRoutesSolutionMoveBefore();
 		MoveApplier applierRemove =  new MoveApplierRoutesSolutionRemove();
 		MoveApplier applierInsertionAfter =  new MoveApplierRoutesSolutionInsertionAfter();
 		MoveApplier applierInsertionBefore =  new MoveApplierRoutesSolutionInsertionBefore();
-		MoveApplier applierMoveAfter = new MoveApplierRoutesSolutionMoveAfter();
-		MoveApplier applierMoveBefore = new MoveApplierRoutesSolutionMoveBefore();
 		this.GApplier.addMoveApplier(applierSwap);
+		this.GApplier.addMoveApplier(applierMoveAfter);
+		this.GApplier.addMoveApplier(applierMoveBefore);
 		this.GApplier.addMoveApplier(applierRemove);
 		this.GApplier.addMoveApplier(applierInsertionAfter);
 		this.GApplier.addMoveApplier(applierInsertionBefore);
-		this.GApplier.addMoveApplier(applierMoveAfter);
-		this.GApplier.addMoveApplier(applierMoveBefore);
 		
 		/* Database */ 
 		this.db = new DBControl();
@@ -435,11 +435,7 @@ public class ExplorerLandScape {
 				break;
 			}
 			System.out.println("Start explore");
-			System.out.println("Solución inicial: \n" + solution);
-			Vns pruebaVns =  new Vns(solution);
-			System.out.println("Solución final: \n" + pruebaVns.basicVns(2, 60));
-			
-			//explorer.explorer(solution, environment, executionTime);
+			explorer.explorer(solution, environment, executionTime);
 			System.out.println("Fin de ejecución");
 			
 		}

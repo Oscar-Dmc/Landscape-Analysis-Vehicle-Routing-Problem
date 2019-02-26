@@ -12,14 +12,26 @@ public class MoveApplierRoutesSolutionSwap extends MoveApplier<RoutesSolution<?>
 		if(solution.getRouteIndex(move.getElement0()) == solution.getRouteIndex(move.getElement1())) {
 			this.swapInSameRoute(solution, move);
 		}
-		else {
+		else if(solution.getLengthRoute(solution.getRouteIndex(move.getElement0())) == 1 ||
+				solution.getLengthRoute(solution.getRouteIndex(move.getElement1())) == 1) {
+			if(solution.getLengthRoute(solution.getRouteIndex(move.getElement0())) == 1 ) {
+				int indexRoute =  solution.getRouteIndex(move.getElement0());
+				solution.addAfter(move.getElement0(), move.getElement1());
+				solution.remove(move.getElement1());
+				solution.addBeforeDepot(move.getElement1(), indexRoute);
+			} else {
+				int indexRoute =  solution.getRouteIndex(move.getElement1());
+				solution.addAfter(move.getElement1(), move.getElement0());
+				solution.remove(move.getElement0());
+				solution.addBeforeDepot(move.getElement0(), indexRoute);
+			}
+		} else {
 			if(solution.getPredecessor(move.getElement0()) != -1) {
 				int pred0 =  solution.getPredecessor(move.getElement0());
 				solution.addAfter(move.getElement0(), move.getElement1());
 				solution.addAfter(move.getElement1(), pred0);
 
-			}
-			else {
+			} else {
 				int succ0 =  solution.getSuccessor(move.getElement0());
 				solution.addAfter(move.getElement0(), move.getElement1());
 				solution.addBefore(move.getElement1(), succ0);
