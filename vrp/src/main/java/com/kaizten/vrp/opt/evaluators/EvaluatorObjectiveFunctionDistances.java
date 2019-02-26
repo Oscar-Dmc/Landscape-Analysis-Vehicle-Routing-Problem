@@ -6,32 +6,28 @@ import com.kaizten.vrp.opt.core.Vrp;
 
 public class EvaluatorObjectiveFunctionDistances extends EvaluatorObjectiveFunction<RoutesSolution<Vrp>> {
 
-	public double CalculateTCT(RoutesSolution<Vrp> solution) {
-		double tct = 0;
-		for (int i = 0; i < solution.getNumberOfRoutes(); i++) {
-			tct += solution.getOptimizationProblem().getDistanceMatrix()[0][solution.getFirstInRoute(i) + 1];
-			int indexCustomer = solution.getFirstInRoute(i);
-			while (solution.getSuccessor(indexCustomer) != -1) {
-				tct += solution.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solution
-						.getSuccessor(indexCustomer) + 1];
-				indexCustomer = solution.getSuccessor(indexCustomer);
-			}
-			tct += solution.getOptimizationProblem().getDistanceMatrix()[0][solution.getLastInRoute(i) + 1];
-		}
-
-		return tct;
+	public EvaluatorObjectiveFunctionDistances() {
+		super(1);
 	}
-
+	
 	@Override
 	public void evaluate(RoutesSolution<Vrp> solution) {
-		double tct = CalculateTCT(solution);
-		this.objectiveFunctionValue[0] = tct;
+		double [] objectives = new double[1];
+ 		for (int i = 0; i < solution.getNumberOfRoutes(); i++) {
+			if(solution.getFirstInRoute(i) != -3) {
+				objectives[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][solution.getFirstInRoute(i) + 1];
+				int indexCustomer = solution.getFirstInRoute(i);
+				while (solution.getSuccessor(indexCustomer) != -1) {
+					objectives[0] += solution.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solution.getSuccessor(indexCustomer) + 1];
+					indexCustomer = solution.getSuccessor(indexCustomer);
+				}
+				objectives[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][solution.getLastInRoute(i) + 1];
+			}
+		}
+		super.objectiveFunctionValue[0] = objectives[0];
 	}
 
 	@Override
-	public void fillSolution(RoutesSolution<Vrp> solution) {
-		// TODO Auto-generated method stub
-
-	}
+	public void fillSolution(RoutesSolution<Vrp> solution) {}
 
 }

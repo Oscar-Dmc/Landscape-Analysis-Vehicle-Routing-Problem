@@ -1,14 +1,13 @@
-package com.kaizten.vrp.opt.evaluators;
+package com.kaizten.vrp.opt.core;
 
 import com.kaizten.opt.solution.RoutesSolution;
-import com.kaizten.vrp.opt.core.Vrp;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class LatencySolution {
-	private Vrp problem; /* For more problem? */
-	private RoutesSolution<Vrp> solutionVrp; /* Array? */
+	private Vrp problem; 
+	private RoutesSolution<Vrp> solutionVrp; 
 	private boolean[] cl;
 	private ArrayList<Integer> rcl;
 	private int rclSize;
@@ -22,7 +21,8 @@ public class LatencySolution {
 		Arrays.fill(this.cl, true);
 
 		/* Generate a solution for this problem */
-		ConstructGreedyRandomizedSolution();
+		//ConstructGreedyRandomizedSolution();
+		sequientialConstructor();
 	}
 
 	private void ConstructGreedyRandomizedSolution() {
@@ -95,6 +95,21 @@ public class LatencySolution {
 			}
 		}
 		return false;
+	}
+	
+	public void sequientialConstructor () {
+		int currentRoute = 0;
+		for(int i = 0; i < this.solutionVrp.getOptimizationProblem().getNCustomers(); i++) {
+			if(currentRoute >= this.solutionVrp.getNumberOfRoutes()) {
+				currentRoute = 0; 
+			}
+			if (this.solutionVrp.isEmpty(currentRoute)) {
+				this.solutionVrp.addAfterDepot(i, currentRoute);
+			} else {
+				this.solutionVrp.addAfter(i, this.solutionVrp.getLastInRoute(currentRoute));
+			}
+			currentRoute++;
+		}
 	}
 
 	public RoutesSolution<Vrp> getSolution() {
