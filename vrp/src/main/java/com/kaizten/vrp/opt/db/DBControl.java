@@ -59,8 +59,8 @@ public class DBControl {
 			ArrayList<Double> distance =  new ArrayList<Double>();
 			ArrayList<Integer> customer =  new ArrayList<Integer>();
 			for(int i = 0; i < nCustomers + 1;  i++) {
-				customer.add(problem.getCustomers().get(i).getX());
-				customer.add(problem.getCustomers().get(i).getY());
+				customer.add(problem.getCustomers().get(i).get(0));
+				customer.add(problem.getCustomers().get(i).get(1));
 				for(int j = 0;  j < nCustomers; j++) {
 					distance.add(problem.getDistanceMatrix()[i][j]);
 				}
@@ -139,7 +139,6 @@ public class DBControl {
 							.append("last", Arrays.asList(last))
 							.append("length", Arrays.asList(length)))
 					.append("ObjFunction", Arrays.asList(objFunction));
-			//System.out.println(solutionDb.toString());
 			this.collection.insertOne(solutionDb);
 		}
 		
@@ -148,7 +147,7 @@ public class DBControl {
 	}
 	
 	public void addSolutionMove(RoutesSolution<Vrp> solution, String graph) {
-		this.collection =  this.database.getCollection("solutionsTest");
+		this.collection =  this.database.getCollection("solutions");
 		long id =  addSolution(solution);
 		
 		Document pair = new Document("idNode1", this.idOriginalSolution)
@@ -160,7 +159,7 @@ public class DBControl {
 	}
 	
 	public long addInitialSolution(RoutesSolution<Vrp> solution, int environment) {
-		this.collection =  this.database.getCollection("solutionsTest");
+		this.collection =  this.database.getCollection("solutions");
 		this.environment =  environment; 
 		long id = addSolution(solution);
 		this.setIdOriginalSolution(id);
@@ -175,7 +174,7 @@ public class DBControl {
 	/* Get a solution in database */ 
 	@SuppressWarnings("unchecked")
 	public RoutesSolution<Vrp> getSolution(long id){
-		this.collection =  this.database.getCollection("solutionsTest");
+		this.collection =  this.database.getCollection("solutions");
 		if(this.originalProblem == null ) {
 			System.out.println("The problem which belong this solution can't be null.");
 			return null; 
@@ -229,7 +228,7 @@ public class DBControl {
 	}
 	
 	public long getNSolutionsEnvironment(int environment) {
-		this.collection = this.database.getCollection("solutionsTest");
+		this.collection = this.database.getCollection("solutions");
 		
 		return this.collection.countDocuments(and(Filters.gte("_id", environment * RANGE_OF_SOLUTIONS),
 										  Filters.lt("_id", (environment + 1) * RANGE_OF_SOLUTIONS)));
@@ -237,20 +236,18 @@ public class DBControl {
 	
 	@SuppressWarnings("unchecked")
 	public ArrayList<Double> getObjFunctionValue(long id){
-		this.collection = this.database.getCollection("solutionsTest");
+		this.collection = this.database.getCollection("solutions");
 		return (ArrayList<Double>) this.collection.find(eq("_id", id)).first().get("ObjFunction");
 	}
 	
 	public long exist(RoutesSolution<Vrp> solution) {
-		this.collection = this.database.getCollection("solutionsTest");
+		this.collection = this.database.getCollection("solutions");
 		int nCustomers = solution.getOptimizationProblem().getNCustomers();
 		ArrayList<Integer> predecessors = new ArrayList<Integer>();
 		ArrayList<Integer> route = new ArrayList<Integer>();
-		//Integer[] predecessors = new Integer [nCustomers];
 		for(int i = 0; i < nCustomers; i++) {
 			predecessors.add(solution.getPredecessor(i));
 			route.add(solution.getRouteIndex(i));
-			//predecessors[i] =  solution.getPredecessor(i);
 		}
 		
 		if(this.collection.find(and(eq("Predecessor", predecessors), eq("Route", route))).first() !=  null) {
@@ -266,8 +263,8 @@ public class DBControl {
 		ArrayList<ArrayList<Integer>> customers =  new ArrayList<ArrayList<Integer>>();
 		ArrayList<Integer> customer =  new ArrayList<Integer>();
 		for(int i = 0; i < problem.getNCustomers() + 1; i++) {
-			customer.add(problem.getCustomers().get(i).getX());
-			customer.add(problem.getCustomers().get(i).getY());
+			customer.add(problem.getCustomers().get(i).get(0));
+			customer.add(problem.getCustomers().get(i).get(1));
 			customers.add((ArrayList<Integer>) customer.clone());
 			customer.clear();
 		}

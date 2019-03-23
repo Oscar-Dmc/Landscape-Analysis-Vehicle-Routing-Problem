@@ -10,6 +10,7 @@ import com.kaizten.opt.move.explorer.MoveExplorer;
 import com.kaizten.opt.move.explorer.MoveExplorerBasic;
 import com.kaizten.opt.move.manager.MoveManagerSequential;
 import com.kaizten.opt.solution.RoutesSolution;
+import com.kaizten.opt.solver.Solver;
 import com.kaizten.vrp.opt.move.MoveRoutesSolutionMoveAfter;
 import com.kaizten.vrp.opt.move.MoveRoutesSolutionMoveBefore;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionMoveAfter;
@@ -19,10 +20,11 @@ import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionMoveAfter;
 import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionMoveBefore;
 import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionSwap;
 
-public class Vns {
+public class Vns implements Solver<RoutesSolution<Vrp>>{
 
 	private RoutesSolution<Vrp> originalSolution;
 	private RoutesSolution<Vrp> auxSolution;
+	private Vrp problem; 
 	private MoveManagerSequential<RoutesSolution<Vrp>, ?> manager; 
 	private MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap> mGSwap; 
 	private MoveGeneratorRoutesSolutionMoveAfter<RoutesSolution<Vrp>, MoveRoutesSolutionMoveAfter> mGAfter;
@@ -30,19 +32,21 @@ public class Vns {
 	private Applier<RoutesSolution<Vrp>> gApplier; 
 	private MoveAcceptor acceptor; 
 	private MoveExplorer explorer; 
+	private double executionTime; 
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Vns(RoutesSolution<Vrp> solution) {
-		this.originalSolution =  solution;
+	public Vns(Vrp problem) {
+		this.problem = problem; 
+		this.originalSolution =  sequentialSolutionConstruct();
 		
 		this.manager = new MoveManagerSequential();
-		this.manager.setSolution(solution);
+		this.manager.setSolution(this.originalSolution);
 		this.mGSwap = new MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap>();
 		this.mGAfter = new MoveGeneratorRoutesSolutionMoveAfter<RoutesSolution<Vrp>, MoveRoutesSolutionMoveAfter>();
 		this.mGBefore = new MoveGeneratorRoutesSolutionMoveBefore<RoutesSolution<Vrp>, MoveRoutesSolutionMoveBefore>();
 		this.manager.addMoveGenerator(this.mGSwap);
 		this.manager.addMoveGenerator(this.mGAfter);
-		this.manager.addMoveGenerator(mGBefore);
+		this.manager.addMoveGenerator(this.mGBefore);
 		this.manager.init();
 		
 		this.gApplier =  new Applier<RoutesSolution<Vrp>>();
@@ -55,6 +59,8 @@ public class Vns {
 		
 		this.acceptor = new MoveAcceptorFirstImprovement();
 		this.explorer = new MoveExplorerBasic();
+		
+		this.executionTime = 60;
 	
 	}
 	
@@ -98,9 +104,8 @@ public class Vns {
 		}
 	}
 	
-	public RoutesSolution<Vrp> basicVns(int kMax,  int tMax) {
-		double t = 0;
-		while (t < tMax) {
+	public RoutesSolution<Vrp> basicVns(int kMax) {
+		while (this.executionTime > 0) {
 
 			long tInit =  System.currentTimeMillis();
 			for(int k = 0;  k < kMax; k++) {
@@ -108,25 +113,36 @@ public class Vns {
 			}
 
 			long tEnd =  System.currentTimeMillis();
-			t  += ((tEnd - tInit) * 0.001);
+			this.executionTime  -= ((tEnd - tInit) * 0.001);
 		}
 		return this.originalSolution;
 	}
 	
-	
-	public static void main(String[] args) {
-		System.out.println("Start VNS");
-		
-		Vrp problem = new Vrp(100, 100, 10, 5, 4);
-		RoutesSolution<Vrp> solution =   new LatencySolution(problem, 3).getSolution();
+	public RoutesSolution<Vrp> sequentialSolutionConstruct() {
+		int currentRoute = 0;
+		RoutesSolution<Vrp> solution =  new RoutesSolution<Vrp>(this.problem, this.problem.getNCustomers(), this.problem.getNVehicles());
+		for(int i = 0; i < this.problem.getNCustomers(); i++) {
+			if(currentRoute >= solution.getNumberOfRoutes()) {
+				currentRoute = 0; 
+			}
+			if (solution.isEmpty(currentRoute)) {
+				solution.addAfterDepot(i, currentRoute);
+			} else {
+				solution.addAfter(i, solution.getLastInRoute(currentRoute));
+			}
+			currentRoute++;
+		}
 		solution.evaluate();
-		System.out.println( "Initial solution: \n" + solution.toString());
-
-		Vns vns =  new Vns(solution);
-		System.out.println("Final solution: \n" + vns.basicVns(3, 600));
-		
-		
+		return solution;
 	}
+	
+	@Override
+	public RoutesSolution<Vrp> run() {
+		this.originalSolution.evaluate();
+		
+		return basicVns(this.manager.getNumberOfMoveGenerators());
+	} 
+	
 	/* ------ Gets and sets ---- */ 
 	public RoutesSolution<Vrp> getOriginalSolution() {
 		return originalSolution;
@@ -144,5 +160,11 @@ public class Vns {
 		this.mGSwap.init();
 		this.mGAfter.init();
 		this.mGBefore.init();
-	} 
+	}
+	
+	public void setExecutionTime(int tMax) {
+		this.executionTime =  tMax; 
+	}
+
+	
 }

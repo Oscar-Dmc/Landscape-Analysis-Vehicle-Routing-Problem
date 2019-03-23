@@ -2,6 +2,7 @@ package com.kaizten.vrp.opt.core;
 
 import com.kaizten.opt.solution.RoutesSolution;
 
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -19,13 +20,14 @@ public class LatencySolution {
 		this.rcl = new ArrayList<Integer>();
 		this.rclSize = rclSize;
 		Arrays.fill(this.cl, true);
-
-		/* Generate a solution for this problem */
-		//ConstructGreedyRandomizedSolution();
 		sequientialConstructor();
 	}
 
-	private void ConstructGreedyRandomizedSolution() {
+	public void init() {
+		this.solutionVrp.evaluate();
+	}
+	
+	public void constructGreedyRandomizedSolution() {
 		int currentRoute = 0;
 		while (!this.solutionVrp.isFull()) {
 			MakeRCL(currentRoute);
@@ -111,9 +113,10 @@ public class LatencySolution {
 			currentRoute++;
 		}
 	}
+	
 
 	public RoutesSolution<Vrp> getSolution() {
 		return this.solutionVrp;
-	}
+	}	
 
 }

@@ -16,8 +16,9 @@ import java.util.Random;
 public class Vrp extends OptimizationProblem {
 
 	private double[][] distanceMatrix;
-	private ArrayList<Node> customers;
-	private Node depot;
+	ArrayList<ArrayList<Integer>> customers; 
+	/*private ArrayList<Node> customers;
+	private Node depot;*/
 	private int nVehicles;
 	private int nCustomers;
 	private int nMaxCustomers;
@@ -42,21 +43,29 @@ public class Vrp extends OptimizationProblem {
 		this.nCustomers = nCustomers;
 		this.nVehicles = nVehicles;
 		this.nMaxCustomers = nMaxCustomers;
-		this.customers = new ArrayList<Node>();
+		this.customers = new ArrayList<ArrayList<Integer>>();
+		//this.customers = new ArrayList<Node>();
 
 		/* Create depot node */
-		this.depot = new Node((width / 2), (height / 2), "DP", -1);
+		ArrayList<Integer> customer = new ArrayList<Integer>();
+		customer.add(width / 2); /* Coordinated x for depot */
+		customer.add(height / 2); /* Coordinated y for depot */
+		/*this.depot = new Node((width / 2), (height / 2), "DP", -1);
 		this.depot.setSatisfied(true); /* Because the depot is a main node and always is satisfied. */
-		this.customers.add(this.depot);
+		this.customers.add((ArrayList<Integer>) customer.clone());
+		customer.clear();
 		
 		/* Create nCustomer with random location */
 		Random randomGenerator = new Random();
 		for (int i = 0; i < nCustomers; i++) {
 			int x = randomGenerator.nextInt(width + 1);
 			int y = randomGenerator.nextInt(height + 1);
-			String id = "CU" + i;
-			Node customer = new Node(x, y, id, i);
-			this.customers.add(customer);
+			//String id = "CU" + i;
+			//Node customer = new Node(x, y, id, i);
+			customer.add(x);
+			customer.add(y);
+			this.customers.add((ArrayList<Integer>) customer.clone());
+			customer.clear();
 		}
 
 		this.fillDistanceMatrix();
@@ -76,12 +85,12 @@ public class Vrp extends OptimizationProblem {
 		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveBefore(), 0);
 		this.setEvaluator(evaluator);
 		
-		this.customers = new ArrayList<Node>();
+		this.customers = (ArrayList<ArrayList<Integer>>) customers.clone();
 		this.nCustomers =  nCustomers;
 		this.nVehicles = nVehicles;
 		this.nMaxCustomers = 3; 
 		
-		this.depot =  new Node(customers.get(0).get(0), customers.get(0).get(1), "DP", -1);
+		/*this.depot =  new Node(customers.get(0).get(0), customers.get(0).get(1), "DP", -1);
 		this.depot.setSatisfied(true);
 		this.customers.add(this.depot);
 		
@@ -89,7 +98,7 @@ public class Vrp extends OptimizationProblem {
 			String id = "CU" + i;
 			Node customer =  new Node(customers.get(i).get(0), customers.get(i).get(1), id, i);
 			this.customers.add(customer); 
-		}
+		}*/
 		
 		this.fillDistanceMatrix();
 		
@@ -100,15 +109,15 @@ public class Vrp extends OptimizationProblem {
 		for (int i = 0; i < this.customers.size(); i++) {
 			this.distanceMatrix[i][i] = 0;
 			for (int j = i + 1; j < this.customers.size(); j++) {
-				double distance = GraphUtils.getEuclideanDistance(this.customers.get(i).getX(),
-						this.customers.get(i).getY(), this.customers.get(j).getX(), this.customers.get(i).getY());
+				double distance = GraphUtils.getEuclideanDistance(this.customers.get(i).get(0),
+						this.customers.get(i).get(1), this.customers.get(j).get(0), this.customers.get(i).get(1));
 				this.distanceMatrix[i][j] = distance;
 				this.distanceMatrix[j][i] = distance;
 			}
 		}
 	}
 
-	/* Check if all customers has been satisfied */
+	/* Check if all customers has been satisfied 
 	public boolean AllCustomersSatisfied() {
 		int nSatisfied = 0;
 		for (int i = 0; i < this.customers.size(); i++) {
@@ -117,10 +126,10 @@ public class Vrp extends OptimizationProblem {
 			}
 		}
 		return (nSatisfied == this.customers.size());
-	}
+	} */
 
 	/* Get's & Set's */
-	public ArrayList<Node> getCustomers() {
+	public ArrayList<ArrayList<Integer>> getCustomers() {
 		return customers;
 	}
 

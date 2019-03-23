@@ -22,26 +22,30 @@ public class EvaluatorMoveInsertionBefore extends EvaluatorObjectiveFunctionMove
 		tctRouteOriginal += solution.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1];
 		
 		@SuppressWarnings("unchecked")
-		RoutesSolution<Vrp> solutionInsertionAfter =  solution.clone();
-		//System.out.println("Desglose de momvimiento insertionBefore -> Ruta: " + move.getRoute() + " Get To insert: " + move.getToInsert() + " Before: " + move.getBefore());
+		RoutesSolution<Vrp> solutionInsertionBefore =  solution.clone();
 		if(move.getBefore() == -1) {
-			solutionInsertionAfter.addBeforeDepot(move.getToInsert(), move.getRoute());
+			solutionInsertionBefore.addAfterDepot(move.getToInsert(), move.getRoute());
 		}
 		else {			
-			solutionInsertionAfter.addBefore(move.getToInsert(), move.getBefore());
+			solutionInsertionBefore.addAfter(move.getToInsert(), move.getBefore());
 		}
 		
-		indexCustomer =  solutionInsertionAfter.getFirstInRoute(move.getRoute());
-		tctRouteMod  += solutionInsertionAfter.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1]; 
-		while (solutionInsertionAfter.getSuccessor(indexCustomer) != -1) {
-			tctRouteMod +=  solutionInsertionAfter.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solution.getSuccessor(indexCustomer) + 1];
-			indexCustomer = solutionInsertionAfter.getSuccessor(indexCustomer);
+		if(solutionInsertionBefore.getLengthRoute(move.getRoute()) <= solutionInsertionBefore.getOptimizationProblem().getNMaxCustomers()) {
+			indexCustomer =  solutionInsertionBefore.getFirstInRoute(move.getRoute());
+			tctRouteMod  += solutionInsertionBefore.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1]; 
+			while (solutionInsertionBefore.getSuccessor(indexCustomer) != -1) {
+				tctRouteMod +=  solutionInsertionBefore.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solutionInsertionBefore.getSuccessor(indexCustomer) + 1];
+				indexCustomer = solutionInsertionBefore.getSuccessor(indexCustomer);
+			}
+			tctRouteMod += solutionInsertionBefore.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1];
+		} else {
+			desviation[0] = Double.MAX_VALUE;
+			move.setDeviationObjectiveFunctionValue(0, desviation[0]);
+			return desviation;
 		}
-		tctRouteMod += solutionInsertionAfter.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1];
 		
-		
-		desviation[0] = tctRouteOriginal - tctRouteMod;
-		
+		desviation[0] = tctRouteMod - tctRouteOriginal;
+		move.setDeviationObjectiveFunctionValue(0, desviation[0]);
 		return desviation;
 	}
 
