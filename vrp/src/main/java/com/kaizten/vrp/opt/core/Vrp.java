@@ -29,7 +29,7 @@ public class Vrp extends OptimizationProblem {
 		
 		/* Evaluators */ 
 		@SuppressWarnings("rawtypes")
-		Evaluator evaluator = new Evaluator(1);
+		Evaluator evaluator = new Evaluator(2);
 		evaluator.addEvaluatorObjectiveFunction(new EvaluatorObjectiveFunctionDistances());
 		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveRemove(1), 0);
 		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveSwap(1), 0);
@@ -50,6 +50,7 @@ public class Vrp extends OptimizationProblem {
 		ArrayList<Integer> customer = new ArrayList<Integer>();
 		customer.add(width / 2); /* Coordinated x for depot */
 		customer.add(height / 2); /* Coordinated y for depot */
+		customer.add(0); /* Demand of depot */ 
 		/*this.depot = new Node((width / 2), (height / 2), "DP", -1);
 		this.depot.setSatisfied(true); /* Because the depot is a main node and always is satisfied. */
 		this.customers.add((ArrayList<Integer>) customer.clone());
@@ -64,6 +65,7 @@ public class Vrp extends OptimizationProblem {
 			//Node customer = new Node(x, y, id, i);
 			customer.add(x);
 			customer.add(y);
+			customer.add(randomGenerator.nextInt(50) + 1);
 			this.customers.add((ArrayList<Integer>) customer.clone());
 			customer.clear();
 		}
@@ -75,7 +77,7 @@ public class Vrp extends OptimizationProblem {
 	public Vrp(ArrayList<ArrayList<Integer>> customers, Integer nCustomers, Integer nVehicles) {
 		this.setName("VRP");
 		
-		Evaluator evaluator = new Evaluator(1);
+		Evaluator evaluator = new Evaluator(2);
 		evaluator.addEvaluatorObjectiveFunction(new EvaluatorObjectiveFunctionDistances());
 		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveRemove(1), 0);
 		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveSwap(1), 0);

@@ -77,21 +77,24 @@ public class EvaluatorMoveSwap extends EvaluatorObjectiveFunctionMovement<Routes
 	@Override
 	public double[] evaluate(RoutesSolution<Vrp> solution, MoveRoutesSolutionSwap move) {
 		ArrayList<Integer> indexRoutes =  new ArrayList<Integer>(); 
-		double[] desviation =  new double [solution.getNumberOfObjectives()]; 
-		double tctRouteOriginal = 0.0;
-		double tctRouteMod = 0.0; 
+		double[] deviation = new double [solution.getNumberOfObjectives()]; 
+		double[] tctRouteOriginal = new double [solution.getNumberOfObjectives()];
+		double[] tctRouteMod = new double [solution.getNumberOfObjectives()]; 
 		indexRoutes.add(solution.getRouteIndex(move.getElement0()));
 		if(!indexRoutes.contains(solution.getRouteIndex(move.getElement1()))){
 			indexRoutes.add(solution.getRouteIndex(move.getElement1()));
 		}
 		for (int i = 0; i < indexRoutes.size();  i++) {
 			int indexCustomer =  solution.getFirstInRoute(indexRoutes.get(i));
-			tctRouteOriginal  += solution.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1]; 
+			tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1]; 
+			tctRouteOriginal[1] += solution.getOptimizationProblem().getCustomers().get(indexCustomer + 1).get(2);
 			while (solution.getSuccessor(indexCustomer) != -1) {
-				tctRouteOriginal +=  solution.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solution.getSuccessor(indexCustomer) + 1];
+				tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solution.getSuccessor(indexCustomer) + 1];
 				indexCustomer = solution.getSuccessor(indexCustomer);
+				tctRouteOriginal[1] += solution.getOptimizationProblem().getCustomers().get(indexCustomer + 1).get(2);
 			}
-			tctRouteOriginal += solution.getOptimizationProblem().getDistanceMatrix()[0][solution.getLastInRoute(indexRoutes.get(i)) + 1];
+			tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][solution.getLastInRoute(indexRoutes.get(i)) + 1];
+			tctRouteOriginal[1] += solution.getOptimizationProblem().getCustomers().get(indexCustomer + 1).get(2);
 		}
 		
 		@SuppressWarnings("unchecked")
@@ -99,16 +102,22 @@ public class EvaluatorMoveSwap extends EvaluatorObjectiveFunctionMovement<Routes
 		this.SolutionSwap(solutionSwap, move);		
 		for (int i = 0; i < indexRoutes.size();  i++) {
 			int indexCustomer =  solutionSwap.getFirstInRoute(indexRoutes.get(i));
-			tctRouteMod  += solutionSwap.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1]; 
+			tctRouteMod[0] += solutionSwap.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1];
+			tctRouteMod[1] += solutionSwap.getOptimizationProblem().getCustomers().get(indexCustomer + 1).get(2);
 			while (solutionSwap.getSuccessor(indexCustomer) != -1) {
-				tctRouteMod +=  solutionSwap.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solutionSwap.getSuccessor(indexCustomer) + 1];
+				tctRouteMod[0] +=  solutionSwap.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solutionSwap.getSuccessor(indexCustomer) + 1];
 				indexCustomer = solutionSwap.getSuccessor(indexCustomer);
+				tctRouteMod[1] += solutionSwap.getOptimizationProblem().getCustomers().get(indexCustomer + 1).get(2);
 			}
-			tctRouteMod += solutionSwap.getOptimizationProblem().getDistanceMatrix()[0][solutionSwap.getLastInRoute(indexRoutes.get(i)) + 1];
+			tctRouteMod[0] += solutionSwap.getOptimizationProblem().getDistanceMatrix()[0][solutionSwap.getLastInRoute(indexRoutes.get(i)) + 1];
+			tctRouteMod[1] += solutionSwap.getOptimizationProblem().getCustomers().get(solutionSwap.getLastInRoute(indexRoutes.get(i)) + 1).get(2);
 		} 
-		desviation[0] = tctRouteMod - tctRouteOriginal;
-		move.setDeviationObjectiveFunctionValue(0, desviation[0]);
-		return desviation;
+		deviation[0] = tctRouteMod[0] - tctRouteOriginal[0];
+		deviation[1] = tctRouteMod[1] - tctRouteOriginal[1];
+		move.setDeviationObjectiveFunctionValue(0, deviation[0]);
+		move.setDeviationObjectiveFunctionValue(1, deviation[1]);
+		
+		return deviation;
 	}
 
 }

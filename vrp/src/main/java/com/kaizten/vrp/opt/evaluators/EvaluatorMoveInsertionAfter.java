@@ -9,19 +9,22 @@ public class EvaluatorMoveInsertionAfter extends EvaluatorObjectiveFunctionMovem
 
 	@Override
 	public double[] evaluate(RoutesSolution<Vrp> solution, MoveRoutesSolutionInsertionAfter move) {
-		double[] desviation =  new double [solution.getNumberOfObjectives()]; 
-		double tctRouteOriginal = 0.0;
-		double tctRouteMod = 0.0; 
+		double[] deviation =  new double [solution.getNumberOfObjectives()]; 
+		double[] tctRouteOriginal = new double [solution.getNumberOfObjectives()];
+		double[] tctRouteMod = new double [solution.getNumberOfObjectives()]; 
 		int indexCustomer; 
 		
 		if(solution.getLengthRoute(move.getRoute()) > 0) {			
 			indexCustomer =  solution.getFirstInRoute(move.getRoute());
-			tctRouteOriginal  += solution.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1]; 
+			tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1]; 
+			tctRouteOriginal[1] += solution.getOptimizationProblem().getCustomers().get(indexCustomer +1 ).get(2); 
 			while (solution.getSuccessor(indexCustomer) != -1) {
-				tctRouteOriginal +=  solution.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solution.getSuccessor(indexCustomer) + 1];
+				tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solution.getSuccessor(indexCustomer) + 1];
+				tctRouteOriginal[1] += solution.getOptimizationProblem().getCustomers().get(indexCustomer + 1).get(2);
 				indexCustomer = solution.getSuccessor(indexCustomer);
 			}
-			tctRouteOriginal += solution.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1];
+			tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1];
+			tctRouteOriginal[1] += solution.getOptimizationProblem().getCustomers().get(indexCustomer + 1).get(2);
 		}
 		
 		@SuppressWarnings("unchecked")
@@ -35,21 +38,28 @@ public class EvaluatorMoveInsertionAfter extends EvaluatorObjectiveFunctionMovem
 		
 		if(solutionInsertionAfter.getLengthRoute(move.getRoute()) <= solutionInsertionAfter.getOptimizationProblem().getNMaxCustomers()) {
 			indexCustomer =  solutionInsertionAfter.getFirstInRoute(move.getRoute());
-			tctRouteMod  += solutionInsertionAfter.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1];
+			tctRouteMod[0] += solutionInsertionAfter.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1];
+			tctRouteMod[1] += solutionInsertionAfter.getOptimizationProblem().getCustomers().get(indexCustomer + 1).get(2);
 			while (solutionInsertionAfter.getSuccessor(indexCustomer) != -1) {
-				tctRouteMod +=  solutionInsertionAfter.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solutionInsertionAfter.getSuccessor(indexCustomer) + 1];
+				tctRouteMod[0] += solutionInsertionAfter.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solutionInsertionAfter.getSuccessor(indexCustomer) + 1];
+				tctRouteMod[1] += solutionInsertionAfter.getOptimizationProblem().getCustomers().get(indexCustomer + 1).get(2);
 				indexCustomer = solutionInsertionAfter.getSuccessor(indexCustomer);
 			}
-			tctRouteMod += solutionInsertionAfter.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1];
+			tctRouteMod[0] += solutionInsertionAfter.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1];
+			tctRouteMod[1] += solutionInsertionAfter.getOptimizationProblem().getCustomers().get(indexCustomer + 1).get(2);
 		} else {
-			desviation[0] = Double.MAX_VALUE;
-			move.setDeviationObjectiveFunctionValue(0, desviation[0]);
-			return desviation;
+			deviation[0] = Double.MAX_VALUE;
+			deviation[1] = Double.MAX_VALUE;
+			move.setDeviationObjectiveFunctionValue(0, deviation[0]);
+			move.setDeviationObjectiveFunctionValue(1, deviation[1]);
+			return deviation;
 		}
 		
-		desviation[0] = tctRouteMod - tctRouteOriginal;
-		move.setDeviationObjectiveFunctionValue(0, desviation[0]);
-		return desviation;
+		deviation[0] = tctRouteMod[0] - tctRouteOriginal[0];
+		deviation[1] = tctRouteMod[1] - tctRouteOriginal[1]; 
+		move.setDeviationObjectiveFunctionValue(0, deviation[0]);
+		move.setDeviationObjectiveFunctionValue(1, deviation[1]);
+		return deviation;
 	}
 
 }

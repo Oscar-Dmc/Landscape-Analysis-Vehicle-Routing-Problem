@@ -20,7 +20,7 @@ public class LNS implements Solver<RoutesSolution<Vrp>>{
 		this.executionTime = 60;
 	}
 	
-	@SuppressWarnings("unchecked")
+	/*@SuppressWarnings("unchecked")
 	public RoutesSolution<Vrp> ALNS() {
 		RoutesSolution<Vrp> bestSolution = this.originalSolution.clone(); 
 		double percent = 0.01;
@@ -30,29 +30,34 @@ public class LNS implements Solver<RoutesSolution<Vrp>>{
 			RoutesSolution<Vrp> temporalSolution = this.partialDestroyer(this.originalSolution, percent);
 			temporalSolution.evaluate();
 			this.repairSolution(temporalSolution);
-			System.out.println(temporalSolution);
+			//System.out.println(temporalSolution);
 			//if(initialSolution.getObjectiveFunctionValue(0) > temporalSolution.getObjectiveFunctionValue(0)) {
-				setOriginalSolution(temporalSolution);
+			setOriginalSolution(temporalSolution);
 			//}
 			if(bestSolution.getObjectiveFunctionValue(0) > temporalSolution.getObjectiveFunctionValue(0)) {
 				bestSolution = temporalSolution.clone();
+				percent = adjustPercents(1, percent);
+			} else if (this.originalSolution.getObjectiveFunctionValue(0) > temporalSolution.getObjectiveFunctionValue(0)) {
+				percent = adjustPercents(2, percent);
 			} else {
-				if(percent < 1) {
-					percent += 0.01;					
-				} else {
-					percent = 0.01;
-				}
-				System.out.println(percent);
+				percent = adjustPercents(3, percent);
+				System.out.println("hola");
 			} 
+			System.out.println(percent);
 			time_end = System.currentTimeMillis();
 			this.executionTime -= (( time_end - time_start ) * 0.001);
 		}
 		return bestSolution;
+	} */
+	
+	public double adjustPercents(int weight, double percent) {
+		return (0.9 * percent) + ((1 - 0.9) * weight);  
 	}
 	
+
 	
 	@SuppressWarnings("unchecked")
-	public RoutesSolution<Vrp> partialDestroyer(RoutesSolution<Vrp> solution, double percent ) {
+	public RoutesSolution<Vrp> randomDestroyer(RoutesSolution<Vrp> solution, double percent ) {
 		RoutesSolution<Vrp> partialSolution = solution.clone();
 		int nCustomersToRemove = (int) (partialSolution.getOptimizationProblem().getNCustomers() * percent); 
 		Random rand = new Random();
@@ -69,13 +74,17 @@ public class LNS implements Solver<RoutesSolution<Vrp>>{
 		return partialSolution;
 	}
 	
-	public RoutesSolution<Vrp> repairSolution(RoutesSolution<Vrp> solution){
+	public RoutesSolution<Vrp> randomRepair(RoutesSolution<Vrp> solution){
+		return null; 
+	}
+	
+	public RoutesSolution<Vrp> bestRepair(RoutesSolution<Vrp> solution){
 		EvaluatorMoveInsertionAfter evaluator = new EvaluatorMoveInsertionAfter();
 		MoveApplierRoutesSolutionInsertionAfter applier = new MoveApplierRoutesSolutionInsertionAfter();
 		
 		while(!solution.getNonIncluded(0, solution.getOptimizationProblem().getNCustomers() - 1).isEmpty()) {
-			MoveRoutesSolutionInsertionAfter currentMove = new MoveRoutesSolutionInsertionAfter(1);
-			MoveRoutesSolutionInsertionAfter bestMove = new MoveRoutesSolutionInsertionAfter(1);
+			MoveRoutesSolutionInsertionAfter currentMove = new MoveRoutesSolutionInsertionAfter(2);
+			MoveRoutesSolutionInsertionAfter bestMove = new MoveRoutesSolutionInsertionAfter(2);
 			for(int i = 0; i < solution.getNonIncluded(0, solution.getOptimizationProblem().getNCustomers() - 1).size(); i++) {
 				currentMove.setToInsert(solution.getNonIncluded(0, solution.getOptimizationProblem().getNCustomers() - 1).get(i));
 				for(int j = 0; j < solution.getNumberOfRoutes(); j++) {
@@ -147,7 +156,7 @@ public class LNS implements Solver<RoutesSolution<Vrp>>{
 	public RoutesSolution<Vrp> run() {
 		this.originalSolution.evaluate();
 		
-		return ALNS();
+		return null/*ALNS()*/;
 	}
 	
 	@SuppressWarnings("unchecked")

@@ -59,8 +59,10 @@ public class DBControl {
 			ArrayList<Double> distance =  new ArrayList<Double>();
 			ArrayList<Integer> customer =  new ArrayList<Integer>();
 			for(int i = 0; i < nCustomers + 1;  i++) {
-				customer.add(problem.getCustomers().get(i).get(0));
+				/*customer.add(problem.getCustomers().get(i).get(0));
 				customer.add(problem.getCustomers().get(i).get(1));
+				customer.add(problem.getCustomers().get(i).get(2));*/
+				customer =  problem.getCustomers().get(i);
 				for(int j = 0;  j < nCustomers; j++) {
 					distance.add(problem.getDistanceMatrix()[i][j]);
 				}
@@ -263,8 +265,10 @@ public class DBControl {
 		ArrayList<ArrayList<Integer>> customers =  new ArrayList<ArrayList<Integer>>();
 		ArrayList<Integer> customer =  new ArrayList<Integer>();
 		for(int i = 0; i < problem.getNCustomers() + 1; i++) {
-			customer.add(problem.getCustomers().get(i).get(0));
+			/*customer.add(problem.getCustomers().get(i).get(0));
 			customer.add(problem.getCustomers().get(i).get(1));
+			customer.add(problem.getCustomers().get(i).get(2));*/
+			customer = (ArrayList<Integer>) problem.getCustomers().get(i).clone();
 			customers.add((ArrayList<Integer>) customer.clone());
 			customer.clear();
 		}
