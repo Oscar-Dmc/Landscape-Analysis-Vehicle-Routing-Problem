@@ -1,60 +1,95 @@
-package com.kaizten.vrp.opt.core;
+package com.kaizten.vrp.opt.solver;
 
 import java.util.ArrayList;
 import java.util.Random;
 
+
 import com.kaizten.opt.move.MoveRoutesSolutionInsertionAfter;
+import com.kaizten.opt.move.MoveRoutesSolutionSwap;
+import com.kaizten.opt.move.acceptor.MoveAcceptor;
+import com.kaizten.opt.move.acceptor.MoveAcceptorBestImprovement;
+import com.kaizten.opt.move.applier.Applier;
+import com.kaizten.opt.move.applier.MoveApplier;
 import com.kaizten.opt.move.applier.MoveApplierRoutesSolutionInsertionAfter;
+import com.kaizten.opt.move.manager.BaseMoveManager;
+import com.kaizten.opt.move.manager.MoveManagerSequential;
 import com.kaizten.opt.solution.RoutesSolution;
+import com.kaizten.opt.solver.LocalSearch;
 import com.kaizten.opt.solver.Solver;
+import com.kaizten.vrp.opt.core.Vrp;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveInsertionAfter;
+import com.kaizten.vrp.opt.move.MoveRoutesSolutionMoveAfter;
+import com.kaizten.vrp.opt.move.MoveRoutesSolutionMoveBefore;
+import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionMoveAfter;
+import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionMoveBefore;
+import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionSwap;
+import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionMoveAfter;
+import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionMoveBefore;
+import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionSwap;
 
 public class LNS implements Solver<RoutesSolution<Vrp>>{
-	private Vrp problem;
 	private RoutesSolution<Vrp> originalSolution; 
 	private double executionTime; 
+	private double percent; 
 	
+	/* LocalSearch */ 
+	private BaseMoveManager<RoutesSolution<Vrp>, ?> manager; 
+	private MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap> mGSwap; 
+	private MoveGeneratorRoutesSolutionMoveAfter<RoutesSolution<Vrp>, MoveRoutesSolutionMoveAfter> mGAfter;
+	private MoveGeneratorRoutesSolutionMoveBefore<RoutesSolution<Vrp>, MoveRoutesSolutionMoveBefore> mGBefore;
+	private Applier<RoutesSolution<Vrp>> applier; 
+	private MoveAcceptor acceptor; 
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public LNS(Vrp problem) {
-		this.problem =  problem; 
-		this.originalSolution =  sequentialSolutionConstruct();
+		SequentialBuilder builder  = new SequentialBuilder(problem);
+		this.originalSolution =  builder.run();
 		this.executionTime = 60;
+		this.percent = 0.05; 
+		
+		this.manager = new MoveManagerSequential();
+		this.mGSwap = new MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap>();
+		this.mGAfter = new MoveGeneratorRoutesSolutionMoveAfter<RoutesSolution<Vrp>, MoveRoutesSolutionMoveAfter>();
+		this.mGBefore = new MoveGeneratorRoutesSolutionMoveBefore<RoutesSolution<Vrp>, MoveRoutesSolutionMoveBefore>();
+		this.manager.addMoveGenerator(this.mGSwap);
+		this.manager.addMoveGenerator(this.mGAfter);
+		this.manager.addMoveGenerator(this.mGBefore);
+		
+		this.applier =  new Applier<RoutesSolution<Vrp>>();
+		MoveApplier applierSwap =  new MoveApplierRoutesSolutionSwap();
+		MoveApplier applierMoveAfter = new MoveApplierRoutesSolutionMoveAfter();
+		MoveApplier applierMoveBefore = new MoveApplierRoutesSolutionMoveBefore();
+		this.applier.addMoveApplier(applierSwap);
+		this.applier.addMoveApplier(applierMoveAfter);
+		this.applier.addMoveApplier(applierMoveBefore);
+		
+		this.acceptor = new MoveAcceptorBestImprovement();
 	}
 	
-	/*@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	public RoutesSolution<Vrp> ALNS() {
 		RoutesSolution<Vrp> bestSolution = this.originalSolution.clone(); 
-		double percent = 0.01;
 		long time_start, time_end;
 		while(this.executionTime > 0 ) {
 			time_start = System.currentTimeMillis();
-			RoutesSolution<Vrp> temporalSolution = this.partialDestroyer(this.originalSolution, percent);
+			RoutesSolution<Vrp> temporalSolution = this.randomDestroyer(this.originalSolution, this.percent);
 			temporalSolution.evaluate();
-			this.repairSolution(temporalSolution);
-			//System.out.println(temporalSolution);
-			//if(initialSolution.getObjectiveFunctionValue(0) > temporalSolution.getObjectiveFunctionValue(0)) {
+			
+			temporalSolution = localSearch(this.bestRepair(temporalSolution));
 			setOriginalSolution(temporalSolution);
-			//}
-			if(bestSolution.getObjectiveFunctionValue(0) > temporalSolution.getObjectiveFunctionValue(0)) {
+			if(temporalSolution.getObjectiveFunctionValue(0) < bestSolution.getObjectiveFunctionValue(0)) {
 				bestSolution = temporalSolution.clone();
-				percent = adjustPercents(1, percent);
-			} else if (this.originalSolution.getObjectiveFunctionValue(0) > temporalSolution.getObjectiveFunctionValue(0)) {
-				percent = adjustPercents(2, percent);
-			} else {
-				percent = adjustPercents(3, percent);
-				System.out.println("hola");
-			} 
-			System.out.println(percent);
+			}
+			/*System.out.println(temporalSolution);
+			System.out.println("---------------------------------------------------------------------------------------------");
+			temporalSolution =  this.localSearch(temporalSolution);
+			System.out.println(temporalSolution);
+			System.out.println("---------------------------------------------------------------------------------------------");*/
 			time_end = System.currentTimeMillis();
 			this.executionTime -= (( time_end - time_start ) * 0.001);
 		}
 		return bestSolution;
-	} */
-	
-	public double adjustPercents(int weight, double percent) {
-		return (0.9 * percent) + ((1 - 0.9) * weight);  
-	}
-	
-
+	} 
 	
 	@SuppressWarnings("unchecked")
 	public RoutesSolution<Vrp> randomDestroyer(RoutesSolution<Vrp> solution, double percent ) {
@@ -72,10 +107,6 @@ public class LNS implements Solver<RoutesSolution<Vrp>>{
 			partialSolution.remove(indexToRemove.get(i));
 		}
 		return partialSolution;
-	}
-	
-	public RoutesSolution<Vrp> randomRepair(RoutesSolution<Vrp> solution){
-		return null; 
 	}
 	
 	public RoutesSolution<Vrp> bestRepair(RoutesSolution<Vrp> solution){
@@ -132,31 +163,21 @@ public class LNS implements Solver<RoutesSolution<Vrp>>{
 		return moveCopy; 
 	}
 	
-	
-	public RoutesSolution<Vrp> sequentialSolutionConstruct() {
-		int currentRoute = 0;
-		RoutesSolution<Vrp> solution =  new RoutesSolution<Vrp>(this.problem, this.problem.getNCustomers(), this.problem.getNVehicles());
-		for(int i = 0; i < this.problem.getNCustomers(); i++) {
-			if(currentRoute >= solution.getNumberOfRoutes()) {
-				currentRoute = 0; 
-			}
-			if (solution.isEmpty(currentRoute)) {
-				solution.addAfterDepot(i, currentRoute);
-			} else {
-				solution.addAfter(i, solution.getLastInRoute(currentRoute));
-			}
-			currentRoute++;
-		}
-		solution.evaluate();
-		return solution;
+	public RoutesSolution<Vrp> localSearch(RoutesSolution<Vrp> solution){
+		LocalSearch<RoutesSolution<Vrp>> local = new LocalSearch<RoutesSolution<Vrp>>();
+		local.setMoveAcceptor(this.acceptor);
+		local.setApplier(this.applier);
+		local.setMoveManager(this.manager);
+		local.setSolution(solution);
+		
+		return local.run(); 
 	}
-	
 
 	@Override
 	public RoutesSolution<Vrp> run() {
 		this.originalSolution.evaluate();
 		
-		return null/*ALNS()*/;
+		return ALNS();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -170,6 +191,10 @@ public class LNS implements Solver<RoutesSolution<Vrp>>{
 	
 	public void setExecutionTime(double tMax) {
 		this.executionTime =  tMax; 
+	}
+	
+	public void setPercent(double percent) {
+		this.percent = percent; 
 	}
 
 }

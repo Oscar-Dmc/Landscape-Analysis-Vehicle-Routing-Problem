@@ -24,14 +24,11 @@ public class EvaluatorMoveAfter extends EvaluatorObjectiveFunctionMovement<Route
 		for (int i = 0; i < indexRoutes.size();  i++) {
 			int indexCustomer =  solution.getFirstInRoute(indexRoutes.get(i));
 			tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1]; 
-			tctRouteOriginal[1] += solution.getOptimizationProblem().getCustomers().get(indexCustomer + 1).get(2); 
 			while (solution.getSuccessor(indexCustomer) != -1) {
 				tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solution.getSuccessor(indexCustomer) + 1];
 				indexCustomer = solution.getSuccessor(indexCustomer);
-				tctRouteOriginal[1] += solution.getOptimizationProblem().getCustomers().get(indexCustomer + 1).get(2);
 			}
 			tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][solution.getLastInRoute(indexRoutes.get(i)) + 1];
-			tctRouteOriginal[1] += solution.getOptimizationProblem().getCustomers().get(solution.getLastInRoute(indexRoutes.get(i)) + 1).get(2);
 		}
 		
 		@SuppressWarnings("unchecked")
@@ -43,29 +40,22 @@ public class EvaluatorMoveAfter extends EvaluatorObjectiveFunctionMovement<Route
 				if(solutionMoveAfter.getLengthRoute(indexRoutes.get(i)) > 0) {
 					int indexCustomer =  solutionMoveAfter.getFirstInRoute(indexRoutes.get(i));
 					tctRouteMod[0] += solutionMoveAfter.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1];
-					tctRouteMod[1] += solutionMoveAfter.getOptimizationProblem().getCustomers().get(indexCustomer + 1).get(2);
 					while (solutionMoveAfter.getSuccessor(indexCustomer) != -1) {
 						tctRouteMod[0] += solutionMoveAfter.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solutionMoveAfter.getSuccessor(indexCustomer) + 1];
 						indexCustomer = solutionMoveAfter.getSuccessor(indexCustomer);
-						tctRouteMod[1] += solutionMoveAfter.getOptimizationProblem().getCustomers().get(indexCustomer + 1).get(2);
 					}
 					tctRouteMod[0] += solutionMoveAfter.getOptimizationProblem().getDistanceMatrix()[0][solutionMoveAfter.getLastInRoute(indexRoutes.get(i)) + 1];
-					tctRouteMod[1] += solutionMoveAfter.getOptimizationProblem().getCustomers().get(solutionMoveAfter.getLastInRoute(indexRoutes.get(i)) + 1).get(2);
 					
 				}
 			} else {
 				deviation[0] = Double.MAX_VALUE;
-				deviation[1] = Double.MAX_VALUE;
 				move.setDeviationObjectiveFunctionValue(0, deviation[0]);
-				move.setDeviationObjectiveFunctionValue(1, deviation[1]);
 				return deviation;
 			}
 		} 
 		
 		deviation[0] = tctRouteMod[0] - tctRouteOriginal[0];
-		deviation[1] = tctRouteMod[1] - tctRouteOriginal[1];
 		move.setDeviationObjectiveFunctionValue(0, deviation[0]);
-		move.setDeviationObjectiveFunctionValue(1, deviation[1]);
 		return deviation;
 	}
 

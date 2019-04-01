@@ -1,4 +1,4 @@
-package com.kaizten.vrp.opt.core;
+package com.kaizten.vrp.opt.solver;
 
 import com.kaizten.opt.move.Move;
 import com.kaizten.opt.move.MoveRoutesSolutionSwap;
@@ -11,6 +11,7 @@ import com.kaizten.opt.move.explorer.MoveExplorerBasic;
 import com.kaizten.opt.move.manager.MoveManagerSequential;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.opt.solver.Solver;
+import com.kaizten.vrp.opt.core.Vrp;
 import com.kaizten.vrp.opt.move.MoveRoutesSolutionMoveAfter;
 import com.kaizten.vrp.opt.move.MoveRoutesSolutionMoveBefore;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionMoveAfter;
@@ -24,7 +25,6 @@ public class Vns implements Solver<RoutesSolution<Vrp>>{
 
 	private RoutesSolution<Vrp> originalSolution;
 	private RoutesSolution<Vrp> auxSolution;
-	private Vrp problem; 
 	private MoveManagerSequential<RoutesSolution<Vrp>, ?> manager; 
 	private MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap> mGSwap; 
 	private MoveGeneratorRoutesSolutionMoveAfter<RoutesSolution<Vrp>, MoveRoutesSolutionMoveAfter> mGAfter;
@@ -36,8 +36,8 @@ public class Vns implements Solver<RoutesSolution<Vrp>>{
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Vns(Vrp problem) {
-		this.problem = problem; 
-		this.originalSolution =  sequentialSolutionConstruct();
+		SequentialBuilder builder  = new SequentialBuilder(problem);
+		this.originalSolution =  builder.run();
 		
 		this.manager = new MoveManagerSequential();
 		this.manager.setSolution(this.originalSolution);
@@ -116,24 +116,6 @@ public class Vns implements Solver<RoutesSolution<Vrp>>{
 			this.executionTime  -= ((tEnd - tInit) * 0.001);
 		}
 		return this.originalSolution;
-	}
-	
-	public RoutesSolution<Vrp> sequentialSolutionConstruct() {
-		int currentRoute = 0;
-		RoutesSolution<Vrp> solution =  new RoutesSolution<Vrp>(this.problem, this.problem.getNCustomers(), this.problem.getNVehicles());
-		for(int i = 0; i < this.problem.getNCustomers(); i++) {
-			if(currentRoute >= solution.getNumberOfRoutes()) {
-				currentRoute = 0; 
-			}
-			if (solution.isEmpty(currentRoute)) {
-				solution.addAfterDepot(i, currentRoute);
-			} else {
-				solution.addAfter(i, solution.getLastInRoute(currentRoute));
-			}
-			currentRoute++;
-		}
-		solution.evaluate();
-		return solution;
 	}
 	
 	@Override

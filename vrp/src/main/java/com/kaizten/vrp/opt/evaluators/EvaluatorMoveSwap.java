@@ -87,14 +87,11 @@ public class EvaluatorMoveSwap extends EvaluatorObjectiveFunctionMovement<Routes
 		for (int i = 0; i < indexRoutes.size();  i++) {
 			int indexCustomer =  solution.getFirstInRoute(indexRoutes.get(i));
 			tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1]; 
-			tctRouteOriginal[1] += solution.getOptimizationProblem().getCustomers().get(indexCustomer + 1).get(2);
 			while (solution.getSuccessor(indexCustomer) != -1) {
 				tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solution.getSuccessor(indexCustomer) + 1];
 				indexCustomer = solution.getSuccessor(indexCustomer);
-				tctRouteOriginal[1] += solution.getOptimizationProblem().getCustomers().get(indexCustomer + 1).get(2);
 			}
 			tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][solution.getLastInRoute(indexRoutes.get(i)) + 1];
-			tctRouteOriginal[1] += solution.getOptimizationProblem().getCustomers().get(indexCustomer + 1).get(2);
 		}
 		
 		@SuppressWarnings("unchecked")
@@ -103,19 +100,14 @@ public class EvaluatorMoveSwap extends EvaluatorObjectiveFunctionMovement<Routes
 		for (int i = 0; i < indexRoutes.size();  i++) {
 			int indexCustomer =  solutionSwap.getFirstInRoute(indexRoutes.get(i));
 			tctRouteMod[0] += solutionSwap.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1];
-			tctRouteMod[1] += solutionSwap.getOptimizationProblem().getCustomers().get(indexCustomer + 1).get(2);
 			while (solutionSwap.getSuccessor(indexCustomer) != -1) {
 				tctRouteMod[0] +=  solutionSwap.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solutionSwap.getSuccessor(indexCustomer) + 1];
 				indexCustomer = solutionSwap.getSuccessor(indexCustomer);
-				tctRouteMod[1] += solutionSwap.getOptimizationProblem().getCustomers().get(indexCustomer + 1).get(2);
 			}
 			tctRouteMod[0] += solutionSwap.getOptimizationProblem().getDistanceMatrix()[0][solutionSwap.getLastInRoute(indexRoutes.get(i)) + 1];
-			tctRouteMod[1] += solutionSwap.getOptimizationProblem().getCustomers().get(solutionSwap.getLastInRoute(indexRoutes.get(i)) + 1).get(2);
 		} 
 		deviation[0] = tctRouteMod[0] - tctRouteOriginal[0];
-		deviation[1] = tctRouteMod[1] - tctRouteOriginal[1];
 		move.setDeviationObjectiveFunctionValue(0, deviation[0]);
-		move.setDeviationObjectiveFunctionValue(1, deviation[1]);
 		
 		return deviation;
 	}

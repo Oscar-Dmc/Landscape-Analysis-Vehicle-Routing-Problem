@@ -1,8 +1,8 @@
 package com.kaizten.vrp.opt.main;
 
 import com.kaizten.opt.solution.RoutesSolution;
-import com.kaizten.vrp.opt.core.Vns;
 import com.kaizten.vrp.opt.core.Vrp;
+import com.kaizten.vrp.opt.solver.Vns;
 
 public class MainVNS {
 	

@@ -25,6 +25,7 @@ import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionMoveAfter;
 import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionMoveBefore;
 import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionRemove;
 import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionSwap;
+import com.kaizten.vrp.opt.solver.RandomizedBuilder;
 import com.mongodb.client.FindIterable;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.vrp.opt.db.DBControl;
@@ -407,8 +408,7 @@ public class ExplorerLandScape {
 			case 0:
 				/* Generamos un problema aleatorio y solucion aleatoria */ 
 				problemVrp = new Vrp(100, 100, 15, 5, 3);
-				solution =  new LatencySolution(problemVrp, 3).getSolution();
-				solution.evaluate();
+				solution =  new RandomizedBuilder(problemVrp).run();
 				explorer.getDBControl().addProblem(problemVrp);
 				explorer.getDBControl().setOriginalProblem(problemVrp);
 				break;
@@ -418,8 +418,7 @@ public class ExplorerLandScape {
 				System.out.println("Insert problem id: ");
 				idProblem =  Long.parseLong(scanner.nextLine());
 				problemVrp =  explorer.getDBControl().getProblem(idProblem); 
-				solution =  new LatencySolution(problemVrp, 3).getSolution();
-				solution.evaluate();
+				solution =   new RandomizedBuilder(problemVrp).run();
 				explorer.getDBControl().setOriginalProblem(problemVrp);
 				break; 
 			case 2: 

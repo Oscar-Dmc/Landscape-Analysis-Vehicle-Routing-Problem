@@ -29,7 +29,7 @@ public class Vrp extends OptimizationProblem {
 		
 		/* Evaluators */ 
 		@SuppressWarnings("rawtypes")
-		Evaluator evaluator = new Evaluator(2);
+		Evaluator evaluator = new Evaluator();
 		evaluator.addEvaluatorObjectiveFunction(new EvaluatorObjectiveFunctionDistances());
 		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveRemove(1), 0);
 		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveSwap(1), 0);
@@ -77,7 +77,7 @@ public class Vrp extends OptimizationProblem {
 	public Vrp(ArrayList<ArrayList<Integer>> customers, Integer nCustomers, Integer nVehicles) {
 		this.setName("VRP");
 		
-		Evaluator evaluator = new Evaluator(2);
+		Evaluator evaluator = new Evaluator();
 		evaluator.addEvaluatorObjectiveFunction(new EvaluatorObjectiveFunctionDistances());
 		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveRemove(1), 0);
 		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveSwap(1), 0);
