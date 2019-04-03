@@ -1,6 +1,7 @@
 package com.kaizten.vrp.opt.core;
 
 import com.kaizten.opt.evaluator.Evaluator;
+import com.kaizten.opt.io.KaiztenOptimizationProblemFileSupplier;
 import com.kaizten.opt.problem.OptimizationProblem;
 import com.kaizten.utils.algorithm.GraphUtils;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveAfter;
@@ -10,8 +11,15 @@ import com.kaizten.vrp.opt.evaluators.EvaluatorMoveInsertionBefore;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveRemove;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveSwap;
 import com.kaizten.vrp.opt.evaluators.EvaluatorObjectiveFunctionDistances;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.stream.Stream;
 
 public class Vrp extends OptimizationProblem {
 
@@ -51,8 +59,6 @@ public class Vrp extends OptimizationProblem {
 		customer.add(width / 2); /* Coordinated x for depot */
 		customer.add(height / 2); /* Coordinated y for depot */
 		customer.add(0); /* Demand of depot */ 
-		/*this.depot = new Node((width / 2), (height / 2), "DP", -1);
-		this.depot.setSatisfied(true); /* Because the depot is a main node and always is satisfied. */
 		this.customers.add((ArrayList<Integer>) customer.clone());
 		customer.clear();
 		
@@ -61,8 +67,6 @@ public class Vrp extends OptimizationProblem {
 		for (int i = 0; i < nCustomers; i++) {
 			int x = randomGenerator.nextInt(width + 1);
 			int y = randomGenerator.nextInt(height + 1);
-			//String id = "CU" + i;
-			//Node customer = new Node(x, y, id, i);
 			customer.add(x);
 			customer.add(y);
 			customer.add(randomGenerator.nextInt(50) + 1);
@@ -74,7 +78,7 @@ public class Vrp extends OptimizationProblem {
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public Vrp(ArrayList<ArrayList<Integer>> customers, Integer nCustomers, Integer nVehicles) {
+	public Vrp(ArrayList<ArrayList<Integer>> customers, Integer nCustomers, Integer nVehicles, Integer nMaxCustomers) {
 		this.setName("VRP");
 		
 		Evaluator evaluator = new Evaluator();
@@ -90,21 +94,13 @@ public class Vrp extends OptimizationProblem {
 		this.customers = (ArrayList<ArrayList<Integer>>) customers.clone();
 		this.nCustomers =  nCustomers;
 		this.nVehicles = nVehicles;
-		this.nMaxCustomers = 3; 
-		
-		/*this.depot =  new Node(customers.get(0).get(0), customers.get(0).get(1), "DP", -1);
-		this.depot.setSatisfied(true);
-		this.customers.add(this.depot);
-		
-		for(int i = 1; i < customers.size(); i++) {
-			String id = "CU" + i;
-			Node customer =  new Node(customers.get(i).get(0), customers.get(i).get(1), id, i);
-			this.customers.add(customer); 
-		}*/
+		this.nMaxCustomers = nMaxCustomers;
 		
 		this.fillDistanceMatrix();
 		
 	}
+	
+	public Vrp() {}
 	
 	public void fillDistanceMatrix() {
 		this.distanceMatrix = new double[this.nCustomers + 1][this.nCustomers + 1]; /* Plus 1 for depot */
@@ -118,17 +114,6 @@ public class Vrp extends OptimizationProblem {
 			}
 		}
 	}
-
-	/* Check if all customers has been satisfied 
-	public boolean AllCustomersSatisfied() {
-		int nSatisfied = 0;
-		for (int i = 0; i < this.customers.size(); i++) {
-			if (this.customers.get(i).getSatisfied()) {
-				nSatisfied++; 
-			}
-		}
-		return (nSatisfied == this.customers.size());
-	} */
 
 	/* Get's & Set's */
 	public ArrayList<ArrayList<Integer>> getCustomers() {
@@ -150,4 +135,9 @@ public class Vrp extends OptimizationProblem {
 	public int getNMaxCustomers() {
 		return this.nMaxCustomers;
 	}
+	
+	public void setNMaxCustomers(int nMaxCustomers) {
+		this.nMaxCustomers = nMaxCustomers; 
+	}
+	
 }

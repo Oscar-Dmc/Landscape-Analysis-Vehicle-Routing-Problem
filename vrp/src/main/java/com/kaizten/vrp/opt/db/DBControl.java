@@ -52,16 +52,12 @@ public class DBControl {
 		else {
 			Integer nCustomers = problem.getNCustomers();
 			Integer nVehicles =  problem.getNVehicles();
+			Integer nMaxCustomers = problem.getNMaxCustomers();
 			ArrayList<ArrayList<Double>> distanceMatrix = new ArrayList<ArrayList<Double>>(); 
 			ArrayList<ArrayList<Integer>> customers =  new ArrayList<ArrayList<Integer>>();
-			
-			
 			ArrayList<Double> distance =  new ArrayList<Double>();
 			ArrayList<Integer> customer =  new ArrayList<Integer>();
 			for(int i = 0; i < nCustomers + 1;  i++) {
-				/*customer.add(problem.getCustomers().get(i).get(0));
-				customer.add(problem.getCustomers().get(i).get(1));
-				customer.add(problem.getCustomers().get(i).get(2));*/
 				customer =  problem.getCustomers().get(i);
 				for(int j = 0;  j < nCustomers; j++) {
 					distance.add(problem.getDistanceMatrix()[i][j]);
@@ -78,7 +74,9 @@ public class DBControl {
 					.append("DistanceMatrix", distanceMatrix)
 					.append("Customers", customers)
 					.append("nCustomers", nCustomers)
-					.append("nVehicles", nVehicles);
+					.append("nVehicles", nVehicles)
+					.append("nMaxCustomers", nMaxCustomers);
+				
 			
 			this.collection.insertOne(problemDB);
 		}
@@ -217,8 +215,9 @@ public class DBControl {
 		ArrayList<ArrayList<Integer>> customers =  (ArrayList<ArrayList<Integer>>) documentWithProblem.get("Customers");
 		Integer nCustomers = documentWithProblem.getInteger("nCustomers");
 		Integer nVehicles =  documentWithProblem.getInteger("nVehicles");
+		Integer nMaxCustomers =  documentWithProblem.getInteger("nMaxCustomers");
 		
-		return new Vrp(customers, nCustomers, nVehicles);
+		return new Vrp(customers, nCustomers, nVehicles, nMaxCustomers);
 	}
 	
 	public void setIdOriginalSolution(long id) {
@@ -265,9 +264,6 @@ public class DBControl {
 		ArrayList<ArrayList<Integer>> customers =  new ArrayList<ArrayList<Integer>>();
 		ArrayList<Integer> customer =  new ArrayList<Integer>();
 		for(int i = 0; i < problem.getNCustomers() + 1; i++) {
-			/*customer.add(problem.getCustomers().get(i).get(0));
-			customer.add(problem.getCustomers().get(i).get(1));
-			customer.add(problem.getCustomers().get(i).get(2));*/
 			customer = (ArrayList<Integer>) problem.getCustomers().get(i).clone();
 			customers.add((ArrayList<Integer>) customer.clone());
 			customer.clear();

@@ -80,11 +80,7 @@ public class LNS implements Solver<RoutesSolution<Vrp>>{
 			if(temporalSolution.getObjectiveFunctionValue(0) < bestSolution.getObjectiveFunctionValue(0)) {
 				bestSolution = temporalSolution.clone();
 			}
-			/*System.out.println(temporalSolution);
-			System.out.println("---------------------------------------------------------------------------------------------");
-			temporalSolution =  this.localSearch(temporalSolution);
-			System.out.println(temporalSolution);
-			System.out.println("---------------------------------------------------------------------------------------------");*/
+			
 			time_end = System.currentTimeMillis();
 			this.executionTime -= (( time_end - time_start ) * 0.001);
 		}
