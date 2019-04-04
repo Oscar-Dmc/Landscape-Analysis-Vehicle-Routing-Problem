@@ -12,8 +12,31 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>appassembler-maven-plugin</artifactId>
+        <version>1.10</version>
+        <configuration>
+          <programs>
+            <program>
+              <mainClass>com.kaizten.vrp.opt.main.MainLNS</mainClass>
+              <id>LNS</id>
+            </program>
+            <program>
+              <mainClass>com.kaizten.vrp.opt.main.MainVNS</mainClass>
+              <id>VNS</id>
+            </program>
+          </programs>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
   <dependencies>
     <dependency>
