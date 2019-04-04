@@ -11,9 +11,9 @@ public class MainVNS {
 	
 	public static void main(String[] args) {
 		System.out.println("Launch vns \n");
-		//Vrp problem = new Vrp(100, 100, 10, 5, 4);
-		File file =  new File("D:\\Documentos\\Repositorios\\TFG\\vrp\\instances\\C101_25.txt");
+		File file =  new File(args[0]);
 		VrpSupplier vrpSupplier = new VrpSupplier();
+		vrpSupplier.setNVehicles(Integer.parseInt(args[1]));
 		Vrp problem = vrpSupplier.get(file).findFirst().get();
 		Vns vns =  new Vns(problem);
 		RoutesSolution<Vrp> finalSolution =  vns.run();

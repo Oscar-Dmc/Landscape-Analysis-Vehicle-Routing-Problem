@@ -1,7 +1,6 @@
 package com.kaizten.vrp.opt.core;
 
 import com.kaizten.opt.evaluator.Evaluator;
-import com.kaizten.opt.io.KaiztenOptimizationProblemFileSupplier;
 import com.kaizten.opt.problem.OptimizationProblem;
 import com.kaizten.utils.algorithm.GraphUtils;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveAfter;
@@ -12,14 +11,8 @@ import com.kaizten.vrp.opt.evaluators.EvaluatorMoveRemove;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveSwap;
 import com.kaizten.vrp.opt.evaluators.EvaluatorObjectiveFunctionDistances;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.stream.Stream;
 
 public class Vrp extends OptimizationProblem {
 
@@ -52,7 +45,6 @@ public class Vrp extends OptimizationProblem {
 		this.nVehicles = nVehicles;
 		this.nMaxCustomers = nMaxCustomers;
 		this.customers = new ArrayList<ArrayList<Integer>>();
-		//this.customers = new ArrayList<Node>();
 
 		/* Create depot node */
 		ArrayList<Integer> customer = new ArrayList<Integer>();

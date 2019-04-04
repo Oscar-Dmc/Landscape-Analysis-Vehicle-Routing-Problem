@@ -11,6 +11,8 @@ import java.util.stream.Stream;
 import com.kaizten.opt.io.KaiztenOptimizationProblemFileSupplier;
 
 public class VrpSupplier implements KaiztenOptimizationProblemFileSupplier<Vrp>{
+	
+	private int nVehicles;
 
 	@SuppressWarnings("unused")
 	@Override
@@ -39,8 +41,8 @@ public class VrpSupplier implements KaiztenOptimizationProblemFileSupplier<Vrp>{
 			}
 			reader.close();
 			
-			int nMaxCustomers = ((nCustomers/7) + 1); /* Maybe another way */ 
-			Vrp problem =  new Vrp(customers, nCustomers, 7, nMaxCustomers); /* Establish fixed of number of vehicles until new version of instances */ 
+			int nMaxCustomers = ((nCustomers/this.nVehicles) + 1); /* get this value for parameters */ 
+			Vrp problem =  new Vrp(customers, nCustomers, this.nVehicles, nCustomers); /* Establish fixed of number of vehicles until new version of instances */ 
 			
 			return Stream.of(problem); 
 		} catch (FileNotFoundException e) {
@@ -50,6 +52,10 @@ public class VrpSupplier implements KaiztenOptimizationProblemFileSupplier<Vrp>{
 			e.printStackTrace();
 			return null; 
 		}
+	}
+	
+	public void setNVehicles(int nVehicles) {
+		this.nVehicles =  nVehicles; 
 	}
 
 }
