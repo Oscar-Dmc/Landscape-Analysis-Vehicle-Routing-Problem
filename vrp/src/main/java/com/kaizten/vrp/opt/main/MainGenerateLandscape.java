@@ -11,9 +11,7 @@ import com.kaizten.vrp.opt.solver.RandomizedBuilder;
 public class MainGenerateLandscape {
 	public static void main(String[] args) {
 		System.out.println("Starting to generate the landscape ");
-		File file =  new File(args[0]); // Route of the initial problem
-		//String[] parts =  file.getName().split("\\.");
-		//System.out.println(file.getName().split("\\.")[0]);
+		File file =  new File(args[0]);
 		VrpSupplier vrpSupplier = new VrpSupplier();
 		vrpSupplier.setNVehicles(Integer.parseInt(args[1]));
 		Vrp problem = vrpSupplier.get(file).findFirst().get();
@@ -26,13 +24,9 @@ public class MainGenerateLandscape {
 		explorer.getDBControl().setOriginalProblem(problem);
 		RoutesSolution<Vrp> solution = null; 
 		if(explorer.getDBControl().getNSolutions() == 0) {
-			System.out.println("Solución generada por primera vez");
 			solution =  new RandomizedBuilder(problem).run();
-			System.out.println(solution.toString());
 		} else {
-			System.out.println("Solución de partida desde la base de datos");
 			solution = explorer.getDBControl().getSolution(0); 
-			System.out.println(solution.toString());
 		}
 		
 		if(args.length < 4 || 
@@ -47,7 +41,6 @@ public class MainGenerateLandscape {
 		} else {
 			explorer.explorer(solution, Integer.parseInt(args[2]), Integer.parseInt(args[3]));
 		}
-		//System.out.println(solution.toString());
 
 	}
 	
