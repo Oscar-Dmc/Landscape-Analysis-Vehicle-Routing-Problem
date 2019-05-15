@@ -1,7 +1,6 @@
 package com.kaizten.vrp.opt.core;
 
 import java.util.ArrayList;
-import java.util.Scanner;
 
 import org.bson.Document;
 import com.kaizten.opt.move.MoveRoutesSolutionInsertionAfter;
@@ -25,7 +24,6 @@ import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionMoveAfter;
 import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionMoveBefore;
 import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionRemove;
 import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionSwap;
-import com.kaizten.vrp.opt.solver.RandomizedBuilder;
 import com.mongodb.client.FindIterable;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.vrp.opt.db.DBControl;
@@ -43,6 +41,7 @@ public class ExplorerLandScape {
 	private MoveGeneratorRoutesSolutionMoveAfter<RoutesSolution<Vrp>, MoveRoutesSolutionMoveAfter> MGMoveAfter;
 	private MoveGeneratorRoutesSolutionMoveBefore<RoutesSolution<Vrp>, MoveRoutesSolutionMoveBefore> MGMoveBefore;
 	private DBControl db; 
+	private String dbName; 
 	private long idCurrentSolution;
 	private int environment; 
 	private ArrayList<Long> nextSolutions; 
@@ -79,6 +78,7 @@ public class ExplorerLandScape {
 		
 		/* Database */ 
 		this.db = new DBControl();
+		this.db.setDBName(this.dbName);
 		this.db.init();
 	}
 	
@@ -86,7 +86,6 @@ public class ExplorerLandScape {
 		this.MMSequential.setSolution(solution);
 		this.environment = environment; 
 		this.setInitialSolution(solution, this.environment);  
-		System.out.println(this.db.getSolution(this.db.getNSolutionsEnvironment(0) - 1));
 		switch(environment) {
 			case 0 : 
 				this.MMSequential.addMoveGenerator(this.MGSwap);
@@ -103,7 +102,7 @@ public class ExplorerLandScape {
 				}
 				break;
 			case 2:
-				this.MMSequential.addMoveGenerator(MGMoveBefore);
+				this.MMSequential.addMoveGenerator(this.MGMoveBefore);
 				this.MMSequential.init();
 				while(executionTime > 0) {
 					executionTime -= runMoveBefore(executionTime);
@@ -362,7 +361,6 @@ public class ExplorerLandScape {
 	}
 	
 	
-	
 	/* Set & Get */ 
 	public void setSolution(RoutesSolution<Vrp> solution) {
 		this.idCurrentSolution =  db.addSolution(solution);
@@ -377,67 +375,10 @@ public class ExplorerLandScape {
 	
 	public DBControl getDBControl() {
 		return this.db;
-		}
-	
-	/* Main */ 
-	@SuppressWarnings("resource")
-	public static void main(String[] args) {
-		if(args.length < 3 || 
-		   Integer.parseInt(args[0]) < 0 || Integer.parseInt(args[0]) > 2 ||
-		   Integer.parseInt(args[1]) < 0 || Integer.parseInt(args[1]) > 5 ||
-		   Integer.parseInt(args[2]) < 0) {
-			
-			System.out.println("This program need 3 arguments");
-			System.out.println("1: Option:\n0 = Random Problem and Solution \n1 = Database Problem, Random Solution\n2 = Problem and Solution in Database");
-			System.out.println("2: Environment\n0 = Swap\n1 = Remove\n2 = Insertion After\n3 = Insertion Before \n4 = Move After\n5 = Move Before");
-			System.out.println("3: Exectution time");
-			
-		} else {
-			int option = Integer.parseInt(args[0]);
-			int environment = Integer.parseInt(args[1]);
-			double executionTime = Double.parseDouble(args[2]);
-			long idProblem = 0;
-			ExplorerLandScape explorer =  new ExplorerLandScape();
-			RoutesSolution<Vrp> solution = null; 
-			Scanner scanner = new Scanner(System.in);
-			Vrp problemVrp = null;
-			explorer.init();
-			
-			/* Mejorar la entrada del problema, esto es para pruebas */ 
-			switch(option) {
-			case 0:
-				/* Generamos un problema aleatorio y solucion aleatoria */ 
-				problemVrp = new Vrp(100, 100, 15, 5, 3);
-				solution =  new RandomizedBuilder(problemVrp).run();
-				explorer.getDBControl().addProblem(problemVrp);
-				explorer.getDBControl().setOriginalProblem(problemVrp);
-				break;
-			case 1: 
-				/* Obtenemos problema de la base de datos y generamos solucion aleatiora */ 
-				/* Mejorar la recogida del id del problema */
-				System.out.println("Insert problem id: ");
-				idProblem =  Long.parseLong(scanner.nextLine());
-				problemVrp =  explorer.getDBControl().getProblem(idProblem); 
-				solution =   new RandomizedBuilder(problemVrp).run();
-				explorer.getDBControl().setOriginalProblem(problemVrp);
-				break; 
-			case 2: 
-				/* Todo obtenido de la base de datos */ 
-				System.out.println("Insert problem id: ");
-				idProblem =  Long.parseLong(scanner.nextLine());
-				problemVrp = explorer.getDBControl().getProblem(1);
-				explorer.getDBControl().setOriginalProblem(problemVrp);
-				System.out.println("Insert solution id: ");
-				long idSolution =  Long.parseLong(scanner.nextLine());
-				solution = explorer.getDBControl().getSolution(idSolution);
-				solution.evaluate();
-				break;
-			}
-			System.out.println("Start explore");
-			explorer.explorer(solution, environment, executionTime);
-			System.out.println("Fin de ejecución");
-			
-		}
 	}
 	
+	public void setDBName(String name) {
+		this.dbName = name; 
+	}
+		
 }

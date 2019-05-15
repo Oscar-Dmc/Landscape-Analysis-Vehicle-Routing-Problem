@@ -28,13 +28,14 @@ public class DBControl {
 	private int environment;
 	private Vrp originalProblem; 
 	public final long RANGE_OF_SOLUTIONS = 3000000;
+	private String dbName; 
 	
 	public void init() {
 		try {
 			Logger mongoLogger = Logger.getLogger("org.mongodb.driver");
 			mongoLogger.setLevel(Level.SEVERE);
 			this.mongoClient =  new MongoClient(new MongoClientURI("mongodb://127.0.0.1:27017"));
-			this.database =  this.mongoClient.getDatabase("Vrp");
+			this.database =  this.mongoClient.getDatabase(dbName);
 		}
 		catch(Exception e) {
 			System.out.println(e);
@@ -239,6 +240,15 @@ public class DBControl {
 	public ArrayList<Double> getObjFunctionValue(long id){
 		this.collection = this.database.getCollection("solutions");
 		return (ArrayList<Double>) this.collection.find(eq("_id", id)).first().get("ObjFunction");
+	}
+	
+	public void setDBName(String name) {
+		this.dbName = name;
+	}
+	
+	public long getNSolutions() {
+		this.collection = this.database.getCollection("solutions");
+		return this.collection.countDocuments();
 	}
 	
 	public long exist(RoutesSolution<Vrp> solution) {
