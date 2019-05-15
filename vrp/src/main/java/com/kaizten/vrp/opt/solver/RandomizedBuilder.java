@@ -18,6 +18,12 @@ public class RandomizedBuilder implements Solver<RoutesSolution<Vrp>>{
 	public RandomizedBuilder(Vrp problem) {
 		this.problem = problem;
 		this.solutionVrp = new RoutesSolution<Vrp>(problem, problem.getNCustomers(), problem.getNVehicles());
+		this.rcl =  new ArrayList<Integer>();
+		this.cl = new boolean[problem.getNCustomers()];
+		for(int i = 0;  i < this.cl.length;  i++) {
+			this.cl[i] = true; 
+		}
+		this.rclSize = problem.getNMaxCustomers();
 	}
 	
 	private void ConstructRandomizedSolution() {
