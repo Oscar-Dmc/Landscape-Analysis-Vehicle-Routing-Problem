@@ -3,9 +3,9 @@ package com.kaizten.vrp.opt.evaluators;
 import java.util.ArrayList;
 
 import com.kaizten.opt.evaluator.EvaluatorObjectiveFunctionMovement;
+import com.kaizten.opt.move.MoveRoutesSolutionMoveAfter;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.vrp.opt.core.Vrp;
-import com.kaizten.vrp.opt.move.MoveRoutesSolutionMoveAfter;
 
 public class EvaluatorMoveAfter extends EvaluatorObjectiveFunctionMovement<RoutesSolution<Vrp>, MoveRoutesSolutionMoveAfter>{
 

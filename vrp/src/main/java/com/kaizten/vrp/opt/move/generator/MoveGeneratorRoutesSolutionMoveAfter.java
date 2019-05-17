@@ -3,9 +3,10 @@ package com.kaizten.vrp.opt.move.generator;
 import java.util.ArrayList;
 import java.util.Random;
 
+import com.kaizten.opt.move.MoveRoutesSolutionMoveAfter;
 import com.kaizten.opt.move.generator.AbstractMoveGenerator;
 import com.kaizten.opt.solution.RoutesSolution;
-import com.kaizten.vrp.opt.move.MoveRoutesSolutionMoveAfter;
+
 
 public class MoveGeneratorRoutesSolutionMoveAfter<S extends RoutesSolution<?>,  M extends MoveRoutesSolutionMoveAfter> extends AbstractMoveGenerator<S, M> {
 	

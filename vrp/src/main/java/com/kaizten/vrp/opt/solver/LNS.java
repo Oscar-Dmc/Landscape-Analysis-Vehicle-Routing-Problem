@@ -5,6 +5,8 @@ import java.util.Random;
 
 
 import com.kaizten.opt.move.MoveRoutesSolutionInsertionAfter;
+import com.kaizten.opt.move.MoveRoutesSolutionMoveAfter;
+import com.kaizten.opt.move.MoveRoutesSolutionMoveBefore;
 import com.kaizten.opt.move.MoveRoutesSolutionSwap;
 import com.kaizten.opt.move.acceptor.MoveAcceptor;
 import com.kaizten.opt.move.acceptor.MoveAcceptorBestImprovement;
@@ -18,8 +20,6 @@ import com.kaizten.opt.solver.LocalSearch;
 import com.kaizten.opt.solver.Solver;
 import com.kaizten.vrp.opt.core.Vrp;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveInsertionAfter;
-import com.kaizten.vrp.opt.move.MoveRoutesSolutionMoveAfter;
-import com.kaizten.vrp.opt.move.MoveRoutesSolutionMoveBefore;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionMoveAfter;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionMoveBefore;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionSwap;

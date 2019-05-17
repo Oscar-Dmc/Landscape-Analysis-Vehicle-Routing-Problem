@@ -1,6 +1,8 @@
 package com.kaizten.vrp.opt.solver;
 
 import com.kaizten.opt.move.Move;
+import com.kaizten.opt.move.MoveRoutesSolutionMoveAfter;
+import com.kaizten.opt.move.MoveRoutesSolutionMoveBefore;
 import com.kaizten.opt.move.MoveRoutesSolutionSwap;
 import com.kaizten.opt.move.acceptor.MoveAcceptor;
 import com.kaizten.opt.move.acceptor.MoveAcceptorFirstImprovement;
@@ -12,8 +14,6 @@ import com.kaizten.opt.move.manager.MoveManagerSequential;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.opt.solver.Solver;
 import com.kaizten.vrp.opt.core.Vrp;
-import com.kaizten.vrp.opt.move.MoveRoutesSolutionMoveAfter;
-import com.kaizten.vrp.opt.move.MoveRoutesSolutionMoveBefore;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionMoveAfter;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionMoveBefore;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionSwap;

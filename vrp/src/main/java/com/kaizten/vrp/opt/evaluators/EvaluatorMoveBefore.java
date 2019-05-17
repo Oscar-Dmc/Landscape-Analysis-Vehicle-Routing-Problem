@@ -3,10 +3,10 @@ package com.kaizten.vrp.opt.evaluators;
 import java.util.ArrayList;
 
 import com.kaizten.opt.evaluator.EvaluatorObjectiveFunctionMovement;
+import com.kaizten.opt.move.MoveRoutesSolutionMoveBefore;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.vrp.opt.core.Vrp;
 
-import com.kaizten.vrp.opt.move.MoveRoutesSolutionMoveBefore;
 
 public class EvaluatorMoveBefore extends EvaluatorObjectiveFunctionMovement<RoutesSolution<Vrp>, MoveRoutesSolutionMoveBefore>{
 	@Override

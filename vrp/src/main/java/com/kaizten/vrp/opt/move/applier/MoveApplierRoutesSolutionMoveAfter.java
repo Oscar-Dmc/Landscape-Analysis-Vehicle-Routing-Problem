@@ -1,9 +1,10 @@
 package com.kaizten.vrp.opt.move.applier;
 
+import com.kaizten.opt.move.MoveRoutesSolutionMoveAfter;
 import com.kaizten.opt.move.applier.MoveApplier;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.vrp.opt.core.Vrp;
-import com.kaizten.vrp.opt.move.MoveRoutesSolutionMoveAfter;
+
 
 public class MoveApplierRoutesSolutionMoveAfter extends MoveApplier<RoutesSolution<Vrp>, MoveRoutesSolutionMoveAfter> {
 
