@@ -9,6 +9,13 @@ import java.util.ArrayList;
 import java.util.stream.Stream;
 
 import com.kaizten.opt.io.KaiztenOptimizationProblemFileSupplier;
+import com.kaizten.vrp.opt.evaluators.EvaluatorMoveAfter;
+import com.kaizten.vrp.opt.evaluators.EvaluatorMoveBefore;
+import com.kaizten.vrp.opt.evaluators.EvaluatorMoveInsertionAfter;
+import com.kaizten.vrp.opt.evaluators.EvaluatorMoveInsertionBefore;
+import com.kaizten.vrp.opt.evaluators.EvaluatorMoveRemove;
+import com.kaizten.vrp.opt.evaluators.EvaluatorMoveSwap;
+import com.kaizten.vrp.opt.evaluators.EvaluatorObjectiveFunctionDistances;
 
 public class VrpSupplier implements KaiztenOptimizationProblemFileSupplier<Vrp>{
 	
@@ -42,7 +49,22 @@ public class VrpSupplier implements KaiztenOptimizationProblemFileSupplier<Vrp>{
 			reader.close();
 			
 			int nMaxCustomers = ((nCustomers/this.nVehicles) + 1); /* get this value for parameters */ 
-			Vrp problem =  new Vrp(customers, nCustomers, this.nVehicles, nCustomers); /* Establish fixed of number of vehicles until new version of instances */ 
+			//Vrp problem =  new Vrp(customers, nCustomers, this.nVehicles, nCustomers); /* Establish fixed of number of vehicles until new version of instances */ 
+			Vrp problem =  new Vrp();
+			/* init Vrp */ 
+			problem.setCustomers(customers);
+			problem.setNCustomers(nCustomers);
+			problem.setNVehicles(this.nVehicles);
+			problem.setNMaxCustomers(nCustomers);
+			/* add evaluators */ 
+			problem.addEvaluatorObjectiveFunction(new EvaluatorObjectiveFunctionDistances());
+			problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveRemove(1), 0);
+			problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveSwap(1), 0);
+			problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveInsertionAfter(), 0);
+			problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveInsertionBefore(), 0);
+			problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveAfter(), 0);
+			problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveBefore(), 0);
+			
 			
 			return Stream.of(problem); 
 		} catch (FileNotFoundException e) {

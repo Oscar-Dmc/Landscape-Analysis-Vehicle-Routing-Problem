@@ -8,6 +8,13 @@ import java.util.logging.Logger;
 import org.bson.Document;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.vrp.opt.core.Vrp;
+import com.kaizten.vrp.opt.evaluators.EvaluatorMoveAfter;
+import com.kaizten.vrp.opt.evaluators.EvaluatorMoveBefore;
+import com.kaizten.vrp.opt.evaluators.EvaluatorMoveInsertionAfter;
+import com.kaizten.vrp.opt.evaluators.EvaluatorMoveInsertionBefore;
+import com.kaizten.vrp.opt.evaluators.EvaluatorMoveRemove;
+import com.kaizten.vrp.opt.evaluators.EvaluatorMoveSwap;
+import com.kaizten.vrp.opt.evaluators.EvaluatorObjectiveFunctionDistances;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.FindIterable;
@@ -218,7 +225,22 @@ public class DBControl {
 		Integer nVehicles =  documentWithProblem.getInteger("nVehicles");
 		Integer nMaxCustomers =  documentWithProblem.getInteger("nMaxCustomers");
 		
-		return new Vrp(customers, nCustomers, nVehicles, nMaxCustomers);
+		Vrp problem =  new Vrp();
+		/* init Vrp */ 
+		problem.setCustomers(customers);
+		problem.setNCustomers(nCustomers);
+		problem.setNVehicles(nVehicles);
+		problem.setNMaxCustomers(nMaxCustomers);
+		/* add evaluators */ 
+		problem.addEvaluatorObjectiveFunction(new EvaluatorObjectiveFunctionDistances());
+		problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveRemove(1), 0);
+		problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveSwap(1), 0);
+		problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveInsertionAfter(), 0);
+		problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveInsertionBefore(), 0);
+		problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveAfter(), 0);
+		problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveBefore(), 0);
+		
+		return problem;
 	}
 	
 	public void setIdOriginalSolution(long id) {
