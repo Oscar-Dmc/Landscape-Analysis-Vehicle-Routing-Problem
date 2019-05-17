@@ -19,7 +19,7 @@ import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionMoveAfter;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionMoveBefore;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionSwap;
 import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionInsertionAfter;
-import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionInsertionBefore;
+import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionInsertionBefore;
 import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionMoveAfter;
 import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionMoveBefore;
 import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionRemove;
