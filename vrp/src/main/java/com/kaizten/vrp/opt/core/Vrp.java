@@ -3,6 +3,7 @@ package com.kaizten.vrp.opt.core;
 import com.kaizten.opt.evaluator.Evaluator;
 import com.kaizten.opt.evaluator.EvaluatorObjectiveFunction;
 import com.kaizten.opt.evaluator.EvaluatorObjectiveFunctionMovement;
+import com.kaizten.opt.evaluator.ObjectiveFunctionType;
 import com.kaizten.opt.problem.OptimizationProblem;
 import com.kaizten.utils.algorithm.GraphUtils;
 
@@ -118,8 +119,9 @@ public class Vrp extends OptimizationProblem {
 	}
 	
 	@SuppressWarnings({"unchecked", "rawtypes" })
-	public void addEvaluatorObjectiveFunction(EvaluatorObjectiveFunction evaluatorObjectiveFunction) {
-		this.evaluator.addEvaluatorObjectiveFunction(evaluatorObjectiveFunction);
+	public void addEvaluatorObjectiveFunction(EvaluatorObjectiveFunction evaluatorObjectiveFunction, Enum[] name, ObjectiveFunctionType[] type) {
+		this.evaluator.addEvaluatorObjectiveFunction(evaluatorObjectiveFunction, name, type);
+		//this.evaluator.addEvaluatorObjectiveFunction(evaluatorObjectiveFunction);
 		this.setEvaluator(this.evaluator);
 	}
 	

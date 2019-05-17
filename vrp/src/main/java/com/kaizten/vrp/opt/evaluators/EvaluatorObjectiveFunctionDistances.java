@@ -1,13 +1,26 @@
 package com.kaizten.vrp.opt.evaluators;
 
 import com.kaizten.opt.evaluator.EvaluatorObjectiveFunction;
+import com.kaizten.opt.evaluator.ObjectiveFunctionType;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.vrp.opt.core.Vrp;
 
 public class EvaluatorObjectiveFunctionDistances extends EvaluatorObjectiveFunction<RoutesSolution<Vrp>> {
+	
+	enum namesObj {
+		LATENCY
+	}
+	@SuppressWarnings("rawtypes")
+	private Enum [] name; 
+	private ObjectiveFunctionType[] type; 
 
 	public EvaluatorObjectiveFunctionDistances() {
 		super(1);
+		this.name = new Enum[1];
+		this.type = new ObjectiveFunctionType[1];
+		
+		this.name[0] = namesObj.LATENCY;
+		this.type[0] = ObjectiveFunctionType.MINIMIZATION;
 	}
 	
 	@Override
@@ -29,5 +42,15 @@ public class EvaluatorObjectiveFunctionDistances extends EvaluatorObjectiveFunct
 
 	@Override
 	public void fillSolution(RoutesSolution<Vrp> solution) {}
+	
+	
+	@SuppressWarnings("rawtypes")
+	public Enum[] getName() {
+		return this.name;
+	}
+	
+	public ObjectiveFunctionType[] getType() {
+		return type;
+	}
 
 }

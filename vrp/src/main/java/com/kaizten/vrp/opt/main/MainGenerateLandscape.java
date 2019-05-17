@@ -16,8 +16,6 @@ public class MainGenerateLandscape {
 		vrpSupplier.setNVehicles(Integer.parseInt(args[1]));
 		Vrp problem = vrpSupplier.get(file).findFirst().get();
 
-
-		
 		ExplorerLandScape explorer =  new ExplorerLandScape();
 		explorer.setDBName(file.getName().split("\\.")[0]);
 		explorer.init();

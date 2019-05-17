@@ -55,9 +55,12 @@ public class VrpSupplier implements KaiztenOptimizationProblemFileSupplier<Vrp>{
 			problem.setCustomers(customers);
 			problem.setNCustomers(nCustomers);
 			problem.setNVehicles(this.nVehicles);
-			problem.setNMaxCustomers(nCustomers);
+			problem.setNMaxCustomers(nMaxCustomers);
+			problem.fillDistanceMatrix();
+			
 			/* add evaluators */ 
-			problem.addEvaluatorObjectiveFunction(new EvaluatorObjectiveFunctionDistances());
+			EvaluatorObjectiveFunctionDistances evaluatorLatency = new EvaluatorObjectiveFunctionDistances();
+			problem.addEvaluatorObjectiveFunction(evaluatorLatency, evaluatorLatency.getName(), evaluatorLatency.getType());
 			problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveRemove(1), 0);
 			problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveSwap(1), 0);
 			problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveInsertionAfter(), 0);
