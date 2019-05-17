@@ -1,8 +1,5 @@
 package com.kaizten.vrp.opt.move.generator;
 
-import java.util.ArrayList;
-import java.util.Random;
-
 import com.kaizten.opt.move.MoveRoutesSolutionMoveBefore;
 import com.kaizten.opt.move.generator.AbstractMoveGenerator;
 import com.kaizten.opt.solution.RoutesSolution;
@@ -11,35 +8,25 @@ import com.kaizten.opt.solution.RoutesSolution;
 public class MoveGeneratorRoutesSolutionMoveBefore <S extends RoutesSolution<?>,  M extends MoveRoutesSolutionMoveBefore> extends AbstractMoveGenerator<S, M>{
 
 	private int n;
-	private ArrayList<Integer[]> availableMoves; 
+	private int element0;
+	private int element1;
 	
 	public MoveGeneratorRoutesSolutionMoveBefore() {
-		this.availableMoves = new ArrayList<Integer[]>();
+		this.n =  0;
+		this.element0 = 0;
+		this.element1 = 1;
 	}
 	
 	public void init() {
 		this.n =  super.getManager().getSolution().size();
-		for(int i = 0;  i < this.n; i++) {
-			for(int j = i + 1; j < this.n;  j++) {
-				Integer[] pair = new Integer[2];
-				pair[0] = i;
-				pair[1] = j;
-				this.availableMoves.add(pair);
-			}
-		}
+		this.element0 = 0;
+		this.element1 = 1;
 	}
-	
-	private Integer[] getRandomPair() {
-		Random rand = new Random();
-		int index = rand.nextInt(this.availableMoves.size());
-		Integer[] pair = this.availableMoves.get(index);
-		this.availableMoves.remove(index);
-		return pair; 
-	}
+
 	
 	@Override
 	public boolean hasNext() {
-		return !this.availableMoves.isEmpty();
+		return this.element0 < this.n - 1;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -53,9 +40,13 @@ public class MoveGeneratorRoutesSolutionMoveBefore <S extends RoutesSolution<?>,
 				System.exit(0);
 			}
 			move =  new MoveRoutesSolutionMoveBefore(super.getManager().getSolution().getNumberOfObjectives());
-			Integer [] pair =  this.getRandomPair(); 
-			move.setElement0(pair[0]);
-			move.setElement1(pair[1]);
+			move.setElement0(this.element0);
+			move.setElement1(this.element1);
+			this.element1++;
+			if(this.element1 == n) {
+				this.element0++;
+				this.element1 = this.element0 + 1; 
+			}
 		}
 		return (M) move;
 	}
