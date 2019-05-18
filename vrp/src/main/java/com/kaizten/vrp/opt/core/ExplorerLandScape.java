@@ -20,10 +20,10 @@ import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionMoveBefore;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionSwap;
 import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionInsertionAfter;
 import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionInsertionBefore;
-import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionMoveAfter;
-import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionMoveBefore;
+import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionMoveAfter;
+import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionMoveBefore;
+import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionSwap;
 import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionRemove;
-import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionSwap;
 import com.mongodb.client.FindIterable;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.vrp.opt.db.DBControl;
@@ -326,7 +326,7 @@ public class ExplorerLandScape {
 		time_end_function = System.currentTimeMillis();
 		return(( time_end_function - time_start_function ) * 0.001);
 	}
-	@SuppressWarnings("unchecked")
+
 	public void reset() {
 		this.auxSolution = this.solution.clone();
 		this.GApplier.setSolution(this.auxSolution);
@@ -359,7 +359,6 @@ public class ExplorerLandScape {
 			}
 		}
 	}
-	
 	
 	/* Set & Get */ 
 	public void setSolution(RoutesSolution<Vrp> solution) {

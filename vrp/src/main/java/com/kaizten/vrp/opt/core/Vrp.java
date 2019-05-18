@@ -1,9 +1,5 @@
 package com.kaizten.vrp.opt.core;
 
-import com.kaizten.opt.evaluator.Evaluator;
-import com.kaizten.opt.evaluator.EvaluatorObjectiveFunction;
-import com.kaizten.opt.evaluator.EvaluatorObjectiveFunctionMovement;
-import com.kaizten.opt.evaluator.ObjectiveFunctionType;
 import com.kaizten.opt.problem.OptimizationProblem;
 import com.kaizten.utils.algorithm.GraphUtils;
 
@@ -14,20 +10,15 @@ public class Vrp extends OptimizationProblem {
 
 	private double[][] distanceMatrix;
 	ArrayList<ArrayList<Integer>> customers; 
-	/*private ArrayList<Node> customers;
-	private Node depot;*/
+	
 	private int nVehicles;
 	private int nCustomers;
 	private int nMaxCustomers;
 	private int width;
 	private int height;
-	@SuppressWarnings("rawtypes")
-	private Evaluator evaluator; 
-
-	@SuppressWarnings({ "rawtypes" })
+	
 	public Vrp() {
 		this.setName("VRP");
-		this.evaluator =  new  Evaluator();
 		this.customers = new ArrayList<ArrayList<Integer>>();
 		this.nCustomers = 0;
 		this.nVehicles = 0;
@@ -118,16 +109,4 @@ public class Vrp extends OptimizationProblem {
 		this.height = height;
 	}
 	
-	@SuppressWarnings({"unchecked", "rawtypes" })
-	public void addEvaluatorObjectiveFunction(EvaluatorObjectiveFunction evaluatorObjectiveFunction, Enum[] name, ObjectiveFunctionType[] type) {
-		this.evaluator.addEvaluatorObjectiveFunction(evaluatorObjectiveFunction, name, type);
-		//this.evaluator.addEvaluatorObjectiveFunction(evaluatorObjectiveFunction);
-		this.setEvaluator(this.evaluator);
-	}
-	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void addEvaluatorObjectiveFunctionMovement(EvaluatorObjectiveFunctionMovement evaluatorObjectiveFunctionMovement, int indexObjetive) {
-		this.evaluator.addEvaluatorObjectiveFunctionMovement(evaluatorObjectiveFunctionMovement, indexObjetive);
-		this.setEvaluator(evaluator);
-	}
 }

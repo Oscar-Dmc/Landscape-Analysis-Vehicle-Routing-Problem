@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
+import com.kaizten.opt.evaluator.Evaluator;
 import com.kaizten.opt.io.KaiztenOptimizationProblemFileSupplier;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveAfter;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveBefore;
@@ -21,7 +22,7 @@ public class VrpSupplier implements KaiztenOptimizationProblemFileSupplier<Vrp>{
 	
 	private int nVehicles;
 
-	@SuppressWarnings("unused")
+	@SuppressWarnings({ "unused", "unchecked" })
 	@Override
 	public Stream<Vrp> get(File file) {
 		try {
@@ -58,15 +59,20 @@ public class VrpSupplier implements KaiztenOptimizationProblemFileSupplier<Vrp>{
 			problem.setNMaxCustomers(nMaxCustomers);
 			problem.fillDistanceMatrix();
 			
-			/* add evaluators */ 
+			/* Add evaluators */ 
+			@SuppressWarnings("rawtypes")
+			Evaluator evaluator = new Evaluator(); 
 			EvaluatorObjectiveFunctionDistances evaluatorLatency = new EvaluatorObjectiveFunctionDistances();
-			problem.addEvaluatorObjectiveFunction(evaluatorLatency, evaluatorLatency.getName(), evaluatorLatency.getType());
-			problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveRemove(1), 0);
-			problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveSwap(1), 0);
-			problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveInsertionAfter(), 0);
-			problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveInsertionBefore(), 0);
-			problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveAfter(), 0);
-			problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveBefore(), 0);
+			
+			evaluator.addEvaluatorObjectiveFunction(evaluatorLatency, evaluatorLatency.getName(), evaluatorLatency.getType());
+			evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveRemove(1), 0);
+			evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveSwap(1), 0);
+			evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveInsertionAfter(), 0);
+			evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveInsertionBefore(), 0);
+			evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveAfter(), 0);
+			evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveBefore(), 0);
+			
+			problem.setEvaluator(evaluator);
 			
 			
 			return Stream.of(problem); 

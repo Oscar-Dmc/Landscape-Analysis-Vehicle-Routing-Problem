@@ -3,7 +3,6 @@ package com.kaizten.vrp.opt.solver;
 import java.util.ArrayList;
 import java.util.Random;
 
-
 import com.kaizten.opt.move.MoveRoutesSolutionInsertionAfter;
 import com.kaizten.opt.move.MoveRoutesSolutionMoveAfter;
 import com.kaizten.opt.move.MoveRoutesSolutionMoveBefore;
@@ -13,6 +12,9 @@ import com.kaizten.opt.move.acceptor.MoveAcceptorBestImprovement;
 import com.kaizten.opt.move.applier.Applier;
 import com.kaizten.opt.move.applier.MoveApplier;
 import com.kaizten.opt.move.applier.MoveApplierRoutesSolutionInsertionAfter;
+import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionMoveAfter;
+import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionMoveBefore;
+import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionSwap;
 import com.kaizten.opt.move.manager.BaseMoveManager;
 import com.kaizten.opt.move.manager.MoveManagerSequential;
 import com.kaizten.opt.solution.RoutesSolution;
@@ -23,9 +25,6 @@ import com.kaizten.vrp.opt.evaluators.EvaluatorMoveInsertionAfter;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionMoveAfter;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionMoveBefore;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionSwap;
-import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionMoveAfter;
-import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionMoveBefore;
-import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionSwap;
 
 public class LNS implements Solver<RoutesSolution<Vrp>>{
 	private RoutesSolution<Vrp> originalSolution; 
@@ -66,7 +65,6 @@ public class LNS implements Solver<RoutesSolution<Vrp>>{
 		this.acceptor = new MoveAcceptorBestImprovement();
 	}
 	
-	@SuppressWarnings("unchecked")
 	public RoutesSolution<Vrp> ALNS() {
 		RoutesSolution<Vrp> bestSolution = this.originalSolution.clone(); 
 		long time_start, time_end;
@@ -87,7 +85,6 @@ public class LNS implements Solver<RoutesSolution<Vrp>>{
 		return bestSolution;
 	} 
 	
-	@SuppressWarnings("unchecked")
 	public RoutesSolution<Vrp> randomDestroyer(RoutesSolution<Vrp> solution, double percent ) {
 		RoutesSolution<Vrp> partialSolution = solution.clone();
 		int nCustomersToRemove = (int) (partialSolution.getOptimizationProblem().getNCustomers() * percent); 
@@ -176,7 +173,6 @@ public class LNS implements Solver<RoutesSolution<Vrp>>{
 		return ALNS();
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void setOriginalSolution(RoutesSolution<Vrp> solution) {
 		this.originalSolution = solution.clone();
 	}

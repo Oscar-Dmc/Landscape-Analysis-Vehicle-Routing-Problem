@@ -10,6 +10,9 @@ import com.kaizten.opt.move.applier.Applier;
 import com.kaizten.opt.move.applier.MoveApplier;
 import com.kaizten.opt.move.explorer.MoveExplorer;
 import com.kaizten.opt.move.explorer.MoveExplorerBasic;
+import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionMoveAfter;
+import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionMoveBefore;
+import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionSwap;
 import com.kaizten.opt.move.manager.MoveManagerSequential;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.opt.solver.Solver;
@@ -17,9 +20,7 @@ import com.kaizten.vrp.opt.core.Vrp;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionMoveAfter;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionMoveBefore;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionSwap;
-import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionMoveAfter;
-import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionMoveBefore;
-import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionSwap;
+
 
 public class Vns implements Solver<RoutesSolution<Vrp>>{
 
@@ -64,7 +65,6 @@ public class Vns implements Solver<RoutesSolution<Vrp>>{
 	
 	}
 	
-	@SuppressWarnings("unchecked")
 	public RoutesSolution<Vrp> shake(int environment){
 		this.manager.activeExclusively(environment);
 		this.auxSolution =  this.originalSolution.clone();

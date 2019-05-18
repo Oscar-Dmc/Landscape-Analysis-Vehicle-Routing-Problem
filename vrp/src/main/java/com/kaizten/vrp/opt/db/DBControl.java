@@ -6,6 +6,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bson.Document;
+
+import com.kaizten.opt.evaluator.Evaluator;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.vrp.opt.core.Vrp;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveAfter;
@@ -216,7 +218,7 @@ public class DBControl {
 		return solution;
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Vrp getProblem(long id) {
 		this.collection =  this.database.getCollection("Problems");
 		Document documentWithProblem = this.collection.find(eq("_id",id)).first();
@@ -232,15 +234,20 @@ public class DBControl {
 		problem.setNVehicles(nVehicles);
 		problem.setNMaxCustomers(nMaxCustomers);
 		problem.fillDistanceMatrix();
+		
 		/* add evaluators */ 
+		Evaluator evaluator = new Evaluator(); 
 		EvaluatorObjectiveFunctionDistances evaluatorLatency = new EvaluatorObjectiveFunctionDistances();
-		problem.addEvaluatorObjectiveFunction(evaluatorLatency, evaluatorLatency.getName(), evaluatorLatency.getType());
-		problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveRemove(1), 0);
-		problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveSwap(1), 0);
-		problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveInsertionAfter(), 0);
-		problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveInsertionBefore(), 0);
-		problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveAfter(), 0);
-		problem.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveBefore(), 0);
+		
+		evaluator.addEvaluatorObjectiveFunction(evaluatorLatency, evaluatorLatency.getName(), evaluatorLatency.getType());
+		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveRemove(1), 0);
+		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveSwap(1), 0);
+		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveInsertionAfter(), 0);
+		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveInsertionBefore(), 0);
+		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveAfter(), 0);
+		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveBefore(), 0);
+		
+		problem.setEvaluator(evaluator);
 		
 		return problem;
 	}
