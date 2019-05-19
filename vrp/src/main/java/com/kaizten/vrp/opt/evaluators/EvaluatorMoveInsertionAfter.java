@@ -30,14 +30,7 @@ public class EvaluatorMoveInsertionAfter extends EvaluatorObjectiveFunctionMovem
 			tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][route.get(route.size() - 1) + 1];
 		}
 		
-		System.out.println("\nElemento a insertar: " + move.getToInsert() + " Después de: " + move.getAfter());
-		System.out.println("\nRuta inicial: ");
-		route.forEach((n) -> System.out.print("[" + n +"]"));
-		
 		route.add(route.indexOf(move.getAfter()) + 1, move.getToInsert());
-		
-		System.out.println("\nRuta mod");
-		route.forEach((n) -> System.out.print("[" + n +"]"));
 		
 		if(route.size() <= solution.getOptimizationProblem().getNMaxCustomers()) {
 			tctRouteMod[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][route.get(0) + 1];
@@ -52,7 +45,6 @@ public class EvaluatorMoveInsertionAfter extends EvaluatorObjectiveFunctionMovem
 		}
 		
 		deviation[0] = tctRouteMod[0] - tctRouteOriginal[0];
-		System.out.println("Desviación: " + deviation[0]);
 		move.setDeviationObjectiveFunctionValue(0, deviation[0]);
 		return deviation;
 	}
