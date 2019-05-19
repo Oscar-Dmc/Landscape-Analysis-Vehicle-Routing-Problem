@@ -1,5 +1,7 @@
 package com.kaizten.vrp.opt.evaluators;
 
+import java.util.ArrayList;
+
 import com.kaizten.opt.evaluator.EvaluatorObjectiveFunctionMovement;
 import com.kaizten.opt.move.MoveRoutesSolutionInsertionBefore;
 import com.kaizten.opt.solution.RoutesSolution;
@@ -12,32 +14,42 @@ public class EvaluatorMoveInsertionBefore extends EvaluatorObjectiveFunctionMove
 		double[] deviation = new double [solution.getNumberOfObjectives()]; 
 		double[] tctRouteOriginal = new double [solution.getNumberOfObjectives()];
 		double[] tctRouteMod = new double [solution.getNumberOfObjectives()]; 
+		ArrayList<Integer> route = new ArrayList<Integer>();
 		
-		int indexCustomer = solution.getFirstInRoute(move.getRoute());
-		tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1]; 
-		while (solution.getSuccessor(indexCustomer) != -1) {
-			tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solution.getSuccessor(indexCustomer) + 1];
-			indexCustomer = solution.getSuccessor(indexCustomer);
-		}
-		tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1];
-		
-		@SuppressWarnings("unchecked")
-		RoutesSolution<Vrp> solutionInsertionBefore =  solution.clone();
-		if(move.getBefore() == -1) {
-			solutionInsertionBefore.addAfterDepot(move.getToInsert(), move.getRoute());
-		}
-		else {			
-			solutionInsertionBefore.addAfter(move.getToInsert(), move.getBefore());
+		for(int i = 0;  i < solution.getRoute(move.getRoute()).length; i++) {
+			route.add(solution.getRoute(move.getRoute())[i]);
 		}
 		
-		if(solutionInsertionBefore.getLengthRoute(move.getRoute()) <= solutionInsertionBefore.getOptimizationProblem().getNMaxCustomers()) {
-			indexCustomer = solutionInsertionBefore.getFirstInRoute(move.getRoute());
-			tctRouteMod[0] += solutionInsertionBefore.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1]; 
-			while (solutionInsertionBefore.getSuccessor(indexCustomer) != -1) {
-				tctRouteMod[0] += solutionInsertionBefore.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solutionInsertionBefore.getSuccessor(indexCustomer) + 1];
-				indexCustomer = solutionInsertionBefore.getSuccessor(indexCustomer);
+		if(route.isEmpty()) {
+			tctRouteOriginal[0] = 0;
+		} else {
+			tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][route.get(0) + 1];
+			for(int i = 1; i < route.size(); i++) {
+				tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[route.get(i - 1) + 1][route.get(i) + 1];
 			}
-			tctRouteMod[0] += solutionInsertionBefore.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1];
+			tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][route.get(route.size() - 1) + 1];
+		}
+		
+		System.out.println("\nElemento a insertar: " + move.getToInsert() + " Antes de: " + move.getBefore());
+		System.out.println("\nRuta inicial: ");
+		route.forEach((n) -> System.out.print("[" + n +"]"));
+
+		if(route.indexOf(move.getBefore()) == -1) {
+			route.add(route.size(), move.getToInsert());
+		} else {
+			route.add(route.indexOf(move.getBefore()), move.getToInsert());			
+		}
+		
+		
+		System.out.println("\nRuta mod");
+		route.forEach((n) -> System.out.print("[" + n +"]"));
+		
+		if(route.size() <= solution.getOptimizationProblem().getNMaxCustomers()) {
+			tctRouteMod[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][route.get(0) + 1];
+			for(int i = 1; i < route.size(); i++) {
+				tctRouteMod[0] += solution.getOptimizationProblem().getDistanceMatrix()[route.get(i - 1) + 1][route.get(i) + 1];
+			}
+			tctRouteMod[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][route.get(route.size() - 1) + 1];
 		} else {
 			deviation[0] = Double.MAX_VALUE;
 			move.setDeviationObjectiveFunctionValue(0, deviation[0]);
@@ -45,7 +57,7 @@ public class EvaluatorMoveInsertionBefore extends EvaluatorObjectiveFunctionMove
 		}
 		
 		deviation[0] = tctRouteMod[0] - tctRouteOriginal[0];
-		move.setDeviationObjectiveFunctionValue(0, deviation[0]);
+		System.out.println("Desviación: " + deviation[0]);
 		return deviation;
 	}
 
