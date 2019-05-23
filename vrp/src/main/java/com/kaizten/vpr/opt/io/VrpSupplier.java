@@ -49,7 +49,7 @@ public class VrpSupplier implements KaiztenOptimizationProblemFileSupplier<Vrp>{
 				line =  reader.readLine();
 			}
 			reader.close();
-			
+			this.nVehicles = 5;
 			int nMaxCustomers = ((nCustomers/this.nVehicles) + 1); /* get this value for parameters */ 
 			//Vrp problem =  new Vrp(customers, nCustomers, this.nVehicles, nCustomers); /* Establish fixed of number of vehicles until new version of instances */ 
 			Vrp problem =  new Vrp();
