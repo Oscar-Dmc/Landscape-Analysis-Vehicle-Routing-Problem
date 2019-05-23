@@ -1,4 +1,4 @@
-package com.kaizten.vrp.opt.core;
+package com.kaizten.vpr.opt.io;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 
 import com.kaizten.opt.evaluator.Evaluator;
 import com.kaizten.opt.io.KaiztenOptimizationProblemFileSupplier;
+import com.kaizten.vrp.opt.core.Vrp;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveAfter;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveBefore;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveInsertionAfter;
