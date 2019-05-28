@@ -1,11 +1,11 @@
 package com.kaizten.vrp.opt.evaluators;
 
-import com.kaizten.opt.evaluator.EvaluatorObjectiveFunction;
+import com.kaizten.opt.evaluator.EvaluatorSingleObjectiveFunction;
 import com.kaizten.opt.evaluator.ObjectiveFunctionType;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.vrp.opt.core.Vrp;
 
-public class EvaluatorObjectiveFunctionDistances extends EvaluatorObjectiveFunction<RoutesSolution<Vrp>> {
+public class EvaluatorObjectiveFunctionDistances extends EvaluatorSingleObjectiveFunction<RoutesSolution<Vrp>> {
 	
 	enum namesObj {
 		LATENCY
@@ -15,7 +15,6 @@ public class EvaluatorObjectiveFunctionDistances extends EvaluatorObjectiveFunct
 	private ObjectiveFunctionType[] type; 
 
 	public EvaluatorObjectiveFunctionDistances() {
-		super(1);
 		this.name = new Enum[1];
 		this.type = new ObjectiveFunctionType[1];
 		
@@ -25,19 +24,20 @@ public class EvaluatorObjectiveFunctionDistances extends EvaluatorObjectiveFunct
 	
 	@Override
 	public void evaluate(RoutesSolution<Vrp> solution) {
-		double [] objectives = new double[1];
+		double objective = 0.0;
  		for (int i = 0; i < solution.getNumberOfRoutes(); i++) {
 			if(solution.getFirstInRoute(i) != -3) {
-				objectives[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][solution.getFirstInRoute(i) + 1];
+				objective += solution.getOptimizationProblem().getDistanceMatrix()[0][solution.getFirstInRoute(i) + 1];
 				int indexCustomer = solution.getFirstInRoute(i);
 				while (solution.getSuccessor(indexCustomer) != -1) {
-					objectives[0] += solution.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solution.getSuccessor(indexCustomer) + 1];
+					objective += solution.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solution.getSuccessor(indexCustomer) + 1];
 					indexCustomer = solution.getSuccessor(indexCustomer);
 				}
-				objectives[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][solution.getLastInRoute(i) + 1];
+				objective += solution.getOptimizationProblem().getDistanceMatrix()[0][solution.getLastInRoute(i) + 1];
 			}
 		}
-		super.objectiveFunctionValue = objectives;	
+		super.setObjectiveFunctionValue(objective);
+ 		
 	}
 
 	@Override
