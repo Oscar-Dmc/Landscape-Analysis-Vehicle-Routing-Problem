@@ -17,16 +17,22 @@ public class MainVNS {
 		vrpSupplier.setNVehicles(Integer.parseInt(args[1]));
 		Vrp problem = vrpSupplier.get(file).findFirst().get();
 		problem.setNMaxCustomers(Integer.parseInt(args[2])); 
-		Vns vns =  new Vns(problem, Integer.parseInt(args[3]));
-		ArrayList<Integer> neighborhoods = new ArrayList<Integer>();
-		for(int i = 4; i < args.length;  i++) {
-			neighborhoods.add(Integer.parseInt(args[i]) - 1);
+		if(((problem.getNMaxCustomers() * problem.getNVehicles()) / problem.getNCustomers()) > 0) {
+			Vns vns =  new Vns(problem, Integer.parseInt(args[3]));
+			ArrayList<Integer> neighborhoods = new ArrayList<Integer>();
+			for(int i = 4; i < args.length;  i++) {
+				neighborhoods.add(Integer.parseInt(args[i]) - 1);
+			}
+			vns.setNeighborhood(neighborhoods);
+			long startTime = System.currentTimeMillis();
+			RoutesSolution<Vrp> finalSolution =  vns.run();
+			long endTime = System.currentTimeMillis(); 
+			System.out.println("Final solution \n" + finalSolution.toString());
+			System.out.println("Total execution time: " + (endTime - startTime) + " ms" ); 
+			System.out.println();
+		} else {
+			System.out.println("Can't resolve this problem with that settings.");
+			System.out.println("Check the capacity and number of vehicles and number of routes, and try again.");
 		}
-		vns.setNeighborhood(neighborhoods);
-		long startTime = System.currentTimeMillis();
-		RoutesSolution<Vrp> finalSolution =  vns.run();
-		long endTime = System.currentTimeMillis(); 
-		System.out.println(finalSolution.getObjectiveFunctionValues());
-		System.out.println("Total execution time: " + (endTime - startTime) + " ms" ); 
 	}
 }

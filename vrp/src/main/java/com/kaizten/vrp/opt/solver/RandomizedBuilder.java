@@ -15,6 +15,8 @@ public class RandomizedBuilder implements Solver<RoutesSolution<Vrp>>{
 	
 	public RandomizedBuilder (Vrp problem) {
 		this.problem = problem; 
+		this.customers = new ArrayList<Integer>();
+		this.routes =  new ArrayList<Integer>();
 		for(int i = 0; i < problem.getNCustomers(); i++) {
 			this.customers.add(i);
 		}
@@ -27,15 +29,17 @@ public class RandomizedBuilder implements Solver<RoutesSolution<Vrp>>{
 	public RoutesSolution<Vrp> run() {
 		int indexCustomer = -1;
 		int indexRoute = -1;
-		while(solution.getNumberOfNonIncluded() != 0) {
+		while(this.solution.getNumberOfNonIncluded() != 0) {
 			indexCustomer =  (int) (Math.random() * this.customers.size());
 			indexRoute = (int) (Math.random() * this.routes.size());
-			this.solution.addInRoute(indexRoute, indexCustomer);
+			this.solution.addInRoute(this.routes.get(indexRoute), this.customers.get(indexCustomer));
 			this.customers.remove(indexCustomer);
-			if(this.solution.getLengthRoute(indexRoute) == this.problem.getNMaxCustomers()) {
+			if(this.solution.getLengthRoute(this.routes.get(indexRoute)) == this.problem.getNMaxCustomers()) {
 				this.routes.remove(indexRoute);
 			}
 		}
+		
+		this.solution.evaluate();
 		return this.solution;
 	}
 
