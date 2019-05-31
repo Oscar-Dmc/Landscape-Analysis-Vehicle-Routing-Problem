@@ -2,7 +2,6 @@ package com.kaizten.vrp.opt.solver;
 
 import java.util.ArrayList;
 import java.util.Random;
-
 import com.kaizten.opt.evaluator.Evaluator;
 import com.kaizten.opt.move.Move;
 import com.kaizten.opt.move.MoveRoutesSolutionInsertionAfter;
@@ -13,7 +12,6 @@ import com.kaizten.opt.move.MoveRoutesSolutionSwap;
 import com.kaizten.opt.move.MoveRoutesSolutionRemove;
 import com.kaizten.opt.move.acceptor.MoveAcceptor;
 import com.kaizten.opt.move.acceptor.MoveAcceptorBestImprovement;
-//import com.kaizten.opt.move.acceptor.MoveAcceptorFirstImprovement;
 import com.kaizten.opt.move.applier.Applier;
 import com.kaizten.opt.move.applier.MoveApplier;
 import com.kaizten.opt.move.applier.MoveApplierRoutesSolutionInsertionAfter;
@@ -35,7 +33,6 @@ import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionMoveBefore;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionSwap;
 import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionRemove;
 
-
 public class Vns implements Solver<RoutesSolution<Vrp>>{
 
 	private RoutesSolution<Vrp> originalSolution;
@@ -51,7 +48,6 @@ public class Vns implements Solver<RoutesSolution<Vrp>>{
 	private MoveGeneratorRoutesSolutionInsertionBefore<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionBefore> mGInserionBefore; 
 	private Applier<RoutesSolution<Vrp>> gApplier; 
 	private MoveAcceptor acceptor;
-	//private MoveAcceptor random; 
 	private MoveExplorer explorer;
 	private ArrayList<Integer> neighborhoods; 
 	
@@ -102,9 +98,7 @@ public class Vns implements Solver<RoutesSolution<Vrp>>{
 		this.gApplier.addMoveApplier(applierInsertionAfter);
 		this.gApplier.addMoveApplier(applierInsertionBefore);
 		
-		//this.acceptor = new MoveAcceptorFirstImprovement();
 		this.acceptor = new MoveAcceptorBestImprovement();
-		//this.random = new MoveAcceptorRandom();
 		this.explorer = new MoveExplorerBasic();
 		
 	}
@@ -121,7 +115,6 @@ public class Vns implements Solver<RoutesSolution<Vrp>>{
 
 		int indexRandom = this.randomGenerator.nextInt(availableMoves.size());
 		Move move = availableMoves.get(indexRandom);
-		//System.out.println("Move: " + move + " Index Random: " + indexRandom);
 		
 		this.gApplier.setSolution(this.auxSolution);
 		this.gApplier.setMove(move);
@@ -173,7 +166,6 @@ public class Vns implements Solver<RoutesSolution<Vrp>>{
 			RoutesSolution<Vrp> rShake = this.shake(k);
 			RoutesSolution<Vrp> rImprovement = this.improvement(rShake);
 			k = this.neighborhoodChange(rImprovement, k);
-			//System.out.println("El valor de la k  es: " + k);
 		}
 	
 		return this.originalSolution;
@@ -192,7 +184,6 @@ public class Vns implements Solver<RoutesSolution<Vrp>>{
 	}
 	
 	public ArrayList<Move> getAvailableMoves(){
-		//this.manager.init();
 		ArrayList<Move> availableMoves =  new ArrayList<Move>();
 		while(this.manager.hasNext()) {
 			Move move =  this.manager.next();
@@ -201,7 +192,6 @@ public class Vns implements Solver<RoutesSolution<Vrp>>{
 			}
 		}
 		this.manager.init();
-		//availableMoves.forEach((n) -> System.out.println(n));
 		return availableMoves; 
 	}
 

@@ -1,10 +1,11 @@
 package com.kaizten.vrp.opt.main;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.vrp.opt.core.Vrp;
-import com.kaizten.vrp.opt.core.VrpSupplier;
+import com.kaizten.vrp.opt.io.VrpSupplier;
 import com.kaizten.vrp.opt.solver.Vns;
 
 public class MainVNS {
@@ -15,9 +16,17 @@ public class MainVNS {
 		VrpSupplier vrpSupplier = new VrpSupplier();
 		vrpSupplier.setNVehicles(Integer.parseInt(args[1]));
 		Vrp problem = vrpSupplier.get(file).findFirst().get();
-		Vns vns =  new Vns(problem);
+		problem.setNMaxCustomers(Integer.parseInt(args[2])); 
+		Vns vns =  new Vns(problem, Integer.parseInt(args[3]));
+		ArrayList<Integer> neighborhoods = new ArrayList<Integer>();
+		for(int i = 4; i < args.length;  i++) {
+			neighborhoods.add(Integer.parseInt(args[i]) - 1);
+		}
+		vns.setNeighborhood(neighborhoods);
+		long startTime = System.currentTimeMillis();
 		RoutesSolution<Vrp> finalSolution =  vns.run();
-		
-		System.out.println(finalSolution);
+		long endTime = System.currentTimeMillis(); 
+		System.out.println(finalSolution.getObjectiveFunctionValues());
+		System.out.println("Total execution time: " + (endTime - startTime) + " ms" ); 
 	}
 }
