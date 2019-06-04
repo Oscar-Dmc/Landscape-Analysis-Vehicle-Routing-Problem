@@ -32,6 +32,10 @@
               <mainClass>com.kaizten.vrp.opt.main.MainVNS</mainClass>
               <id>VNS</id>
             </program>
+            <program>
+            	<mainClass>com.kaizten.vrp.opt.main.MainEvaluatorAnalyzer</mainClass>
+            	<id>EvaluatorAnalyzer</id>
+            </program>
           </programs>
         </configuration>
       </plugin>
@@ -59,7 +63,6 @@
     	<groupId>cplex</groupId>
     	<artifactId>cplex</artifactId>
     	<version>12.9</version>
-    	<type>pom.lastUpdated</type>
     </dependency>
   </dependencies>
 </project>
