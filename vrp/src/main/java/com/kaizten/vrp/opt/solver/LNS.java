@@ -97,7 +97,6 @@ public class LNS implements Solver<RoutesSolution<Vrp>>{
 		RoutesSolution<Vrp> bestSolution = this.originalSolution.clone(); 
 		
 		while(this.itMax > 0 ) {
-
 			RoutesSolution<Vrp> temporalSolution = this.randomDestroyer(this.originalSolution, this.percent);
 			temporalSolution.evaluate();
 			
@@ -138,12 +137,47 @@ public class LNS implements Solver<RoutesSolution<Vrp>>{
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	public RoutesSolution<Vrp> localSearch(RoutesSolution<Vrp> solution){
 		RoutesSolution<Vrp> explorerSolution = solution.clone();
-		for(int i = 0; i < this.neighborhoods.size(); i++) {
-			this.applier.accept(explorerSolution, this.getBestMove(explorerSolution, this.neighborhoods.get(i)));
+		ArrayList<Integer> currentNeighborhoods = (ArrayList<Integer>) this.neighborhoods.clone();
+		
+		if(currentNeighborhoods.contains(3)) {
+			RoutesSolution<Vrp> incompleteSolution = solution.clone();
+			int indexRemove = currentNeighborhoods.indexOf(3);
+			this.applier.accept(incompleteSolution, this.getBestMove(incompleteSolution, currentNeighborhoods.get(indexRemove)));
+			currentNeighborhoods.remove(indexRemove);
+			Move insertionAfter = new MoveRoutesSolutionInsertionAfter(1);
+			Move insertionBefore = new MoveRoutesSolutionInsertionBefore(1);
+			insertionAfter.setDeviationObjectiveFunctionValue(0, -Evaluator.OBJECTIVE_INFEASIBLE);
+			insertionBefore.setDeviationObjectiveFunctionValue(0, -Evaluator.OBJECTIVE_INFEASIBLE);
+			if(currentNeighborhoods.contains(4)) {
+				int indexAfter = currentNeighborhoods.indexOf(4);
+				insertionAfter = this.getBestMove(incompleteSolution, currentNeighborhoods.get(indexAfter));
+				currentNeighborhoods.remove(indexAfter);
+			} 
+			if (currentNeighborhoods.contains(5)) {
+				int indexBefore = currentNeighborhoods.indexOf(5);
+				insertionBefore = this.getBestMove(incompleteSolution, currentNeighborhoods.get(indexBefore));
+				currentNeighborhoods.remove(indexBefore);
+			}					
+			
+			if(insertionAfter.getDeviationObjectiveFunctionValue(0) < insertionBefore.getDeviationObjectiveFunctionValue(0)) {
+				this.applier.accept(incompleteSolution, insertionAfter);
+			} else {
+				this.applier.accept(incompleteSolution, insertionBefore);
+			} 
 		}
-
+		if(currentNeighborhoods.size() > 0) {
+			Move bestMove = this.getBestMove(explorerSolution, currentNeighborhoods.get(0)); 
+			for(int i = 1; i < currentNeighborhoods.size(); i++) {
+				Move localBestMove = this.getBestMove(explorerSolution, currentNeighborhoods.get(i));
+				if(bestMove.getDeviationObjectiveFunctionValue(0) > localBestMove.getDeviationObjectiveFunctionValue(0)) {
+					bestMove =  localBestMove; 
+				}
+			}
+			this.applier.accept(explorerSolution, bestMove);
+		}
 		return explorerSolution; 
 	}
 	
