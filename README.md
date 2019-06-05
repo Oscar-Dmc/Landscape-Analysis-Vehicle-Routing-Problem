@@ -41,7 +41,7 @@ Most of techniques need an initial solution. For provide that solutions we have 
     * nVehicles: Number of vehicles
     * nMaxCustomer: Number maximum of customers that each vehicle can visit. 
     * builder: Select between random builder or sequential builder. Check the section Builders below for more info.
-    * neighborhoods: Insert in order each environment structure for the launch of the Vns. Check section Neighborhoods. 
+    * neighborhoods: Insert in order each environment structure for the launch of the Vns separated by spaces. Check section Neighborhoods. 
 
 Example
 > java -jar .\VNS.jar \home\documents\instancies\example1.txt 7 10 1 4 5 1 
@@ -52,6 +52,19 @@ Example
 > .\multipleRunsVns \home\documents\instancies 7 10 1 4 5 1 
 
 ### LNS 
-* Launch `sh /target/appassembler/bin/LNS parameter1 parameter2`
-    * parameter1: Route of file who contain problem instance.
-    * parameter2: Number of vehicles
+* Launch `java -jar .\LNS.jar [file path] [nVehicles] [nMaxCustomers] [builder] [percent] [iterations] [neighborhoods]`
+    * File path: Route of file who contain problem instance.
+    * nVehicles: Number of vehicles
+    * nMaxCustomer: Number maximum of customers that each vehicle can visit. 
+    * builder: Select between random builder or sequential builder. Check the section Builders below for more info.
+    * percent: Percent of destruction. This percent will be use on destruction method for remove n customers of solution. You have to insert the percent with integer, for example if you wanna set 10%, you must to insert 10 in command line 
+    * iterations: Number of iteration maximum. 
+    * neighborhoods: Insert in order each environment structure for the launch of the Vns separated by spaces. Check section Neighborhoods. 
+
+Example 
+> java -jar .\LNS.jar \home\documents\instance\example\example1.txt 7 10 2 10 2500 4 5 1
+
+If you want to execute the same settings for a various files, you can use 'multipleRunsLns'. The sintax is similar, you must pass the path folder which contain the instances instead of file path.
+
+Example
+> .\multipleRunsLns \home\documents\instancies 7 10 2 10 2500 4 5 1
