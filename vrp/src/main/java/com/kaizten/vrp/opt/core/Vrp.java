@@ -27,7 +27,7 @@ public class Vrp extends OptimizationProblem {
 			this.distanceMatrix[i][i] = 0;
 			for (int j = i + 1; j < this.customers.size(); j++) {
 				double distance = GraphUtils.getEuclideanDistance(this.customers.get(i).get(0),
-						this.customers.get(i).get(1), this.customers.get(j).get(0), this.customers.get(i).get(1));
+						this.customers.get(i).get(1), this.customers.get(j).get(0), this.customers.get(j).get(1));
 				this.distanceMatrix[i][j] = distance;
 				this.distanceMatrix[j][i] = distance;
 			}
