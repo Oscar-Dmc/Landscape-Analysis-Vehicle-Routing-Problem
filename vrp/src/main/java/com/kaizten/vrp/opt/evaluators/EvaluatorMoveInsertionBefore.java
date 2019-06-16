@@ -2,6 +2,7 @@ package com.kaizten.vrp.opt.evaluators;
 
 import java.util.ArrayList;
 
+import com.kaizten.opt.evaluator.Evaluator;
 import com.kaizten.opt.evaluator.EvaluatorObjectiveFunctionMovement;
 import com.kaizten.opt.move.MoveRoutesSolutionInsertionBefore;
 import com.kaizten.opt.solution.RoutesSolution;
@@ -43,7 +44,7 @@ public class EvaluatorMoveInsertionBefore extends EvaluatorObjectiveFunctionMove
 			}
 			tctRouteMod[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][route.get(route.size() - 1) + 1];
 		} else {
-			deviation[0] = Double.MAX_VALUE;
+			deviation[0] = -Evaluator.OBJECTIVE_INFEASIBLE;
 			move.setDeviationObjectiveFunctionValue(0, deviation[0]);
 			return deviation;
 		}
