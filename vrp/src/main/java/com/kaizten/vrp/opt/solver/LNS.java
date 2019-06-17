@@ -38,12 +38,6 @@ public class LNS implements Solver<RoutesSolution<Vrp>>{
 	
 	/* LocalSearch */ 
 	private BaseMoveManager<RoutesSolution<Vrp>, ?> manager; 
-	private MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap> mGSwap; 
-	private MoveGeneratorRoutesSolutionMoveAfter<RoutesSolution<Vrp>, MoveRoutesSolutionMoveAfter> mGAfter;
-	private MoveGeneratorRoutesSolutionMoveBefore<RoutesSolution<Vrp>, MoveRoutesSolutionMoveBefore> mGBefore;
-	private MoveGeneratorRoutesSolutionRemove<RoutesSolution<Vrp>, MoveRoutesSolutionRemove> mGRemove; 
-	private MoveGeneratorRoutesSolutionInsertionAfter<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionAfter> mGInsertionAfter;
-	private MoveGeneratorRoutesSolutionInsertionBefore<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionBefore> mGInserionBefore; 
 	private Applier<RoutesSolution<Vrp>> applier; 
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -59,22 +53,16 @@ public class LNS implements Solver<RoutesSolution<Vrp>>{
 			this.originalSolution = builder.run();
 		}
 		
-		System.out.println("Initial Solution \n" + this.originalSolution);
+		//System.out.println("Initial Solution \n" + this.originalSolution);
 		
 		this.manager = new MoveManagerSequential();
 		this.manager.setSolution(this.originalSolution);
-		this.mGSwap = new MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap>();
-		this.mGAfter = new MoveGeneratorRoutesSolutionMoveAfter<RoutesSolution<Vrp>, MoveRoutesSolutionMoveAfter>();
-		this.mGBefore = new MoveGeneratorRoutesSolutionMoveBefore<RoutesSolution<Vrp>, MoveRoutesSolutionMoveBefore>();
-		this.mGRemove = new  MoveGeneratorRoutesSolutionRemove<RoutesSolution<Vrp>, MoveRoutesSolutionRemove>();
-		this.mGInsertionAfter = new MoveGeneratorRoutesSolutionInsertionAfter<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionAfter>();
-		this.mGInserionBefore = new MoveGeneratorRoutesSolutionInsertionBefore<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionBefore>();
-		this.manager.addMoveGenerator(this.mGSwap);
-		this.manager.addMoveGenerator(this.mGAfter);
-		this.manager.addMoveGenerator(this.mGBefore);
-		this.manager.addMoveGenerator(this.mGRemove);
-		this.manager.addMoveGenerator(this.mGInsertionAfter);
-		this.manager.addMoveGenerator(this.mGInserionBefore);
+		this.manager.addMoveGenerator(new MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap>());
+		this.manager.addMoveGenerator(new MoveGeneratorRoutesSolutionMoveAfter<RoutesSolution<Vrp>, MoveRoutesSolutionMoveAfter>());
+		this.manager.addMoveGenerator(new MoveGeneratorRoutesSolutionMoveBefore<RoutesSolution<Vrp>, MoveRoutesSolutionMoveBefore>());
+		this.manager.addMoveGenerator(new MoveGeneratorRoutesSolutionRemove<RoutesSolution<Vrp>, MoveRoutesSolutionRemove>());
+		this.manager.addMoveGenerator(new MoveGeneratorRoutesSolutionInsertionAfter<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionAfter>());
+		this.manager.addMoveGenerator(new MoveGeneratorRoutesSolutionInsertionBefore<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionBefore>());
 		this.manager.init();
 		
 		this.applier =  new Applier<RoutesSolution<Vrp>>();
