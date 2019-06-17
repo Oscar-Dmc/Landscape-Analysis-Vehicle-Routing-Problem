@@ -5,7 +5,7 @@ import java.io.File;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.vrp.opt.core.ExplorerLandScape;
 import com.kaizten.vrp.opt.core.Vrp;
-import com.kaizten.vrp.opt.core.VrpSupplier;
+import com.kaizten.vrp.opt.io.VrpSupplier;
 import com.kaizten.vrp.opt.solver.RandomizedBuilder;
 
 public class MainGenerateLandscape {
@@ -21,10 +21,18 @@ public class MainGenerateLandscape {
 		explorer.init();
 		explorer.getDBControl().setOriginalProblem(problem);
 		RoutesSolution<Vrp> solution = null; 
-		if(explorer.getDBControl().getNSolutions() == 0) {
-			solution =  new RandomizedBuilder(problem).run();
+		if(args.length >= 5) {
+			try{
+				solution = explorer.getDBControl().getSolution(Long.parseLong(args[4]));
+				System.exit(0);
+			} catch (Exception e) {
+				System.out.println("Database doesn't contain the specific solution");
+				System.exit(0);
+			}
+		} else if (explorer.getDBControl().getNSolutions() == 0) {
+			solution = new RandomizedBuilder(problem).run();
 		} else {
-			solution = explorer.getDBControl().getSolution(0); 
+			solution = explorer.getDBControl().getFirstSolution(); 
 		}
 		
 		if(args.length < 4 || 

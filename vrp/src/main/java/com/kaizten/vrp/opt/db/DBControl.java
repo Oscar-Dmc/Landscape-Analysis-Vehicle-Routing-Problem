@@ -2,6 +2,7 @@ package com.kaizten.vrp.opt.db;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -218,6 +219,17 @@ public class DBControl {
 		return solution;
 	}
 	
+	public RoutesSolution<Vrp> getFirstSolution(){
+		this.collection =  this.database.getCollection("solutions");
+		if(this.originalProblem == null ) {
+			System.out.println("The problem which belong this solution can't be null.");
+			return null; 
+		}
+		long id  =  this.collection.find(gte("_id", -1)).first().getLong("_id");
+		
+		return this.getSolution(id); 
+	}
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Vrp getProblem(long id) {
 		this.collection =  this.database.getCollection("Problems");
@@ -240,12 +252,12 @@ public class DBControl {
 		EvaluatorObjectiveFunctionDistances evaluatorLatency = new EvaluatorObjectiveFunctionDistances();
 		
 		evaluator.addEvaluatorObjectiveFunction(evaluatorLatency, evaluatorLatency.getName(), evaluatorLatency.getType());
-		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveRemove(1), 0);
 		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveSwap(1), 0);
-		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveInsertionAfter(), 0);
-		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveInsertionBefore(), 0);
 		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveAfter(), 0);
 		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveBefore(), 0);
+		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveRemove(1), 0);
+		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveInsertionAfter(), 0);
+		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveInsertionBefore(), 0);
 		
 		problem.setEvaluator(evaluator);
 		
@@ -265,6 +277,23 @@ public class DBControl {
 		
 		return this.collection.countDocuments(and(Filters.gte("_id", environment * RANGE_OF_SOLUTIONS),
 										  Filters.lt("_id", (environment + 1) * RANGE_OF_SOLUTIONS)));
+	}
+	
+	public List<RoutesSolution<Vrp>> getSolutionsOfGraph(String collection){
+		this.collection = this.database.getCollection(collection);
+		List<RoutesSolution<Vrp>> solutions = new ArrayList<RoutesSolution<Vrp>>();
+		ArrayList<Long> ids = new ArrayList<Long>();
+		FindIterable<Document> pairsOfDB = this.collection.find(); 
+		ids.add(pairsOfDB.first().getLong("idNode1"));
+		solutions.add(this.getSolution(pairsOfDB.first().getLong("idNode1")));
+		for(Document doc : pairsOfDB) {
+			if(!ids.contains(doc.getLong("idNode2"))) { 
+				ids.add(doc.getLong("idNode2"));
+				solutions.add(this.getSolution(doc.getLong("idNode2")));
+			} 
+		}
+		
+		return solutions; 
 	}
 	
 	@SuppressWarnings("unchecked")
