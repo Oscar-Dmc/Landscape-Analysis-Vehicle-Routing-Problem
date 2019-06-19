@@ -16,7 +16,7 @@ public class EvaluatorMoveAfter extends EvaluatorObjectiveFunctionMovement<Route
 		double[] deviation =  new double [solution.getNumberOfObjectives()]; 
 		double[] tctRouteOriginal = new double [solution.getNumberOfObjectives()];
 		double[] tctRouteMod = new double [solution.getNumberOfObjectives()]; 
-		int[] indexElement0 = new int [2]; /* 0 if route in ArrayList, and 1 is the index */
+		int[] indexElement0 = new int [2]; /* 0 is route in ArrayList, and 1 is the index */
 		int[] indexElement1 = new int [2];
 		ArrayList<ArrayList<Integer>> routes = new ArrayList<ArrayList<Integer>>();
 		

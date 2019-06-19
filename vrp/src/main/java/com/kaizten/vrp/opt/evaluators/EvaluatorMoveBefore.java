@@ -17,7 +17,7 @@ public class EvaluatorMoveBefore extends EvaluatorObjectiveFunctionMovement<Rout
 		double[] deviation =  new double [solution.getNumberOfObjectives()];
 		double[] tctRouteOriginal = new double [solution.getNumberOfObjectives()];
 		double[] tctRouteMod = new double [solution.getNumberOfObjectives()];
-		int[] indexElement0 = new int [2]; /* 0 if route in ArrayList, and 1 is the index */
+		int[] indexElement0 = new int [2]; /* 0 is route in ArrayList, and 1 is the index */
 		int[] indexElement1 = new int [2];
 		ArrayList<ArrayList<Integer>> routes = new ArrayList<ArrayList<Integer>>();
 		
@@ -49,6 +49,9 @@ public class EvaluatorMoveBefore extends EvaluatorObjectiveFunctionMovement<Rout
 			}
 			tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][routes.get(i).get(routes.get(i).size() - 1) + 1];
 		}
+		
+		routes.get(indexElement0[0]).remove(indexElement0[1]);
+		routes.get(indexElement1[0]).add(routes.get(indexElement1[0]).indexOf(move.getElement1()), move.getElement0());
 		
 		for(int i = 0; i < indexRoutes.size(); i++) {
 			if(routes.get(i).size() <= solution.getOptimizationProblem().getNMaxCustomers()) {
