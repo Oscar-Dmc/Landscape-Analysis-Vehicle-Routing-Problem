@@ -26,6 +26,8 @@ public class DistanceMedium  extends AbstractLandscapeIndicator<RoutesSolution<V
 		double denominator = this.solutions.size() * (this.solutions.size() - 1); 
 		this.dmm = new Double((this.totalDistance() / denominator)); 
 		System.out.println("Distribution in the search space: " + this.dmm);
+		double Dmm = this.dmm / this.distanceMax;
+		System.out.println("Dmm Normalized: " + Dmm);
 		this.setValue(this.dmm);
 	}
 	
@@ -45,7 +47,7 @@ public class DistanceMedium  extends AbstractLandscapeIndicator<RoutesSolution<V
 		} else if (this.availableMove == 1 || this.availableMove == 2) {
 			for(int i = 0; i < this.solutions.size(); i++) {
 				for(int j = i + 1; j < this.solutions.size(); j++) {					
-					currentDistance = this.calcDistances.distanceSwap(this.solutions.get(i), this.solutions.get(j));
+					currentDistance = this.calcDistances.distanceMove(this.solutions.get(i), this.solutions.get(j));
 					distance += currentDistance; 
 					if(currentDistance >  distanceMax) {
 						this.distanceMax = currentDistance; 
@@ -55,7 +57,7 @@ public class DistanceMedium  extends AbstractLandscapeIndicator<RoutesSolution<V
 		} else if (this.availableMove > 2 && this.availableMove < 6) {
 			for(int i = 0; i < this.solutions.size(); i++) {
 				for(int j = i + 1; j < this.solutions.size(); j++) {					
-					currentDistance = this.calcDistances.distanceSwap(this.solutions.get(i), this.solutions.get(j));
+					currentDistance = this.calcDistances.distanceInsRem(this.solutions.get(i), this.solutions.get(j));
 					distance += currentDistance; 
 					if(currentDistance >  distanceMax) {
 						this.distanceMax = currentDistance; 
@@ -64,11 +66,6 @@ public class DistanceMedium  extends AbstractLandscapeIndicator<RoutesSolution<V
 			}
 		}
 		return distance; 
-	}
-
-	public Double getDmmNormamlize() {
-		this.compute();
-		return this.dmm / this.distanceMax;
 	}
 	
 	public void setSolutions(Stream<RoutesSolution<Vrp>> stream, int availableMove) {

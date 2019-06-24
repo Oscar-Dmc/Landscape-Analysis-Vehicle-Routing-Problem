@@ -58,6 +58,7 @@ public class MainEvaluatorAnalyzer {
         Vrp optimizationProblem = supplierProblem.get(new File(fileProblem))
                 .findFirst()
                 .get();
+        optimizationProblem.setNMaxCustomers(100);
         System.out.println(optimizationProblem);
         System.out.println("====================================================");
         System.out.println("Creating Evaluator CPLEX:");
@@ -118,9 +119,9 @@ public class MainEvaluatorAnalyzer {
         manager.addMoveGenerator(new MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap>());
 		manager.addMoveGenerator(new MoveGeneratorRoutesSolutionMoveAfter<RoutesSolution<Vrp>, MoveRoutesSolutionMoveAfter>());
 		manager.addMoveGenerator(new MoveGeneratorRoutesSolutionMoveBefore<RoutesSolution<Vrp>, MoveRoutesSolutionMoveBefore>());
-		manager.addMoveGenerator(new MoveGeneratorRoutesSolutionRemove<RoutesSolution<Vrp>, MoveRoutesSolutionRemove>());
-		manager.addMoveGenerator(new MoveGeneratorRoutesSolutionInsertionAfter<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionAfter>());
-		manager.addMoveGenerator(new MoveGeneratorRoutesSolutionInsertionBefore<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionBefore>());
+		//manager.addMoveGenerator(new MoveGeneratorRoutesSolutionRemove<RoutesSolution<Vrp>, MoveRoutesSolutionRemove>());
+		//manager.addMoveGenerator(new MoveGeneratorRoutesSolutionInsertionAfter<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionAfter>());
+		//manager.addMoveGenerator(new MoveGeneratorRoutesSolutionInsertionBefore<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionBefore>());
 		
 		Applier applier =  new Applier<RoutesSolution<Vrp>>();
 		MoveApplier applierSwap =  new MoveApplierRoutesSolutionSwap();
