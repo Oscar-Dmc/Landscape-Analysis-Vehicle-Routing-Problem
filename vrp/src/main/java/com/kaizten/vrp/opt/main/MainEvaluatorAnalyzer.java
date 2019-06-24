@@ -1,19 +1,11 @@
 package com.kaizten.vrp.opt.main;
 
 import com.kaizten.opt.evaluator.EvaluatorAnalyzer;
-import com.kaizten.opt.move.MoveRoutesSolutionInsertionAfter;
-import com.kaizten.opt.move.MoveRoutesSolutionInsertionBefore;
 import com.kaizten.opt.move.MoveRoutesSolutionMoveAfter;
 import com.kaizten.opt.move.MoveRoutesSolutionMoveBefore;
-import com.kaizten.opt.move.MoveRoutesSolutionRemove;
 import com.kaizten.opt.move.MoveRoutesSolutionSwap;
 import com.kaizten.opt.move.applier.Applier;
 import com.kaizten.opt.move.applier.MoveApplier;
-import com.kaizten.opt.move.applier.MoveApplierRoutesSolutionInsertionAfter;
-import com.kaizten.opt.move.applier.MoveApplierRoutesSolutionInsertionBefore;
-import com.kaizten.opt.move.applier.MoveApplierRoutesSolutionRemove;
-import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionInsertionAfter;
-import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionInsertionBefore;
 import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionMoveAfter;
 import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionMoveBefore;
 import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionSwap;
@@ -25,9 +17,6 @@ import com.kaizten.opt.solution.Solution;
 import com.kaizten.vrp.opt.core.Vrp;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveAfter;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveBefore;
-import com.kaizten.vrp.opt.evaluators.EvaluatorMoveInsertionAfter;
-import com.kaizten.vrp.opt.evaluators.EvaluatorMoveInsertionBefore;
-import com.kaizten.vrp.opt.evaluators.EvaluatorMoveRemove;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveSwap;
 import com.kaizten.vrp.opt.evaluators.EvaluatorObjectiveFunctionDistances;
 import com.kaizten.vrp.opt.evaluators.VehicleRoutingProblemEvaluatorDistanceCplex;
@@ -35,7 +24,6 @@ import com.kaizten.vrp.opt.io.VrpSupplier;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionMoveAfter;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionMoveBefore;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionSwap;
-import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionRemove;
 import com.kaizten.vrp.opt.solver.RandomizedRCLBuilder;
 
 import ilog.concert.IloException;
@@ -68,9 +56,6 @@ public class MainEvaluatorAnalyzer {
                 .addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveSwap(), 0)
                 .addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveAfter(), 0)
                 .addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveBefore(), 0)
-                .addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveRemove(), 0)
-                .addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveInsertionAfter(), 0)
-    			.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveInsertionBefore(), 0)
                 .build();
         optimizationProblem.setEvaluator(evaluatorCplex);
         System.out.println(evaluatorCplex);
@@ -82,9 +67,6 @@ public class MainEvaluatorAnalyzer {
                 .addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveSwap(), 0)
                 .addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveAfter(), 0)
                 .addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveBefore(), 0)
-                .addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveRemove(), 0)
-                .addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveInsertionAfter(), 0)
-    			.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveInsertionBefore(), 0)
                 .build();
         optimizationProblem.setEvaluator(evaluator);
         System.out.println(evaluator);
@@ -119,23 +101,14 @@ public class MainEvaluatorAnalyzer {
         manager.addMoveGenerator(new MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap>());
 		manager.addMoveGenerator(new MoveGeneratorRoutesSolutionMoveAfter<RoutesSolution<Vrp>, MoveRoutesSolutionMoveAfter>());
 		manager.addMoveGenerator(new MoveGeneratorRoutesSolutionMoveBefore<RoutesSolution<Vrp>, MoveRoutesSolutionMoveBefore>());
-		//manager.addMoveGenerator(new MoveGeneratorRoutesSolutionRemove<RoutesSolution<Vrp>, MoveRoutesSolutionRemove>());
-		//manager.addMoveGenerator(new MoveGeneratorRoutesSolutionInsertionAfter<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionAfter>());
-		//manager.addMoveGenerator(new MoveGeneratorRoutesSolutionInsertionBefore<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionBefore>());
 		
 		Applier applier =  new Applier<RoutesSolution<Vrp>>();
 		MoveApplier applierSwap =  new MoveApplierRoutesSolutionSwap();
 		MoveApplier applierMoveAfter = new MoveApplierRoutesSolutionMoveAfter();
 		MoveApplier applierMoveBefore = new MoveApplierRoutesSolutionMoveBefore();
-		MoveApplier applierRemove = new MoveApplierRoutesSolutionRemove();
-		MoveApplier applierInsertionAfter = new MoveApplierRoutesSolutionInsertionAfter();
-		MoveApplier applierInsertionBefore = new MoveApplierRoutesSolutionInsertionBefore();
 		applier.addMoveApplier(applierSwap);
 		applier.addMoveApplier(applierMoveAfter);
 		applier.addMoveApplier(applierMoveBefore);
-		applier.addMoveApplier(applierRemove);
-		applier.addMoveApplier(applierInsertionAfter);
-		applier.addMoveApplier(applierInsertionBefore);
 		
 		analyzer.setMoveManager(manager);
 		analyzer.setApplier(applier);
