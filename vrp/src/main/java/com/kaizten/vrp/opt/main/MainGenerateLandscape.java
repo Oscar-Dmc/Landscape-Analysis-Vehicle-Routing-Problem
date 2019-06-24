@@ -15,6 +15,7 @@ public class MainGenerateLandscape {
 		VrpSupplier vrpSupplier = new VrpSupplier();
 		vrpSupplier.setNVehicles(Integer.parseInt(args[1]));
 		Vrp problem = vrpSupplier.get(file).findFirst().get();
+		problem.setNMaxCustomers(16);
 
 		ExplorerLandScape explorer =  new ExplorerLandScape();
 		explorer.setDBName(file.getName().split("\\.")[0]);
@@ -24,7 +25,6 @@ public class MainGenerateLandscape {
 		if(args.length >= 5) {
 			try{
 				solution = explorer.getDBControl().getSolution(Long.parseLong(args[4]));
-				System.exit(0);
 			} catch (Exception e) {
 				System.out.println("Database doesn't contain the specific solution");
 				System.exit(0);

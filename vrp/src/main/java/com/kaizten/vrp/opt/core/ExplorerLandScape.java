@@ -2,7 +2,6 @@ package com.kaizten.vrp.opt.core;
 
 import java.util.ArrayList;
 
-import org.bson.Document;
 import com.kaizten.opt.move.MoveRoutesSolutionInsertionAfter;
 import com.kaizten.opt.move.MoveRoutesSolutionInsertionBefore;
 import com.kaizten.opt.move.MoveRoutesSolutionMoveAfter;
@@ -24,7 +23,6 @@ import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionMoveAfter;
 import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionMoveBefore;
 import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionSwap;
 import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionRemove;
-import com.mongodb.client.FindIterable;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.vrp.opt.db.DBControl;
 
@@ -36,13 +34,14 @@ public class ExplorerLandScape {
 	private Applier<RoutesSolution<Vrp>> GApplier; 
 	private DBControl db; 
 	private String dbName; 
-	private long idCurrentSolution;
 	private int environment; 
-	private ArrayList<Long> nextSolutions; 
+	private ArrayList<Long> nextSolutions;
+	private ArrayList<Long> exploredSolutions; 
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void init() {
 		this.nextSolutions = new ArrayList<Long>();
+		this.exploredSolutions = new ArrayList<Long>();
 		this.MMSequential = new MoveManagerSequential();
 		this.GApplier =  new Applier<RoutesSolution<Vrp>>();
 		
@@ -75,7 +74,7 @@ public class ExplorerLandScape {
 	
 	public void explorer (RoutesSolution<Vrp> solution, int environment,  double executionTime) {
 		this.MMSequential.setSolution(solution);
-		this.environment = environment; 
+		this.environment = environment - 1; 
 		this.setInitialSolution(solution, this.environment);  
 		
 		this.MMSequential.activeExclusively(this.environment);
@@ -95,11 +94,12 @@ public class ExplorerLandScape {
 			this.GApplier.setSolution(this.auxSolution);
 			this.GApplier.setMove(this.MMSequential.next());
 			
-			this.db.addSolutionMove(this.GApplier.apply(), graph);
+			Long idLastSolution = this.db.addSolutionGraph(this.GApplier.apply(), graph);
+			this.addNextSolution(idLastSolution);
 			if(executionTime > 0) {
 				long time_start, time_end;
 				while(!this.MMSequential.hasNext() && executionTime > 0) {
-					long id =  nextSolutionToExplore(graph);
+					long id =  this.nextSolutionToExplore();
 					
 					time_start = System.currentTimeMillis();
 					if(id != -1) {
@@ -120,41 +120,30 @@ public class ExplorerLandScape {
 		return(( time_end_function - time_start_function ) * 0.001);
 	}
 	
-	public long nextSolutionToExplore(String collection) {
-		if(this.nextSolutions.isEmpty()) {
-			FindIterable<Document> pairsDB = this.db.getPairs(this.idCurrentSolution, collection);
-			for(Document doc : pairsDB) {
-				if (this.nextSolutions.indexOf(doc.getLong("idNode2")) == -1) {
-					this.nextSolutions.add(doc.getLong("idNode2"));
-				}
-			}
-			return this.nextSolutions.get(0);
+	public void addNextSolution(long id) {
+		if(this.exploredSolutions.isEmpty()) {
+			this.nextSolutions.add(id);
 		} else {
-			for(int i = 0; i < this.nextSolutions.size(); i++) {
-				FindIterable<Document> pairsDB = this.db.getPairs(this.nextSolutions.get(0), collection);
-				for(Document doc : pairsDB) {
-					if (this.nextSolutions.indexOf(doc.getLong("idNode2")) == -1) {
-						this.nextSolutions.add(doc.getLong("idNode2"));
-					}
-				}
-			}
-			this.nextSolutions.remove(0);
-			if(this.nextSolutions.isEmpty()) {
-				return -1;
-			} else {
-				return this.nextSolutions.get(0);
+			if(!this.exploredSolutions.contains(id)) {
+				this.nextSolutions.add(id);
 			}
 		}
 	}
 	
+	public long nextSolutionToExplore() {
+		long idSolution =  this.nextSolutions.get(0);
+		this.exploredSolutions.add(idSolution);
+		this.nextSolutions.remove(0);
+		return idSolution; 
+	}
+	
 	/* Set & Get */ 
 	public void setSolution(RoutesSolution<Vrp> solution) {
-		this.idCurrentSolution =  db.addSolution(solution);
 		this.solution =  solution;		
 	}
 	
 	public void setInitialSolution(RoutesSolution<Vrp> solution, int environment) {
-		this.idCurrentSolution =  this.db.addInitialSolution(solution, environment);
+		this.db.addInitialSolution(solution, environment);
 		this.solution =  solution;
 	}
 	

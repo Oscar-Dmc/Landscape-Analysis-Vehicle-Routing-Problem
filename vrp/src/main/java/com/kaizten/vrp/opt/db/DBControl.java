@@ -157,7 +157,7 @@ public class DBControl {
 		
 	}
 	
-	public void addSolutionMove(RoutesSolution<Vrp> solution, String graph) {
+	public long addSolutionGraph(RoutesSolution<Vrp> solution, String graph) {
 		this.collection =  this.database.getCollection("solutions");
 		long id =  addSolution(solution);
 		
@@ -167,6 +167,7 @@ public class DBControl {
 		if(existPair(this.idOriginalSolution, id, graph)) {
 			this.collection.insertOne(pair);
 		}
+		return id;
 	}
 	
 	public long addInitialSolution(RoutesSolution<Vrp> solution, int environment) {
