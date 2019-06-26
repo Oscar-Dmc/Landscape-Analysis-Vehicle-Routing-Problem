@@ -12,11 +12,12 @@ import com.kaizten.opt.move.MoveRoutesSolutionSwap;
 import com.kaizten.opt.move.MoveRoutesSolutionRemove;
 import com.kaizten.opt.move.acceptor.MoveAcceptor;
 import com.kaizten.opt.move.acceptor.MoveAcceptorBestImprovement;
-import com.kaizten.opt.move.applier.Applier;
+
 import com.kaizten.opt.move.applier.MoveApplier;
 import com.kaizten.opt.move.applier.MoveApplierRoutesSolutionInsertionAfter;
 import com.kaizten.opt.move.applier.MoveApplierRoutesSolutionInsertionBefore;
 import com.kaizten.opt.move.applier.MoveApplierRoutesSolutionRemove;
+import com.kaizten.opt.move.applier.manager.MoveApplierManager;
 import com.kaizten.opt.move.explorer.MoveExplorer;
 import com.kaizten.opt.move.explorer.MoveExplorerBasic;
 import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionInsertionAfter;
@@ -24,7 +25,7 @@ import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionInsertionBefore
 import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionMoveAfter;
 import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionMoveBefore;
 import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionSwap;
-import com.kaizten.opt.move.manager.MoveManagerSequential;
+import com.kaizten.opt.move.generator.manager.SequentialMoveGeneratorManager;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.opt.solver.Solver;
 import com.kaizten.vrp.opt.core.Vrp;
@@ -39,8 +40,8 @@ public class Vns implements Solver<RoutesSolution<Vrp>>{
 	private RoutesSolution<Vrp> auxSolution;
 	private RoutesSolution<Vrp> incompleteSolution; 
 	private Random randomGenerator; 
-	private MoveManagerSequential<RoutesSolution<Vrp>, ?> manager; 
-	private Applier<RoutesSolution<Vrp>> gApplier; 
+	private SequentialMoveGeneratorManager<RoutesSolution<Vrp>, ?> manager; 
+	private MoveApplierManager<RoutesSolution<Vrp>> gApplier; 
 	private MoveAcceptor acceptor;
 	private MoveExplorer explorer;
 	private ArrayList<Integer> neighborhoods; 
@@ -61,7 +62,7 @@ public class Vns implements Solver<RoutesSolution<Vrp>>{
 		
 		System.out.println("Initial solution\n" + this.originalSolution);
 		
-		this.manager = new MoveManagerSequential();
+		this.manager = new SequentialMoveGeneratorManager();
 		this.manager.setSolution(this.originalSolution);
 		this.manager.addMoveGenerator(new MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap>());
 		this.manager.addMoveGenerator(new MoveGeneratorRoutesSolutionMoveAfter<RoutesSolution<Vrp>, MoveRoutesSolutionMoveAfter>());
@@ -71,7 +72,7 @@ public class Vns implements Solver<RoutesSolution<Vrp>>{
 		this.manager.addMoveGenerator(new MoveGeneratorRoutesSolutionInsertionBefore<RoutesSolution<Vrp>, MoveRoutesSolutionInsertionBefore>());
 		this.manager.init();
 		
-		this.gApplier =  new Applier<RoutesSolution<Vrp>>();
+		this.gApplier =  new MoveApplierManager<RoutesSolution<Vrp>>();
 		MoveApplier applierSwap =  new MoveApplierRoutesSolutionSwap();
 		MoveApplier applierMoveAfter = new MoveApplierRoutesSolutionMoveAfter();
 		MoveApplier applierMoveBefore = new MoveApplierRoutesSolutionMoveBefore();

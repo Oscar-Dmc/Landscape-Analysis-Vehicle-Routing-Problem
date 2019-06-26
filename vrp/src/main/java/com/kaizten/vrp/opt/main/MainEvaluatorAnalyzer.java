@@ -4,13 +4,13 @@ import com.kaizten.opt.evaluator.EvaluatorAnalyzer;
 import com.kaizten.opt.move.MoveRoutesSolutionMoveAfter;
 import com.kaizten.opt.move.MoveRoutesSolutionMoveBefore;
 import com.kaizten.opt.move.MoveRoutesSolutionSwap;
-import com.kaizten.opt.move.applier.Applier;
 import com.kaizten.opt.move.applier.MoveApplier;
+import com.kaizten.opt.move.applier.manager.MoveApplierManager;
 import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionMoveAfter;
 import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionMoveBefore;
 import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionSwap;
-import com.kaizten.opt.move.manager.MoveManagerSequential;
-import com.kaizten.opt.builder.evaluator.EvaluatorBuilder;
+import com.kaizten.opt.move.generator.manager.SequentialMoveGeneratorManager;
+import com.kaizten.opt.evaluator.builder.EvaluatorBuilder;
 import com.kaizten.opt.evaluator.Evaluator;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.opt.solution.Solution;
@@ -97,12 +97,12 @@ public class MainEvaluatorAnalyzer {
         
         /* Compare movements */ 
         
-        MoveManagerSequential manager = new MoveManagerSequential();
+        SequentialMoveGeneratorManager manager = new SequentialMoveGeneratorManager();
         manager.addMoveGenerator(new MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap>());
 		manager.addMoveGenerator(new MoveGeneratorRoutesSolutionMoveAfter<RoutesSolution<Vrp>, MoveRoutesSolutionMoveAfter>());
 		manager.addMoveGenerator(new MoveGeneratorRoutesSolutionMoveBefore<RoutesSolution<Vrp>, MoveRoutesSolutionMoveBefore>());
 		
-		Applier applier =  new Applier<RoutesSolution<Vrp>>();
+		MoveApplierManager applier =  new MoveApplierManager<RoutesSolution<Vrp>>();
 		MoveApplier applierSwap =  new MoveApplierRoutesSolutionSwap();
 		MoveApplier applierMoveAfter = new MoveApplierRoutesSolutionMoveAfter();
 		MoveApplier applierMoveBefore = new MoveApplierRoutesSolutionMoveBefore();

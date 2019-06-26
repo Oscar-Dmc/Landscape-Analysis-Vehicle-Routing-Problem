@@ -8,12 +8,11 @@ import com.kaizten.opt.move.MoveRoutesSolutionMoveAfter;
 import com.kaizten.opt.move.MoveRoutesSolutionMoveBefore;
 import com.kaizten.opt.move.MoveRoutesSolutionRemove;
 import com.kaizten.opt.move.MoveRoutesSolutionSwap;
-import com.kaizten.opt.move.manager.MoveManagerSequential;
-import com.kaizten.opt.move.applier.Applier;
 import com.kaizten.opt.move.applier.MoveApplier;
 import com.kaizten.opt.move.applier.MoveApplierRoutesSolutionInsertionAfter;
 import com.kaizten.opt.move.applier.MoveApplierRoutesSolutionInsertionBefore;
 import com.kaizten.opt.move.applier.MoveApplierRoutesSolutionRemove;
+import com.kaizten.opt.move.applier.manager.MoveApplierManager;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionMoveAfter;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionMoveBefore;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionSwap;
@@ -22,6 +21,7 @@ import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionInsertionBefore
 import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionMoveAfter;
 import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionMoveBefore;
 import com.kaizten.opt.move.generator.MoveGeneratorRoutesSolutionSwap;
+import com.kaizten.opt.move.generator.manager.SequentialMoveGeneratorManager;
 import com.kaizten.vrp.opt.move.generator.MoveGeneratorRoutesSolutionRemove;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.vrp.opt.db.DBControl;
@@ -30,8 +30,8 @@ public class ExplorerLandScape {
 	private final String graphs[] = {"swapGraph", "moveAfterGraph", "moveBeforeGraph", "removeGraph", "insertionAfterGraph", "insertionBeforeGraph"}; 
 	private RoutesSolution<Vrp> solution; 
 	private RoutesSolution<Vrp> auxSolution; 
-	private MoveManagerSequential<RoutesSolution<Vrp>, ?> MMSequential;
-	private Applier<RoutesSolution<Vrp>> GApplier; 
+	private SequentialMoveGeneratorManager<RoutesSolution<Vrp>, ?> MMSequential;
+	private MoveApplierManager<RoutesSolution<Vrp>> GApplier; 
 	private DBControl db; 
 	private String dbName; 
 	private int environment; 
@@ -42,8 +42,8 @@ public class ExplorerLandScape {
 	public void init() {
 		this.nextSolutions = new ArrayList<Long>();
 		this.exploredSolutions = new ArrayList<Long>();
-		this.MMSequential = new MoveManagerSequential();
-		this.GApplier =  new Applier<RoutesSolution<Vrp>>();
+		this.MMSequential = new SequentialMoveGeneratorManager();
+		this.GApplier =  new MoveApplierManager<RoutesSolution<Vrp>>();
 		
 		this.MMSequential.addMoveGenerator(new MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap>());
 		this.MMSequential.addMoveGenerator(new MoveGeneratorRoutesSolutionMoveAfter<RoutesSolution<Vrp>, MoveRoutesSolutionMoveAfter>());

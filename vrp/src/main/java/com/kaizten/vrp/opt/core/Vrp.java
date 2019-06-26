@@ -1,7 +1,7 @@
 package com.kaizten.vrp.opt.core;
 
 import com.kaizten.opt.problem.OptimizationProblem;
-import com.kaizten.utils.algorithm.GraphUtils;
+//import com.kaizten.utils.algorithm.GraphUtils;
 import java.util.ArrayList;
 
 public class Vrp extends OptimizationProblem {
@@ -26,7 +26,7 @@ public class Vrp extends OptimizationProblem {
 		for (int i = 0; i < this.customers.size(); i++) {
 			this.distanceMatrix[i][i] = 0;
 			for (int j = i + 1; j < this.customers.size(); j++) {
-				double distance = GraphUtils.getEuclideanDistance(this.customers.get(i).get(0),
+				double distance = com.kaizten.utils.graph.GraphUtils.getEuclideanDistance(this.customers.get(i).get(0),
 						this.customers.get(i).get(1), this.customers.get(j).get(0), this.customers.get(j).get(1));
 				this.distanceMatrix[i][j] = distance;
 				this.distanceMatrix[j][i] = distance;
