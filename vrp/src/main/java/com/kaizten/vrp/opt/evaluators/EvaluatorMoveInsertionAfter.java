@@ -1,5 +1,8 @@
 package com.kaizten.vrp.opt.evaluators;
 
+import java.util.ArrayList;
+
+import com.kaizten.opt.evaluator.Evaluator;
 import com.kaizten.opt.evaluator.EvaluatorObjectiveFunctionMovement;
 import com.kaizten.opt.move.MoveRoutesSolutionInsertionAfter;
 import com.kaizten.opt.solution.RoutesSolution;
@@ -9,40 +12,42 @@ public class EvaluatorMoveInsertionAfter extends EvaluatorObjectiveFunctionMovem
 
 	@Override
 	public double[] evaluate(RoutesSolution<Vrp> solution, MoveRoutesSolutionInsertionAfter move) {
-		double[] desviation =  new double [solution.getNumberOfObjectives()]; 
-		double tctRouteOriginal = 0.0;
-		double tctRouteMod = 0.0; 
+		double[] deviation =  new double [solution.getNumberOfObjectives()]; 
+		double[] tctRouteOriginal = new double [solution.getNumberOfObjectives()];
+		double[] tctRouteMod = new double [solution.getNumberOfObjectives()]; 
 		
-		int indexCustomer =  solution.getFirstInRoute(move.getRoute());
-		tctRouteOriginal  += solution.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1]; 
-		while (solution.getSuccessor(indexCustomer) != -1) {
-			tctRouteOriginal +=  solution.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solution.getSuccessor(indexCustomer) + 1];
-			indexCustomer = solution.getSuccessor(indexCustomer);
-		}
-		tctRouteOriginal += solution.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1];
-		
-		@SuppressWarnings("unchecked")
-		RoutesSolution<Vrp> solutionInsertionAfter =  solution.clone();
-		//System.out.println("Desglose de momvimiento insertionAfter -> Ruta: " + move.getRoute() + " Get To insert: " + move.getToInsert() + " After: " + move.getAfter());
-		if(move.getAfter() == -1) {
-			solutionInsertionAfter.addAfterDepot(move.getToInsert(), move.getRoute());
-		}
-		else {			
-			solutionInsertionAfter.addAfter(move.getToInsert(), move.getAfter());
+		ArrayList<Integer> route = new ArrayList<Integer>();
+		for(int i = 0;  i < solution.getRoute(move.getRoute()).length; i++) {
+			route.add(solution.getRoute(move.getRoute())[i]);
 		}
 		
-		indexCustomer =  solutionInsertionAfter.getFirstInRoute(move.getRoute());
-		tctRouteMod  += solutionInsertionAfter.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1]; 
-		while (solutionInsertionAfter.getSuccessor(indexCustomer) != -1) {
-			tctRouteMod +=  solutionInsertionAfter.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solution.getSuccessor(indexCustomer) + 1];
-			indexCustomer = solutionInsertionAfter.getSuccessor(indexCustomer);
+		if(route.isEmpty()) {
+			tctRouteOriginal[0] = 0;
+		} else {
+			tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][route.get(0) + 1];
+			for(int i = 1; i < route.size(); i++) {
+				tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[route.get(i - 1) + 1][route.get(i) + 1];
+			}
+			tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][route.get(route.size() - 1) + 1];
 		}
-		tctRouteMod += solutionInsertionAfter.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1];
 		
+		route.add(route.indexOf(move.getAfter()) + 1, move.getToInsert());
 		
-		desviation[0] = tctRouteOriginal - tctRouteMod;
+		if(route.size() <= solution.getOptimizationProblem().getNMaxCustomers()) {
+			tctRouteMod[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][route.get(0) + 1];
+			for(int i = 1; i < route.size(); i++) {
+				tctRouteMod[0] += solution.getOptimizationProblem().getDistanceMatrix()[route.get(i - 1) + 1][route.get(i) + 1];
+			}
+			tctRouteMod[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][route.get(route.size() - 1) + 1];
+		} else {
+			deviation[0] = -Evaluator.OBJECTIVE_INFEASIBLE;
+			move.setDeviationObjectiveFunctionValue(0, deviation[0]);
+			return deviation;
+		}
 		
-		return desviation;
+		deviation[0] = tctRouteMod[0] - tctRouteOriginal[0];
+		move.setDeviationObjectiveFunctionValue(0, deviation[0]);
+		return deviation;
 	}
 
 }

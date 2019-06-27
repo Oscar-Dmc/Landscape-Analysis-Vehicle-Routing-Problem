@@ -1,0 +1,4 @@
+/vrp/*
+/vrp/!src/
+/vrp/!pom.xml
+/.metadata/

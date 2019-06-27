@@ -2,12 +2,22 @@ package com.kaizten.vrp.opt.db;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bson.Document;
+
+import com.kaizten.opt.evaluator.Evaluator;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.vrp.opt.core.Vrp;
+import com.kaizten.vrp.opt.evaluators.EvaluatorMoveAfter;
+import com.kaizten.vrp.opt.evaluators.EvaluatorMoveBefore;
+import com.kaizten.vrp.opt.evaluators.EvaluatorMoveInsertionAfter;
+import com.kaizten.vrp.opt.evaluators.EvaluatorMoveInsertionBefore;
+import com.kaizten.vrp.opt.evaluators.EvaluatorMoveRemove;
+import com.kaizten.vrp.opt.evaluators.EvaluatorMoveSwap;
+import com.kaizten.vrp.opt.evaluators.EvaluatorObjectiveFunctionDistances;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.FindIterable;
@@ -28,13 +38,14 @@ public class DBControl {
 	private int environment;
 	private Vrp originalProblem; 
 	public final long RANGE_OF_SOLUTIONS = 3000000;
+	private String dbName; 
 	
 	public void init() {
 		try {
 			Logger mongoLogger = Logger.getLogger("org.mongodb.driver");
 			mongoLogger.setLevel(Level.SEVERE);
 			this.mongoClient =  new MongoClient(new MongoClientURI("mongodb://127.0.0.1:27017"));
-			this.database =  this.mongoClient.getDatabase("Vrp");
+			this.database =  this.mongoClient.getDatabase(dbName);
 		}
 		catch(Exception e) {
 			System.out.println(e);
@@ -52,15 +63,13 @@ public class DBControl {
 		else {
 			Integer nCustomers = problem.getNCustomers();
 			Integer nVehicles =  problem.getNVehicles();
+			Integer nMaxCustomers = problem.getNMaxCustomers();
 			ArrayList<ArrayList<Double>> distanceMatrix = new ArrayList<ArrayList<Double>>(); 
 			ArrayList<ArrayList<Integer>> customers =  new ArrayList<ArrayList<Integer>>();
-			
-			
 			ArrayList<Double> distance =  new ArrayList<Double>();
 			ArrayList<Integer> customer =  new ArrayList<Integer>();
 			for(int i = 0; i < nCustomers + 1;  i++) {
-				customer.add(problem.getCustomers().get(i).getX());
-				customer.add(problem.getCustomers().get(i).getY());
+				customer =  problem.getCustomers().get(i);
 				for(int j = 0;  j < nCustomers; j++) {
 					distance.add(problem.getDistanceMatrix()[i][j]);
 				}
@@ -76,7 +85,9 @@ public class DBControl {
 					.append("DistanceMatrix", distanceMatrix)
 					.append("Customers", customers)
 					.append("nCustomers", nCustomers)
-					.append("nVehicles", nVehicles);
+					.append("nVehicles", nVehicles)
+					.append("nMaxCustomers", nMaxCustomers);
+				
 			
 			this.collection.insertOne(problemDB);
 		}
@@ -139,7 +150,6 @@ public class DBControl {
 							.append("last", Arrays.asList(last))
 							.append("length", Arrays.asList(length)))
 					.append("ObjFunction", Arrays.asList(objFunction));
-			//System.out.println(solutionDb.toString());
 			this.collection.insertOne(solutionDb);
 		}
 		
@@ -147,8 +157,8 @@ public class DBControl {
 		
 	}
 	
-	public void addSolutionMove(RoutesSolution<Vrp> solution, String graph) {
-		this.collection =  this.database.getCollection("solutionsTest");
+	public long addSolutionGraph(RoutesSolution<Vrp> solution, String graph) {
+		this.collection =  this.database.getCollection("solutions");
 		long id =  addSolution(solution);
 		
 		Document pair = new Document("idNode1", this.idOriginalSolution)
@@ -157,10 +167,11 @@ public class DBControl {
 		if(existPair(this.idOriginalSolution, id, graph)) {
 			this.collection.insertOne(pair);
 		}
+		return id;
 	}
 	
 	public long addInitialSolution(RoutesSolution<Vrp> solution, int environment) {
-		this.collection =  this.database.getCollection("solutionsTest");
+		this.collection =  this.database.getCollection("solutions");
 		this.environment =  environment; 
 		long id = addSolution(solution);
 		this.setIdOriginalSolution(id);
@@ -175,7 +186,7 @@ public class DBControl {
 	/* Get a solution in database */ 
 	@SuppressWarnings("unchecked")
 	public RoutesSolution<Vrp> getSolution(long id){
-		this.collection =  this.database.getCollection("solutionsTest");
+		this.collection =  this.database.getCollection("solutions");
 		if(this.originalProblem == null ) {
 			System.out.println("The problem which belong this solution can't be null.");
 			return null; 
@@ -209,15 +220,49 @@ public class DBControl {
 		return solution;
 	}
 	
-	@SuppressWarnings("unchecked")
+	public RoutesSolution<Vrp> getFirstSolution(){
+		this.collection =  this.database.getCollection("solutions");
+		if(this.originalProblem == null ) {
+			System.out.println("The problem which belong this solution can't be null.");
+			return null; 
+		}
+		long id  =  this.collection.find(gte("_id", -1)).first().getLong("_id");
+		
+		return this.getSolution(id); 
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Vrp getProblem(long id) {
 		this.collection =  this.database.getCollection("Problems");
 		Document documentWithProblem = this.collection.find(eq("_id",id)).first();
 		ArrayList<ArrayList<Integer>> customers =  (ArrayList<ArrayList<Integer>>) documentWithProblem.get("Customers");
 		Integer nCustomers = documentWithProblem.getInteger("nCustomers");
 		Integer nVehicles =  documentWithProblem.getInteger("nVehicles");
+		Integer nMaxCustomers =  documentWithProblem.getInteger("nMaxCustomers");
 		
-		return new Vrp(customers, nCustomers, nVehicles);
+		Vrp problem =  new Vrp();
+		/* init Vrp */ 
+		problem.setCustomers(customers);
+		problem.setNCustomers(nCustomers);
+		problem.setNVehicles(nVehicles);
+		problem.setNMaxCustomers(nMaxCustomers);
+		problem.fillDistanceMatrix();
+		
+		/* add evaluators */ 
+		Evaluator evaluator = new Evaluator(); 
+		EvaluatorObjectiveFunctionDistances evaluatorLatency = new EvaluatorObjectiveFunctionDistances();
+		
+		evaluator.addEvaluatorObjectiveFunction(evaluatorLatency, evaluatorLatency.getName(), evaluatorLatency.getType());
+		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveSwap(1), 0);
+		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveAfter(), 0);
+		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveBefore(), 0);
+		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveRemove(1), 0);
+		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveInsertionAfter(), 0);
+		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveInsertionBefore(), 0);
+		
+		problem.setEvaluator(evaluator);
+		
+		return problem;
 	}
 	
 	public void setIdOriginalSolution(long id) {
@@ -229,28 +274,62 @@ public class DBControl {
 	}
 	
 	public long getNSolutionsEnvironment(int environment) {
-		this.collection = this.database.getCollection("solutionsTest");
+		this.collection = this.database.getCollection("solutions");
 		
 		return this.collection.countDocuments(and(Filters.gte("_id", environment * RANGE_OF_SOLUTIONS),
 										  Filters.lt("_id", (environment + 1) * RANGE_OF_SOLUTIONS)));
 	}
 	
+	public RoutesSolution<Vrp> getFirstSolutionOfGraph(String graph){
+		this.collection = this.database.getCollection(graph);
+		if(this.originalProblem == null ) {
+			System.out.println("The problem which belong this solution can't be null.");
+			return null; 
+		}
+		long id = this.collection.find().first().getLong("idNode1");
+		return this.getSolution(id);
+	}
+	
+	public List<RoutesSolution<Vrp>> getSolutionsOfGraph(String collection){
+		this.collection = this.database.getCollection(collection);
+		List<RoutesSolution<Vrp>> solutions = new ArrayList<RoutesSolution<Vrp>>();
+		ArrayList<Long> ids = new ArrayList<Long>();
+		FindIterable<Document> pairsOfDB = this.collection.find(); 
+		ids.add(pairsOfDB.first().getLong("idNode1"));
+		solutions.add(this.getSolution(pairsOfDB.first().getLong("idNode1")));
+		for(Document doc : pairsOfDB) {
+			if(!ids.contains(doc.getLong("idNode2"))) { 
+				ids.add(doc.getLong("idNode2"));
+				solutions.add(this.getSolution(doc.getLong("idNode2")));
+			} 
+		}
+		
+		return solutions; 
+	}
+	
 	@SuppressWarnings("unchecked")
 	public ArrayList<Double> getObjFunctionValue(long id){
-		this.collection = this.database.getCollection("solutionsTest");
+		this.collection = this.database.getCollection("solutions");
 		return (ArrayList<Double>) this.collection.find(eq("_id", id)).first().get("ObjFunction");
 	}
 	
+	public void setDBName(String name) {
+		this.dbName = name;
+	}
+	
+	public long getNSolutions() {
+		this.collection = this.database.getCollection("solutions");
+		return this.collection.countDocuments();
+	}
+	
 	public long exist(RoutesSolution<Vrp> solution) {
-		this.collection = this.database.getCollection("solutionsTest");
+		this.collection = this.database.getCollection("solutions");
 		int nCustomers = solution.getOptimizationProblem().getNCustomers();
 		ArrayList<Integer> predecessors = new ArrayList<Integer>();
 		ArrayList<Integer> route = new ArrayList<Integer>();
-		//Integer[] predecessors = new Integer [nCustomers];
 		for(int i = 0; i < nCustomers; i++) {
 			predecessors.add(solution.getPredecessor(i));
 			route.add(solution.getRouteIndex(i));
-			//predecessors[i] =  solution.getPredecessor(i);
 		}
 		
 		if(this.collection.find(and(eq("Predecessor", predecessors), eq("Route", route))).first() !=  null) {
@@ -266,8 +345,7 @@ public class DBControl {
 		ArrayList<ArrayList<Integer>> customers =  new ArrayList<ArrayList<Integer>>();
 		ArrayList<Integer> customer =  new ArrayList<Integer>();
 		for(int i = 0; i < problem.getNCustomers() + 1; i++) {
-			customer.add(problem.getCustomers().get(i).getX());
-			customer.add(problem.getCustomers().get(i).getY());
+			customer = (ArrayList<Integer>) problem.getCustomers().get(i).clone();
 			customers.add((ArrayList<Integer>) customer.clone());
 			customer.clear();
 		}

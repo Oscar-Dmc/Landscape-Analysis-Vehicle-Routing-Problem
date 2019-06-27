@@ -17,98 +17,59 @@ public class EvaluatorMoveSwap extends EvaluatorObjectiveFunctionMovement<Routes
 		super(objectives);
 	}
 	
-	public void SolutionSwap (RoutesSolution<Vrp> solution, MoveRoutesSolutionSwap move) {		
-		if(solution.inSameRoute(move.getElement0(), move.getElement1())) {
-			this.swapInSameRoute(solution, move);
-		}
-		else if(solution.getLengthRoute(solution.getRouteIndex(move.getElement0())) == 1 ||
-				solution.getLengthRoute(solution.getRouteIndex(move.getElement1())) == 1) {
-			if(solution.getLengthRoute(solution.getRouteIndex(move.getElement0())) == 1 ) {
-				int indexRoute =  solution.getRouteIndex(move.getElement0());
-				solution.addAfter(move.getElement0(), move.getElement1());
-				solution.remove(move.getElement1());
-				solution.addBeforeDepot(move.getElement1(), indexRoute);
-			} else {
-				int indexRoute =  solution.getRouteIndex(move.getElement1());
-				solution.addAfter(move.getElement1(), move.getElement0());
-				solution.remove(move.getElement0());
-				solution.addBeforeDepot(move.getElement0(), indexRoute);
-			}
-		} else {
-			if(solution.getPredecessor(move.getElement0()) != -1) {
-				int pred0 =  solution.getPredecessor(move.getElement0());
-				solution.addAfter(move.getElement0(), move.getElement1());
-				solution.addAfter(move.getElement1(), pred0);
-
-			} else {
-				int succ0 =  solution.getSuccessor(move.getElement0());
-				solution.addAfter(move.getElement0(), move.getElement1());
-				solution.addBefore(move.getElement1(), succ0);
-
-			}
-		}
-	}
-
-	public void swapInSameRoute(RoutesSolution<Vrp> solution, MoveRoutesSolutionSwap move) {
-		if(solution.getPredecessor(move.getElement0()) == move.getElement1()) {
-			solution.addBefore(move.getElement0(), move.getElement1());
-		}
-		else if (solution.getPredecessor(move.getElement1()) == move.getElement0()) {
-			solution.addBefore(move.getElement1(), move.getElement0());
-		}
-		else {
-			int pred0 =  solution.getPredecessor(move.getElement0());
-			int pred1 =  solution.getPredecessor(move.getElement1());
-			if(pred0 == -1) {
-				solution.addBefore(move.getElement1(), move.getElement0());
-				solution.addAfter(move.getElement0(), pred1);
-			}
-			else if(pred1 == -1) {
-				solution.addBefore(move.getElement0(), move.getElement1());
-				solution.addAfter(move.getElement1(), pred0);
-			}
-			else {
-				solution.addAfter(move.getElement1(), pred0);
-				solution.addAfter(move.getElement0(), pred1);
-			}
-		}
-		
-	}
 	@Override
 	public double[] evaluate(RoutesSolution<Vrp> solution, MoveRoutesSolutionSwap move) {
 		ArrayList<Integer> indexRoutes =  new ArrayList<Integer>(); 
-		double[] desviation =  new double [solution.getNumberOfObjectives()]; 
-		double tctRouteOriginal = 0.0;
-		double tctRouteMod = 0.0; 
+		double[] deviation = new double [solution.getNumberOfObjectives()]; 
+		double[] tctRouteOriginal = new double [solution.getNumberOfObjectives()];
+		double[] tctRouteMod = new double [solution.getNumberOfObjectives()]; 
+		int[] indexElement0 = new int [2]; /* 0 if route in ArrayList, and 1 is the index */
+		int[] indexElement1 = new int [2];
 		indexRoutes.add(solution.getRouteIndex(move.getElement0()));
 		if(!indexRoutes.contains(solution.getRouteIndex(move.getElement1()))){
 			indexRoutes.add(solution.getRouteIndex(move.getElement1()));
 		}
-		for (int i = 0; i < indexRoutes.size();  i++) {
-			int indexCustomer =  solution.getFirstInRoute(indexRoutes.get(i));
-			tctRouteOriginal  += solution.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1]; 
-			while (solution.getSuccessor(indexCustomer) != -1) {
-				tctRouteOriginal +=  solution.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solution.getSuccessor(indexCustomer) + 1];
-				indexCustomer = solution.getSuccessor(indexCustomer);
+		
+		ArrayList<ArrayList<Integer>> routes = new ArrayList<ArrayList<Integer>>();
+		
+		for(int i = 0; i < indexRoutes.size(); i++) {
+			ArrayList<Integer> route =  new ArrayList<Integer>();
+			int [] routeInSolution = solution.getRoute(indexRoutes.get(i));
+			for(int j = 0; j < routeInSolution.length; j++) {
+				if(routeInSolution[j] == move.getElement0()) {
+					indexElement0[0] = i;
+					indexElement0[1] = j;
+				} else if (routeInSolution[j] == move.getElement1()) {
+					indexElement1[0] = i;
+					indexElement1[1] = j;
+				}
+				route.add(routeInSolution[j]);
 			}
-			tctRouteOriginal += solution.getOptimizationProblem().getDistanceMatrix()[0][solution.getLastInRoute(indexRoutes.get(i)) + 1];
+			routes.add(route);
 		}
 		
-		@SuppressWarnings("unchecked")
-		RoutesSolution<Vrp> solutionSwap =  solution.clone();
-		this.SolutionSwap(solutionSwap, move);		
-		for (int i = 0; i < indexRoutes.size();  i++) {
-			int indexCustomer =  solutionSwap.getFirstInRoute(indexRoutes.get(i));
-			tctRouteMod  += solutionSwap.getOptimizationProblem().getDistanceMatrix()[0][indexCustomer + 1]; 
-			while (solutionSwap.getSuccessor(indexCustomer) != -1) {
-				tctRouteMod +=  solutionSwap.getOptimizationProblem().getDistanceMatrix()[indexCustomer + 1][solutionSwap.getSuccessor(indexCustomer) + 1];
-				indexCustomer = solutionSwap.getSuccessor(indexCustomer);
+		for(int i = 0; i < indexRoutes.size(); i++) {
+			tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][routes.get(i).get(0) + 1]; 
+			for(int j = 1;  j < routes.get(i).size(); j ++) {
+				tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[routes.get(i).get(j - 1) + 1][routes.get(i).get(j) + 1];
 			}
-			tctRouteMod += solutionSwap.getOptimizationProblem().getDistanceMatrix()[0][solutionSwap.getLastInRoute(indexRoutes.get(i)) + 1];
-		} 
-		desviation[0] = tctRouteMod - tctRouteOriginal;
-		move.setDeviationObjectiveFunctionValue(0, desviation[0]);
-		return desviation;
+			tctRouteOriginal[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][routes.get(i).get(routes.get(i).size() - 1) + 1];
+		}
+		
+		routes.get(indexElement0[0]).set(indexElement0[1], move.getElement1());
+		routes.get(indexElement1[0]).set(indexElement1[1], move.getElement0());
+		
+		for(int i = 0; i < indexRoutes.size(); i++) {
+			tctRouteMod[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][routes.get(i).get(0) + 1]; 
+			for(int j = 1;  j < routes.get(i).size(); j ++) {
+				tctRouteMod[0] += solution.getOptimizationProblem().getDistanceMatrix()[routes.get(i).get(j - 1) + 1][routes.get(i).get(j) + 1];
+			}
+			tctRouteMod[0] += solution.getOptimizationProblem().getDistanceMatrix()[0][routes.get(i).get(routes.get(i).size() - 1) + 1];
+		}
+		
+		deviation[0] = tctRouteMod[0] - tctRouteOriginal[0];
+		move.setDeviationObjectiveFunctionValue(0, deviation[0]);
+		return deviation;
 	}
 
 }
