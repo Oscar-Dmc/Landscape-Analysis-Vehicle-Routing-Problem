@@ -18,11 +18,12 @@ public class MainVNS {
 		Vrp problem = vrpSupplier.get(file).findFirst().get();
 		problem.setNMaxCustomers(Integer.parseInt(args[2])); 
 		if(((problem.getNMaxCustomers() * problem.getNVehicles()) / problem.getNCustomers()) > 0) {
-			Vns vns =  new Vns(problem, Integer.parseInt(args[3]));
 			ArrayList<Integer> neighborhoods = new ArrayList<Integer>();
 			for(int i = 4; i < args.length;  i++) {
 				neighborhoods.add(Integer.parseInt(args[i]) - 1);
 			}
+			
+			Vns vns =  new Vns(problem, Integer.parseInt(args[3]));
 			vns.setNeighborhood(neighborhoods);
 			long startTime = System.currentTimeMillis();
 			RoutesSolution<Vrp> finalSolution =  vns.run();

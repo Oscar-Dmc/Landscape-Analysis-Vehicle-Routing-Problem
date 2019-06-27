@@ -195,6 +195,7 @@ public class LNS implements Solver<RoutesSolution<Vrp>>{
 	@Override
 	public RoutesSolution<Vrp> run() {
 		this.originalSolution.evaluate();
+		System.out.println("Initial solution \n" + this.originalSolution);
 		
 		return ALNS();
 	}

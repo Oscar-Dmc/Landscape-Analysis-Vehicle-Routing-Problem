@@ -18,13 +18,14 @@ public class MainLNS {
 		Vrp problem = vrpSupplier.get(file).findFirst().get();
 		problem.setNMaxCustomers(Integer.parseInt(args[2]));
 		if(((problem.getNMaxCustomers() * problem.getNVehicles()) / problem.getNCustomers()) > 0) {
-			LNS lns =  new LNS(problem, Integer.parseInt(args[3]));
 			double percent = (Double.parseDouble(args[4]) / 100);  
 			int itMax = Integer.parseInt(args[5]);
 			ArrayList<Integer> neighborhoods = new ArrayList<Integer>();
 			for(int i = 6; i < args.length;  i++) {
 				neighborhoods.add(Integer.parseInt(args[i]) - 1);
 			}
+			
+			LNS lns =  new LNS(problem, Integer.parseInt(args[3]));
 			lns.setNeighborhood(neighborhoods);
 			lns.setPercent(percent);
 			lns.setIterationsMax(itMax);

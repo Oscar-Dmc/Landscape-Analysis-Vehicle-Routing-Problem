@@ -60,8 +60,6 @@ public class Vns implements Solver<RoutesSolution<Vrp>>{
 		}
 		this.randomGenerator = new Random();
 		
-		System.out.println("Initial solution\n" + this.originalSolution);
-		
 		this.manager = new SequentialMoveGeneratorManager();
 		this.manager.setSolution(this.originalSolution);
 		this.manager.addMoveGenerator(new MoveGeneratorRoutesSolutionSwap<RoutesSolution<Vrp>, MoveRoutesSolutionSwap>());
@@ -93,20 +91,21 @@ public class Vns implements Solver<RoutesSolution<Vrp>>{
 	
 	public RoutesSolution<Vrp> shake(int environment){
 		this.manager.activeExclusively(this.neighborhoods.get(environment));
-		
 		if(this.neighborhoods.get(environment) > 3) {
 			this.auxSolution = this.incompleteSolution.clone();
 		} else {			
 			this.auxSolution =  this.originalSolution.clone();
 		}
-		ArrayList<Move> availableMoves =  this.getAvailableMoves();
-
-		int indexRandom = this.randomGenerator.nextInt(availableMoves.size());
-		Move move = availableMoves.get(indexRandom);
-		
-		this.gApplier.setSolution(this.auxSolution);
-		this.gApplier.setMove(move);
-		this.gApplier.apply();
+		if(this.getAvailableMoves().size() > 0) {
+			ArrayList<Move> availableMoves =  this.getAvailableMoves();
+	
+			int indexRandom = this.randomGenerator.nextInt(availableMoves.size());
+			Move move = availableMoves.get(indexRandom);
+			
+			this.gApplier.setSolution(this.auxSolution);
+			this.gApplier.setMove(move);
+			this.gApplier.apply();
+		}
 	
 		return this.auxSolution; 
 	}
@@ -149,6 +148,7 @@ public class Vns implements Solver<RoutesSolution<Vrp>>{
 	}
 	
 	public RoutesSolution<Vrp> basicVns(int kMax) {
+		System.out.println("Initial solution\n" + this.originalSolution);
 		int k = 0;
 		while (k < kMax) {
 			RoutesSolution<Vrp> rShake = this.shake(k);
@@ -175,7 +175,7 @@ public class Vns implements Solver<RoutesSolution<Vrp>>{
 		ArrayList<Move> availableMoves =  new ArrayList<Move>();
 		while(this.manager.hasNext()) {
 			Move move =  this.manager.next();
-			if(move.getDeviationObjectiveFunctionValue(0) != -Evaluator.OBJECTIVE_INFEASIBLE) {
+			if(move.getDeviationObjectiveFunctionValue(0) != -Evaluator.OBJECTIVE_INFEASIBLE ) {
 				availableMoves.add(move);
 			}
 		}
