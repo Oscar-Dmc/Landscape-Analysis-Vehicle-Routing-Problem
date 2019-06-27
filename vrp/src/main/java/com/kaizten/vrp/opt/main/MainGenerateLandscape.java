@@ -32,7 +32,7 @@ public class MainGenerateLandscape {
 		} else if (explorer.getDBControl().getNSolutions() == 0) {
 			solution = new RandomizedBuilder(problem).run();
 		} else {
-			solution = explorer.getDBControl().getFirstSolution(); 
+			solution = explorer.getDBControl().getFirstSolutionOfGraph(explorer.graphs[Integer.parseInt(args[2]) - 1]); 
 		}
 		
 		if(args.length < 4 || 
@@ -42,7 +42,7 @@ public class MainGenerateLandscape {
 			System.out.println("This problem requires 4 arguments");
 			System.out.println("1: Path of the file who contain the initial problem. ");
 			System.out.println("2: Number of vehicles available to solve that problem. ");
-			System.out.println("3: Environment\n\t0 = Swap\n\t1 = Move After\n\t2 = Move Before\n\t3 = Remove\n\t4 = Insertion After\n\t5 = Insertion Before ");
+			System.out.println("3: Environment\n\t1 = Swap\n\t2 = Move After\n\t3 = Move Before\n\t4 = Remove\n\t5 = Insertion After\n\t6 = Insertion Before ");
 			System.out.println("4: Exectution time");
 		} else {
 			explorer.explorer(solution, Integer.parseInt(args[2]), Integer.parseInt(args[3]));

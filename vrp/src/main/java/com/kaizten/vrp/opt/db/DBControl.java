@@ -280,6 +280,16 @@ public class DBControl {
 										  Filters.lt("_id", (environment + 1) * RANGE_OF_SOLUTIONS)));
 	}
 	
+	public RoutesSolution<Vrp> getFirstSolutionOfGraph(String graph){
+		this.collection = this.database.getCollection(graph);
+		if(this.originalProblem == null ) {
+			System.out.println("The problem which belong this solution can't be null.");
+			return null; 
+		}
+		long id = this.collection.find().first().getLong("idNode1");
+		return this.getSolution(id);
+	}
+	
 	public List<RoutesSolution<Vrp>> getSolutionsOfGraph(String collection){
 		this.collection = this.database.getCollection(collection);
 		List<RoutesSolution<Vrp>> solutions = new ArrayList<RoutesSolution<Vrp>>();

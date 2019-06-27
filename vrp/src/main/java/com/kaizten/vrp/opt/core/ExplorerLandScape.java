@@ -27,7 +27,7 @@ import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.vrp.opt.db.DBControl;
 
 public class ExplorerLandScape {
-	private final String graphs[] = {"swapGraph", "moveAfterGraph", "moveBeforeGraph", "removeGraph", "insertionAfterGraph", "insertionBeforeGraph"}; 
+	public final String graphs[] = {"swapGraph", "moveAfterGraph", "moveBeforeGraph", "removeGraph", "insertionAfterGraph", "insertionBeforeGraph"}; 
 	private RoutesSolution<Vrp> solution; 
 	private RoutesSolution<Vrp> auxSolution; 
 	private SequentialMoveGeneratorManager<RoutesSolution<Vrp>, ?> MMSequential;

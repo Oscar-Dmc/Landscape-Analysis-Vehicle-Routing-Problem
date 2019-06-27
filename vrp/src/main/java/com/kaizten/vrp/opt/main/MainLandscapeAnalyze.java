@@ -2,9 +2,6 @@ package com.kaizten.vrp.opt.main;
 
 import java.io.File;
 import java.util.List;
-
-import org.apache.commons.lang.ArrayUtils;
-
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.vrp.opt.core.Vrp;
 import com.kaizten.vrp.opt.db.DBControl;
@@ -30,8 +27,8 @@ public class MainLandscapeAnalyze {
 		db.setDBName(file.getName().split("\\.")[0]);
 		db.setOriginalProblem(problem);
 		db.init();
-		List<RoutesSolution<Vrp>> solutions = db.getSolutionsOfGraph(args[2]);
-		int environment = ArrayUtils.indexOf(graphs, args[2]);
+		List<RoutesSolution<Vrp>> solutions = db.getSolutionsOfGraph(graphs[Integer.parseInt(args[2]) - 1]);
+		int environment = Integer.parseInt(args[2]);
 		System.out.println("Number of solutions: " + solutions.size());
 		
 		/* Measures */ 
