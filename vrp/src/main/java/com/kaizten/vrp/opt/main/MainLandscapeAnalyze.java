@@ -36,7 +36,7 @@ public class MainLandscapeAnalyze {
 		dmm.setSolutions(solutions.stream(), environment);
 		dmm.compute();
 		
-		/*Entropy entropy = new Entropy();
+		Entropy entropy = new Entropy();
 		entropy.setSolutions(solutions.stream());
 		entropy.compute();
 		
@@ -54,7 +54,7 @@ public class MainLandscapeAnalyze {
 		
 		FitnessDistanceCorrelation fdc = new FitnessDistanceCorrelation();
 		fdc.setSolutions(solutions.stream(), environment);
-		fdc.compute();*/
+		fdc.compute();
 		
 	}
 }
