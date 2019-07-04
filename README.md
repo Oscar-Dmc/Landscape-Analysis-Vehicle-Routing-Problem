@@ -86,17 +86,17 @@ Example for windows
 This .jar files use MongoDB for generate and analyzer the landscape so we need to install it. When we have alreadty installed MongoDB we launch it before we run any .jar.  Both of them use the default ip to connect to database (`mongodb://127.0.0.1:27017`) 
 #### GenerateLandscape
 This .jar generate solutions of a problem instance.
-* Launch `java -jar .\Generate Landscape.jar [file path] [nVehicles] [neighborhood] [time] [idSolution]`
+* Launch `java -jar .\Generate Landscape.jar [file path] [nVehicles] [neighborhood] [nSolutions] [idSolution]`
     * file path: Route of the file who contain problem instance
     * nVehicles: Number of vehicles
     * neighborhood: index of neighborhood that we wanna explore 
-    * time:  Time of the exploration on seconds 
+    * nSolutions:  Number of solution to generate 
     * idSolution: If we have solutions for that instance on the database we can specify the initial solution, otherwise it take the first solution on this neighborhood.  If we don't have any solutions, then it build a random solution. This parameter is optional. 
 
 For each instance , the program create a new db with the same name of the instance, for example R101_100 contain the solution for the instance R101_100.txt.
 
 Example
-> java -jar .\GenerateLandscape.jar "D:\Documents\instances\small\C101_25.txt" 5 1 7200
+> java -jar .\GenerateLandscape.jar "D:\Documents\instances\small\C101_25.txt" 5 1 25000
 
 #### LandscapeAnalyzer
 This .jar analyze a specified landscape with some measures to know the distribution and correlation between the solutions
