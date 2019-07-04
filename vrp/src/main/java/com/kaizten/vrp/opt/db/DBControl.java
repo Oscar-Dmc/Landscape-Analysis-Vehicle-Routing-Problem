@@ -286,8 +286,12 @@ public class DBControl {
 			System.out.println("The problem which belong this solution can't be null.");
 			return null; 
 		}
-		long id = this.collection.find().first().getLong("idNode1");
-		return this.getSolution(id);
+		if(this.collection.countDocuments() > 0) {
+			long id = this.collection.find().first().getLong("idNode1");
+			return this.getSolution(id);
+		} else {
+			return null;
+		}
 	}
 	
 	public List<RoutesSolution<Vrp>> getSolutionsOfGraph(String collection){

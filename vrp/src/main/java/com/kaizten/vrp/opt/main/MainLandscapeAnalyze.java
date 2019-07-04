@@ -21,14 +21,14 @@ public class MainLandscapeAnalyze {
 		VrpSupplier vrpSupplier = new VrpSupplier();
 		vrpSupplier.setNVehicles(Integer.parseInt(args[1]));
 		Vrp problem = vrpSupplier.get(file).findFirst().get();
-		problem.setNMaxCustomers(16);
+		problem.setNMaxCustomers(5);
 		
 		DBControl db = new DBControl();
 		db.setDBName(file.getName().split("\\.")[0]);
 		db.setOriginalProblem(problem);
 		db.init();
 		List<RoutesSolution<Vrp>> solutions = db.getSolutionsOfGraph(graphs[Integer.parseInt(args[2]) - 1]);
-		int environment = Integer.parseInt(args[2]);
+		int environment = Integer.parseInt(args[2]) - 1;
 		System.out.println("Number of solutions: " + solutions.size());
 		
 		/* Measures */ 
@@ -36,7 +36,7 @@ public class MainLandscapeAnalyze {
 		dmm.setSolutions(solutions.stream(), environment);
 		dmm.compute();
 		
-		Entropy entropy = new Entropy();
+		/*Entropy entropy = new Entropy();
 		entropy.setSolutions(solutions.stream());
 		entropy.compute();
 		
@@ -54,7 +54,7 @@ public class MainLandscapeAnalyze {
 		
 		FitnessDistanceCorrelation fdc = new FitnessDistanceCorrelation();
 		fdc.setSolutions(solutions.stream(), environment);
-		fdc.compute();
+		fdc.compute();*/
 		
 	}
 }
