@@ -21,7 +21,7 @@ public class MainLandscapeAnalyze {
 		VrpSupplier vrpSupplier = new VrpSupplier();
 		vrpSupplier.setNVehicles(Integer.parseInt(args[1]));
 		Vrp problem = vrpSupplier.get(file).findFirst().get();
-		problem.setNMaxCustomers(5);
+		problem.setNMaxCustomers(16);
 		
 		DBControl db = new DBControl();
 		db.setDBName(file.getName().split("\\.")[0]);
