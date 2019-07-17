@@ -13,7 +13,7 @@ import java.util.logging.Logger;
  *
  * @author Christopher Expósito-Izquierdo (christopherexpositoizquierdo@gmail.com)
  */
-public class VehicleRoutingProblemEvaluatorDistanceCplex extends EvaluatorSingleObjectiveFunction<RoutesSolution<Vrp>> {
+public class VehicleRoutingProblemEvaluatorLatencyCplex extends EvaluatorSingleObjectiveFunction<RoutesSolution<Vrp>> {
 
     @Override
     public void evaluate(RoutesSolution<Vrp> solution) {
@@ -54,7 +54,7 @@ public class VehicleRoutingProblemEvaluatorDistanceCplex extends EvaluatorSingle
             super.objectiveFunctionValue[0] = cplex.getObjValue();
             cplex.end();
         } catch (IloException ex) {
-            Logger.getLogger(VehicleRoutingProblemEvaluatorDistanceCplex.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(VehicleRoutingProblemEvaluatorLatencyCplex.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

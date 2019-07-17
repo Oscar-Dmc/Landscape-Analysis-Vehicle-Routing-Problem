@@ -5,7 +5,7 @@ import com.kaizten.opt.evaluator.ObjectiveFunctionType;
 import com.kaizten.opt.solution.RoutesSolution;
 import com.kaizten.vrp.opt.core.Vrp;
 
-public class EvaluatorObjectiveFunctionDistances extends EvaluatorSingleObjectiveFunction<RoutesSolution<Vrp>> {
+public class EvaluatorObjectiveFunctionLatency extends EvaluatorSingleObjectiveFunction<RoutesSolution<Vrp>> {
 	
 	enum namesObj {
 		LATENCY
@@ -14,7 +14,7 @@ public class EvaluatorObjectiveFunctionDistances extends EvaluatorSingleObjectiv
 	private Enum [] name; 
 	private ObjectiveFunctionType[] type; 
 
-	public EvaluatorObjectiveFunctionDistances() {
+	public EvaluatorObjectiveFunctionLatency() {
 		this.name = new Enum[1];
 		this.type = new ObjectiveFunctionType[1];
 		
