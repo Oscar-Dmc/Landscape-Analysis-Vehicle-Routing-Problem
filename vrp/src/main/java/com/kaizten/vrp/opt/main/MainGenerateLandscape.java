@@ -29,7 +29,7 @@ public class MainGenerateLandscape {
 				System.out.println("Database doesn't contain the specific solution");
 				System.exit(0);
 			}
-		} else if (explorer.getDBControl().getNSolutions() == 0) {
+		} else if (explorer.getDBControl().getNSolutions() == 0 || explorer.getDBControl().getFirstSolutionOfGraph(explorer.graphs[Integer.parseInt(args[2]) - 1]) == null) {
 			solution = new RandomizedBuilder(problem).run();
 		} else {
 			solution = explorer.getDBControl().getFirstSolutionOfGraph(explorer.graphs[Integer.parseInt(args[2]) - 1]); 

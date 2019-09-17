@@ -17,7 +17,7 @@ import com.kaizten.vrp.opt.evaluators.EvaluatorMoveInsertionAfter;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveInsertionBefore;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveRemove;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveSwap;
-import com.kaizten.vrp.opt.evaluators.EvaluatorObjectiveFunctionDistances;
+import com.kaizten.vrp.opt.evaluators.EvaluatorObjectiveFunctionLatency;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.FindIterable;
@@ -250,7 +250,7 @@ public class DBControl {
 		
 		/* add evaluators */ 
 		Evaluator evaluator = new Evaluator(); 
-		EvaluatorObjectiveFunctionDistances evaluatorLatency = new EvaluatorObjectiveFunctionDistances();
+		EvaluatorObjectiveFunctionLatency evaluatorLatency = new EvaluatorObjectiveFunctionLatency();
 		
 		evaluator.addEvaluatorObjectiveFunction(evaluatorLatency, evaluatorLatency.getName(), evaluatorLatency.getType());
 		evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveSwap(1), 0);
@@ -286,8 +286,12 @@ public class DBControl {
 			System.out.println("The problem which belong this solution can't be null.");
 			return null; 
 		}
-		long id = this.collection.find().first().getLong("idNode1");
-		return this.getSolution(id);
+		if(this.collection.countDocuments() > 0) {
+			long id = this.collection.find().first().getLong("idNode1");
+			return this.getSolution(id);
+		} else {
+			return null;
+		}
 	}
 	
 	public List<RoutesSolution<Vrp>> getSolutionsOfGraph(String collection){

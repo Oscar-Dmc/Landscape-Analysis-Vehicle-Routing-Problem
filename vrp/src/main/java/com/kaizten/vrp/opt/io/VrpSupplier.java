@@ -17,7 +17,7 @@ import com.kaizten.vrp.opt.evaluators.EvaluatorMoveInsertionAfter;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveInsertionBefore;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveRemove;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveSwap;
-import com.kaizten.vrp.opt.evaluators.EvaluatorObjectiveFunctionDistances;
+import com.kaizten.vrp.opt.evaluators.EvaluatorObjectiveFunctionLatency;
 
 public class VrpSupplier implements KaiztenOptimizationProblemFileSupplier<Vrp>{
 	
@@ -63,7 +63,7 @@ public class VrpSupplier implements KaiztenOptimizationProblemFileSupplier<Vrp>{
 			/* Add evaluators */ 
 			@SuppressWarnings("rawtypes")
 			Evaluator evaluator = new Evaluator(); 
-			EvaluatorObjectiveFunctionDistances evaluatorLatency = new EvaluatorObjectiveFunctionDistances();
+			EvaluatorObjectiveFunctionLatency evaluatorLatency = new EvaluatorObjectiveFunctionLatency();
 			
 			evaluator.addEvaluatorObjectiveFunction(evaluatorLatency, evaluatorLatency.getName(), evaluatorLatency.getType());
 			evaluator.addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveRemove(1), 0);

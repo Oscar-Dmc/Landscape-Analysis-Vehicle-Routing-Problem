@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>VRP graph</title>
+    <link rel="stylesheet" type="text/css" href="..\css\style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+<body>
+  <a id="open"  class="open-close" href="javascript:void(0)" onclick="show()" style="display: inline"> <i class="fa fa-edit" style="font-size:30px;"></i> </a>
+  <div id="sidebar" class="sidebar" style="width:0">
+    <a id="close"  class="open-close" href="#" onclick="hide()" style="display: none"> <i class="fa fa-times-circle"></i> </a>
+    <ul id="menu">
+     <li><p class="menu-title">Nodes</p></li>
+     <li><p class="menu-content"> Radius <input type="number" name="node-radius" id="node-radius" value="5" autocomplete='off'></p></li>
+     <li><p class="menu-content"> Best solution <input type="color" name="best-solution-color" id="best-solution-color" value="#7ac3ff" autocomplete='off'></p></li>
+     <li><p class="menu-content"> Worst solution <input type="color" name ="worst-solution-color" id="worst-solution-color" value="#003561" autocomplete='off'></p></li>
+     <a href="https://github.com/d3/d3-force/blob/v1.2.1/README.md#forceLink" target="blank"> Links </a>
+     <li><p class="menu-content"> Distance: <input type="number" name="link-distance" id="link-distance" value="30" autocomplete='off'></p></li>
+     <li><p class="menu-content" id="text-strength"> Strength: <input type="number" name="link-strength" id="link-strength" value="1" min="0" max="5" autocomplete='off'></p></li>
+     <li><p class="menu-content"> Iterations: <input type="number" name="link-iteration" id="link-iteration" value="20" autocomplete='off'></p></li>
+     <a href="https://github.com/d3/d3-force/blob/v1.2.1/README.md#forceManyBody" target="blank"> Many Body</a>
+     <li><p class="menu-content"> <input type="checkbox" id="cbox-mstrength" onchange="document.getElementById('manyBody-strength').disabled = !this.checked;" checked autocomplete='off'> 
+        Strenght <input type="number" name="manyBody-strength" id="manyBody-strength" value="-30" autocomplete='off'></p></li>
+     <a href="https://github.com/d3/d3-force/blob/v1.2.1/README.md#collide_radius" target="blank"> Collide </a>
+     <li><p class="menu-content"> <input type="checkbox" id="cbox-rcollide" onchange="document.getElementById('collide-radius').disabled = !this.checked;
+                                   document.getElementById('collide-iterations').disabled = !this.checked;" autocomplete='off'>
+         Radius <input type="number" name="collider-radius" id="collide-radius" value="15" autocomplete='off' disabled></p></li>
+     <li><p class="menu-content"> Iterations <input type="number" name="collide-iterations" id="collide-iterations" value="1" autocomplete='off' disabled></p></li>
+
+     <li><input type="button" onclick="" value="Redraw" id="redraw"></li>
+    </ul>
+  </div>
+<script src="..\js\graph2.js"></script>
+<script src="..\js\menu.js"></script>
+</body>

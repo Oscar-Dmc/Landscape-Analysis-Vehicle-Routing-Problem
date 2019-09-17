@@ -8,38 +8,29 @@ import com.kaizten.vrp.opt.core.Vrp;
 public class Distances {
 	
 	public int distanceSwap(RoutesSolution<Vrp> solution1, RoutesSolution<Vrp> solution2) {
-		ArrayList<ArrayList<Integer>> routes1 = new ArrayList<ArrayList<Integer>>();
-		ArrayList<ArrayList<Integer>> routes2 = new ArrayList<ArrayList<Integer>>();
+		ArrayList<Integer> sol1 = new ArrayList<Integer>();
+		ArrayList<Integer> sol2 = new ArrayList<Integer>();
 		
 		for(int i = 0; i < solution1.getNumberOfRoutes(); i++) {
-			ArrayList<Integer> route1 = new ArrayList<Integer>();
-			ArrayList<Integer> route2 = new ArrayList<Integer>();
-			
 			for(int j = 0; j < solution1.getRoute(i).length; j++) {
-				route1.add(solution1.getRoute(i)[j]);
-				route2.add(solution2.getRoute(i)[j]);
+				sol1.add(solution1.getRoute(i)[j]);
+				sol2.add(solution2.getRoute(i)[j]);
 			}
-			
-			routes1.add(route1);
-			routes2.add(route2);
 		}
 		
 		int distance = 0; 
-		for(int i = 0; i < routes1.size(); i++) {
-			for(int j = 0; j < routes1.get(i).size(); j++) {
-				if(routes1.get(i).get(j) != routes2.get(i).get(j)) {
-					for(int k = i; k < routes2.size(); k++) {
-						Integer ogElement =  routes1.get(i).get(j);
-						int indexEleOg = routes2.get(k).indexOf(ogElement);
-						if(indexEleOg != -1) {
-							Integer elemChange = routes2.get(i).get(j);
-							routes2.get(i).set(j, routes2.get(k).get(indexEleOg));
-							routes2.get(k).set(indexEleOg, elemChange);
-							distance++;
-						}
-					}
-				}
+		int i = 0;
+		
+		while(!sol1.equals(sol2)) {
+			if(sol1.get(i) != sol2.get(i)) {
+				Integer ogElement = sol1.get(i);
+				int indexElemOg =  sol2.indexOf(ogElement);
+				Integer elemChange = sol2.get(i);
+				sol2.set(i, ogElement);
+				sol2.set(indexElemOg, elemChange);
+				distance++;
 			}
+			i++;
 		}
 		
 		return distance; 

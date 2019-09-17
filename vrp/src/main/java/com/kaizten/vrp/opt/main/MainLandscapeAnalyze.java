@@ -28,7 +28,7 @@ public class MainLandscapeAnalyze {
 		db.setOriginalProblem(problem);
 		db.init();
 		List<RoutesSolution<Vrp>> solutions = db.getSolutionsOfGraph(graphs[Integer.parseInt(args[2]) - 1]);
-		int environment = Integer.parseInt(args[2]);
+		int environment = Integer.parseInt(args[2]) - 1;
 		System.out.println("Number of solutions: " + solutions.size());
 		
 		/* Measures */ 

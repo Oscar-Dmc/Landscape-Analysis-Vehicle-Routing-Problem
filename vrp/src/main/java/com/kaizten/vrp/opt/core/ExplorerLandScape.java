@@ -35,8 +35,8 @@ public class ExplorerLandScape {
 	private DBControl db; 
 	private String dbName; 
 	private int environment; 
-	private ArrayList<Long> nextSolutions;
-	private ArrayList<Long> exploredSolutions; 
+	public ArrayList<Long> nextSolutions;
+	public ArrayList<Long> exploredSolutions; 
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void init() {
@@ -72,22 +72,20 @@ public class ExplorerLandScape {
 		this.db.init();
 	}
 	
-	public void explorer (RoutesSolution<Vrp> solution, int environment,  double executionTime) {
+	public void explorer (RoutesSolution<Vrp> solution, int environment,  int nMaxSolutions) {
 		this.MMSequential.setSolution(solution);
 		this.environment = environment - 1; 
 		this.setInitialSolution(solution, this.environment);  
 		
 		this.MMSequential.activeExclusively(this.environment);
 		this.MMSequential.init();
-		while(executionTime > 0) {
-			executionTime -= this.run(executionTime, graphs[this.environment]);
+		while((this.nextSolutions.size() + this.exploredSolutions.size()) < nMaxSolutions) {
+			this.run(graphs[this.environment]);
 		}
 		
 	}
 	
-	public double run(double executionTime, String graph) {
-		long time_start_function, time_end_function;
-		time_start_function = System.currentTimeMillis();
+	public void run(String graph) {
 		if(this.MMSequential.hasNext()) {
 			
 			this.auxSolution = this.solution.clone();
@@ -96,35 +94,24 @@ public class ExplorerLandScape {
 			
 			Long idLastSolution = this.db.addSolutionGraph(this.GApplier.apply(), graph);
 			this.addNextSolution(idLastSolution);
-			if(executionTime > 0) {
-				long time_start, time_end;
-				while(!this.MMSequential.hasNext() && executionTime > 0) {
-					long id =  this.nextSolutionToExplore();
-					
-					time_start = System.currentTimeMillis();
-					if(id != -1) {
-						this.setSolution(this.db.getSolution(id));
-						this.db.setIdOriginalSolution(id);
-						this.MMSequential.setSolution(this.solution);
-						this.MMSequential.init();
-					} else {
-						return executionTime;
-					}
-					time_end = System.currentTimeMillis();
-					executionTime -= (( time_end - time_start ) * 0.001);
+			
+			while(!this.MMSequential.hasNext()) {
+				long id =  this.nextSolutionToExplore();
+				if(id != -1) {
+					this.setSolution(this.db.getSolution(id));
+					this.db.setIdOriginalSolution(id);
+					this.MMSequential.setSolution(this.solution);
+					this.MMSequential.init();
 				}
 			}
 		}
-		
-		time_end_function = System.currentTimeMillis();
-		return(( time_end_function - time_start_function ) * 0.001);
 	}
 	
 	public void addNextSolution(long id) {
-		if(this.exploredSolutions.isEmpty()) {
+		if(this.exploredSolutions.isEmpty() && this.nextSolutions.isEmpty()) {
 			this.nextSolutions.add(id);
 		} else {
-			if(!this.exploredSolutions.contains(id)) {
+			if(!this.exploredSolutions.contains(id) && !this.nextSolutions.contains(id)) {
 				this.nextSolutions.add(id);
 			}
 		}

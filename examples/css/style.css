@@ -1,0 +1,124 @@
+text {
+    font-family: "Helvetica Neue", Helvetica, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    fill: white;
+  }
+rect {
+fill: rgba(189, 88, 0, 0.8);
+stroke-width: 2;
+stroke: rgba(0, 0, 0, 0.8);
+}
+
+#open{
+    color: #000;
+}
+
+.sidebar {
+    position: fixed;
+    height: 100%;
+    width: 0;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    background-color: #00324b;
+    overflow-x: hidden;
+    transition: 0.4s;
+    padding: 1rem 0;
+    box-sizing:border-box;
+}
+
+.sidebar #close {
+    position: absolute;
+    top: 1%;
+    right: 5%;
+    font-size: 30px;
+    display: block;
+    padding: 0;
+    margin: 0;
+    height: 32px;
+    width: 32px;
+    text-align: center;
+}
+
+.sidebar ul, .sidebar li{
+    margin:0;
+    padding:0;
+    list-style:none inside;
+}
+
+.sidebar ul {
+    margin: 4rem auto;
+    display: block;
+    width: 80%;
+    min-width:200px;
+}
+
+.sidebar a {
+    display: block;
+    font-size: 18px;
+    color: #eee;
+    font-weight: bold;
+    text-decoration: none;
+    
+}
+
+.sidebar  p.menu-content {
+    display:block;
+    font-size: 15px;
+    color: #eee;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.sidebar p.menu-title {
+    display:block;
+    font-size: 18px;
+    color: #eee;
+    font-weight: bold;
+    align-content: center;
+}
+
+.sidebar a:hover{
+    color:#ff7905;
+}
+
+#best-solution-color {
+    position: absolute;
+    width: 75px;
+    right: 20px;
+}
+
+#worst-solution-color {
+    position: absolute;
+    width: 75px;
+    right: 20px;
+}
+
+input[type=button], input[type=submit], input[type=reset] {
+    background-color: #bd5800;
+    border: none;
+    color: white;
+    padding: 12px 24px;
+    text-decoration: none;
+    margin: 50px 25%;
+    cursor: pointer;
+}
+
+input[type=button]:hover, input[type=submit]:hover, input[type=reset]:hover{
+    background-color: #ff7905;
+    
+}
+
+input[type=number]{
+    width: 75px;
+    position: absolute;
+    right: 20px;
+}
+
+#menu{
+    position: absolute;
+    top: 5%;
+    left: 10%;
+}
+

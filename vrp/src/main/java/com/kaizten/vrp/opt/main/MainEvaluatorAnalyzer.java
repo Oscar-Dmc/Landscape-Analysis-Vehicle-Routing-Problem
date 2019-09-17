@@ -18,8 +18,8 @@ import com.kaizten.vrp.opt.core.Vrp;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveAfter;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveBefore;
 import com.kaizten.vrp.opt.evaluators.EvaluatorMoveSwap;
-import com.kaizten.vrp.opt.evaluators.EvaluatorObjectiveFunctionDistances;
-import com.kaizten.vrp.opt.evaluators.VehicleRoutingProblemEvaluatorDistanceCplex;
+import com.kaizten.vrp.opt.evaluators.EvaluatorObjectiveFunctionLatency;
+import com.kaizten.vrp.opt.evaluators.VehicleRoutingProblemEvaluatorLatencyCplex;
 import com.kaizten.vrp.opt.io.VrpSupplier;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionMoveAfter;
 import com.kaizten.vrp.opt.move.applier.MoveApplierRoutesSolutionMoveBefore;
@@ -52,7 +52,7 @@ public class MainEvaluatorAnalyzer {
         System.out.println("Creating Evaluator CPLEX:");
         System.out.println("====================================================");
         Evaluator<RoutesSolution<Vrp>> evaluatorCplex = EvaluatorBuilder.instance()
-                .addEvaluatorObjectiveFunction(VehicleRoutingProblemEvaluatorDistanceCplex.class)
+                .addEvaluatorObjectiveFunction(VehicleRoutingProblemEvaluatorLatencyCplex.class)
                 .addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveSwap(), 0)
                 .addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveAfter(), 0)
                 .addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveBefore(), 0)
@@ -63,7 +63,7 @@ public class MainEvaluatorAnalyzer {
         System.out.println("Creating Evaluator:");
         System.out.println("====================================================");
         Evaluator<RoutesSolution<Vrp>> evaluator = EvaluatorBuilder.instance()
-                .addEvaluatorObjectiveFunction(EvaluatorObjectiveFunctionDistances.class)
+                .addEvaluatorObjectiveFunction(EvaluatorObjectiveFunctionLatency.class)
                 .addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveSwap(), 0)
                 .addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveAfter(), 0)
                 .addEvaluatorObjectiveFunctionMovement(new EvaluatorMoveBefore(), 0)
