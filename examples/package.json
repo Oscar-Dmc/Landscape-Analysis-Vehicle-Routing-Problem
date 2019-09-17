@@ -1,0 +1,15 @@
+{
+  "name": "representation",
+  "version": "1.0.0",
+  "description": "Representation for Vrp landscape ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Óscar David Martín Cabrera",
+  "license": "ISC",
+  "dependencies": {
+    "mongodb": "^3.2.4",
+    "yargs": "^13.2.4"
+  }
+}
